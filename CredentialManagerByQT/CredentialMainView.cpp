@@ -10,6 +10,7 @@
 #include "CredentialMainView.h"
 #include "CredentialView.h"
 #include "PasswordInput.h"
+#include "HintDialog.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -35,9 +36,12 @@ void CredentialMainView::OnClickedNew()
 
 void CredentialMainView::OnClickedOpen()
 {
+    /*
     QString strFile = QFileDialog::getOpenFileName(
         this, "Please select a credential file", ".", "credential file(*.credential)");
+        */
 
+    QString strFile("def.credential");
     if (strFile.isEmpty()) return;
     
     bnb::memory_type dst;
@@ -45,39 +49,42 @@ void CredentialMainView::OnClickedOpen()
     switch (bnb::Credential::CheckFile(strFile.toUtf8(), &dst))
     {
     case bnb::result_type::rt_file_error:
+        HintDialog("You selected file error !", "error", this).exec();
         return;
     case bnb::result_type::rt_file_invalid:
+        HintDialog("You selected file invalid !", "error", this).exec();
         return;
     default:
         break;
     }
-
+    
     PasswordInput dlg(this);
-    if (QDialog::Accepted == dlg.exec())
+    // if (QDialog::Accepted == dlg.exec())
     {
-        QString password = dlg.GetPassword();
+        QString password = "123"; // dlg.GetPassword();
         switch (bnb::Credential::Decoding(dst, (const unsigned char*)password.toStdString().c_str(), password.size()))
         {
         case bnb::result_type::rt_password_invalid:
+            HintDialog("You input password invalid !", "error", this).exec();
             return;
         case bnb::result_type::rt_password_error:
+            HintDialog("You input password error !", "error", this).exec();
             return;
         case bnb::result_type::rt_file_error:
+            HintDialog("Anaylze file failed !", "error", this).exec();
             return;
         default:
             break;
         }
     }
-
+    
     if (!m_Credential.FromXml(dst))
     {
-
+        m_Credential.SetWord(dlg.GetPassword().toStdString());
         return;
     }
 
-    QWidget* old = _ui.m_areaCredential->takeWidget();
-    _ui.m_areaCredential->setWidget(new CredentialView(nullptr, m_Credential));
-    if (nullptr != old) delete old;
+    UpdateCredentail(new CredentialView(nullptr, m_Credential));
 }
 
 void CredentialMainView::OnClickedMotifyName()
@@ -88,6 +95,18 @@ void CredentialMainView::OnClickedMotifyWord()
 {
 }
 
+void CredentialMainView::UpdateCredentail(CredentialView * view)
+{
+    QWidget* old = _ui.m_areaCredential->takeWidget();
+    if (nullptr != old) delete old;
+
+    _ui.m_areaCredential->setWidget(view);
+    _ui.m_areaCredential->setMaximumSize(view->width() + 20, view->height() + 2);
+
+    setFixedWidth(_ui.m_areaCredential->maximumWidth() + 8);
+    setMaximumHeight(_ui.m_areaCredential->maximumHeight() + 100);
+}
+
 void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
 {
     m_btnNew = new QPushButton(pView);
@@ -96,28 +115,39 @@ void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
     m_btnMotifyWord = new QPushButton(pView);
 
     QHBoxLayout* phLayout1 = new QHBoxLayout;
+    phLayout1->setSpacing(8);
+    phLayout1->setMargin(0);
     phLayout1->addWidget(m_btnNew);
     phLayout1->addWidget(m_btnOpen);
+    phLayout1->addStretch(1);
     phLayout1->addWidget(m_btnMotifyName);
     phLayout1->addWidget(m_btnMotifyWord);
-    phLayout1->addStretch(1);
 
     m_areaCredential = new QScrollArea(pView);
     m_areaCredential->setWidget(new QLabel("Please select credential file"));
+    m_areaCredential->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
+    m_areaCredential->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
     m_labFile = new QLabel(pView);
     m_labTime = new QLabel(pView);
     m_barTime = new QProgressBar(pView);
 
     QVBoxLayout* pvLayout1 = new QVBoxLayout;
+    pvLayout1->setSpacing(8);
+    pvLayout1->setMargin(0);
     pvLayout1->addWidget(m_labTime);
     pvLayout1->addWidget(m_barTime);
 
     QHBoxLayout* phLayout2 = new QHBoxLayout;
+    phLayout2->setSpacing(8);
+    phLayout2->setMargin(0);
     phLayout2->addWidget(m_labFile, 1);
     phLayout2->addLayout(pvLayout1);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
+    pMainLayout->setSpacing(4);
+    pMainLayout->setMargin(4);
+
     pMainLayout->addLayout(phLayout1);
     pMainLayout->addWidget(m_areaCredential, 1);
     pMainLayout->addLayout(phLayout2);

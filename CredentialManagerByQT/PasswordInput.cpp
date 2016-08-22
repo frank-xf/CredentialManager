@@ -6,7 +6,8 @@
 
 #include "PasswordInput.h"
 
-PasswordInput::PasswordInput(QWidget * parent) : QDialog(parent)
+PasswordInput::PasswordInput(QWidget * parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 {
     _ui.SetupUI(this);
 

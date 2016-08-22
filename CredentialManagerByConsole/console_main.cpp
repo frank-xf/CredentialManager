@@ -81,5 +81,7 @@ int main()
 
     std::cout << mt.c_str() << std::endl << "-----";
 
+    xx.Save("def.credential");
+
     return (0);
 }

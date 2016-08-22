@@ -1,12 +1,6 @@
 ﻿#ifndef _bnb_Credential_View_H_
 #define _bnb_Credential_View_H_
 
-
-namespace bnb
-{
-    class Credential;
-}
-
 QT_BEGIN_NAMESPACE
 
 class CredentialView : public QWidget
@@ -32,4 +26,4 @@ private:
 
 QT_END_NAMESPACE
 
-#endif // !_bnb_Credential_View_H_
+#endif // _bnb_Credential_View_H_

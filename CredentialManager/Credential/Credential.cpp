@@ -150,11 +150,42 @@ bool Credential::ToXml(memory_type& mt) const
 
 result_type Credential::Load(const char * file)
 {
-    return result_type();
+    memory_type dst;
+
+    bnb::result_type result = CheckFile(file, &dst);
+    if (bnb::result_type::rt_success == result)
+    {
+        result = Decoding(dst, (const byte_t*)m_strWord.c_str(), m_strWord.size());
+        if (bnb::result_type::rt_success == result)
+        {
+            if (!FromXml(dst))
+            {
+                result = bnb::result_type::rt_file_error;
+            }
+        }
+    }
+
+    return result;
 }
 
 bool Credential::Save(const char * file) const
 {
+    memory_type dst;
+    
+    if (ToXml(dst) && Encoding(dst, (const byte_t*)m_strWord.c_str(), m_strWord.size()))
+    {
+        std::ofstream fout;
+        fout.open(file, std::ios::out | std::ios::trunc | std::ios::binary);
+
+        if (fout.is_open())
+        {
+            fout.write((const char*)dst.c_str(), dst.size());
+            fout.close();
+
+            return true;
+        }
+    }
+
     return false;
 }
 
@@ -189,12 +220,13 @@ result_type Credential::Decoding(memory_type & mt, const byte_t * key, size_t n)
     if (mt.size() < 64) return result_type::rt_file_invalid;
 
     byte_t sha_key[32] = { 0 };
+    /*
     _sha256(sha_key, mt.c_str() + 32, mt.size() - 32);
 
     if (memcmp(sha_key, mt.c_str(), 32)) return result_type::rt_file_error;
 
     mt.erase(0, 32);
-
+    */
     _sha256(sha_key, key, n);
 
     size_t pos = _hash_seq(key, n) % (mt.size() - 32);

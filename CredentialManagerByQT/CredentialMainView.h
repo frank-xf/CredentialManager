@@ -11,6 +11,7 @@ class QPushButton;
 class QLabel;
 class QProgressBar;
 class QScrollArea;
+class CredentialView;
 
 class CredentialMainView : public QWidget
 {
@@ -42,6 +43,10 @@ public:
     void OnClickedOpen();
     void OnClickedMotifyName();
     void OnClickedMotifyWord();
+
+private:
+
+    void UpdateCredentail(CredentialView* view);
 
 private:
 

@@ -26,21 +26,21 @@ namespace QT_NAMESPACE {
 }
 #endif
 
-int QT_RCC_MANGLE_NAMESPACE(qInitResources_credentialmanagerbyqt)();
-int QT_RCC_MANGLE_NAMESPACE(qInitResources_credentialmanagerbyqt)()
+int QT_RCC_MANGLE_NAMESPACE(qInitResources_CredentialManagerByQT)();
+int QT_RCC_MANGLE_NAMESPACE(qInitResources_CredentialManagerByQT)()
 {
     return 1;
 }
 
-int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_credentialmanagerbyqt)();
-int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_credentialmanagerbyqt)()
+int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_CredentialManagerByQT)();
+int QT_RCC_MANGLE_NAMESPACE(qCleanupResources_CredentialManagerByQT)()
 {
     return 1;
 }
 
 namespace {
    struct initializer {
-       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_credentialmanagerbyqt)(); }
-       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_credentialmanagerbyqt)(); }
+       initializer() { QT_RCC_MANGLE_NAMESPACE(qInitResources_CredentialManagerByQT)(); }
+       ~initializer() { QT_RCC_MANGLE_NAMESPACE(qCleanupResources_CredentialManagerByQT)(); }
    } dummy;
 }
