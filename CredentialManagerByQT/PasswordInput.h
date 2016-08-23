@@ -20,7 +20,7 @@ class PasswordInput : public QDialog
 
 public:
 
-	PasswordInput(QWidget * parent = Q_NULLPTR);
+	PasswordInput(QWidget * parent = nullptr);
 
     QString GetPassword() const;
 

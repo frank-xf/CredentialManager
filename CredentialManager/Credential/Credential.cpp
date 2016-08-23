@@ -50,11 +50,18 @@ private:
 
 };
 
+void Credential::Clear()
+{
+    m_strWord.clear();
+    m_strUser.clear();
+    m_ulTime = 0;
+
+    m_List.Clear();
+}
+
 void Credential::UpdateTime()
 {
-    char_t strTime[32] = { 0 };
-    sprintf_s(strTime, "%llu", time(nullptr));
-    m_strTime = strTime;
+    m_ulTime = time(nullptr);
 }
 
 bool Credential::FromXml(const memory_type& mt)
@@ -65,8 +72,10 @@ bool Credential::FromXml(const memory_type& mt)
     auto node_credential = doc.child("credential");
     if (pugi::node_element != node_credential.type()) return false;
 
+    m_List.Clear();
+
     m_strUser = node_credential.attribute("user").value();
-    m_strTime = node_credential.attribute("time").value();
+    m_ulTime = node_credential.attribute("time").as_ullong();
 
     for (auto node_platform : node_credential.children("platform"))
     {
@@ -119,7 +128,7 @@ bool Credential::ToXml(memory_type& mt) const
 
     auto node_credential = doc.append_child("credential");
     node_credential.append_attribute("user").set_value(m_strUser.c_str());
-    node_credential.append_attribute("time").set_value(m_strTime.c_str());
+    node_credential.append_attribute("time").set_value(m_ulTime);
 
     for (auto ptr_platform = m_List.Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
     {

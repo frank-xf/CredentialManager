@@ -2,15 +2,13 @@
 #include <QtWidgets/QProgressBar>
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QScrollArea>
 #include <QtWidgets/QLabel>
 
-#include "CredentialMainView.h"
-#include "CredentialView.h"
-#include "PasswordInput.h"
 #include "HintDialog.h"
+#include "PasswordInput.h"
+#include "CredentialMainView.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -84,7 +82,7 @@ void CredentialMainView::OnClickedOpen()
         return;
     }
 
-    UpdateCredentail(new CredentialView(nullptr, m_Credential));
+    UpdateCredentail(new CredentialView(m_Credential, this, this));
 }
 
 void CredentialMainView::OnClickedMotifyName()
@@ -166,3 +164,38 @@ void CredentialMainView::ui_type::RetranslateUI(CredentialMainView * pView)
 }
 
 QT_END_NAMESPACE
+
+bool CredentialMainView::OnAddPlatform()
+{
+    return false;
+}
+
+bool CredentialMainView::OnAddAccount()
+{
+    return false;
+}
+
+bool CredentialMainView::OnRemovePlatform(bnb::platform_type * pp)
+{
+    return false;
+}
+
+bool CredentialMainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    return false;
+}
+
+bool CredentialMainView::OnEditPlatform(bnb::platform_type * pp)
+{
+    return false;
+}
+
+bool CredentialMainView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    return false;
+}
+
+bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    return false;
+}

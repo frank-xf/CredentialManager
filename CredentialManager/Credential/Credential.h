@@ -75,6 +75,7 @@ class list_type
     };
 
     node_type* m_Head{ nullptr };
+    size_t m_nCount{ 0 };
 
     list_type(const list_type&) = delete;
     list_type& operator=(const list_type&) = delete;
@@ -85,14 +86,26 @@ public:
 
     ~list_type()
     {
+        Clear();
+    }
+
+    bool IsEmpty() const { return (!m_Head || 0 == m_nCount); }
+
+    size_t Size() const { return m_nCount; }
+
+    void Clear()
+    {
         while (m_Head)
         {
             node_type* ptr = m_Head;
             m_Head = m_Head->m_Next;
             delete ptr;
         }
+
+        m_nCount = 0;
     }
 
+    node_type* Head() { return m_Head; }
     const node_type* Head() const { return m_Head; }
 
     data_type* Insert(const _Ty1& key)
@@ -122,6 +135,8 @@ public:
             m_Head = ptr;
         }
 
+        ++m_nCount;
+
         return &ptr->m_Pair;
     }
 
@@ -135,6 +150,8 @@ public:
                     m_Head = curr->m_Next;
                 else
                     prev->m_Next = curr->m_Next;
+
+                --m_nCount;
 
                 delete curr;
                 return true;
@@ -220,6 +237,8 @@ inline property_list::data_type* property_list::Insert(const string_type& key)
     else
         m_Head = ptr;
 
+    ++m_nCount;
+
     return &ptr->m_Pair;
 }
 
@@ -227,7 +246,7 @@ class Credential
 {
     string_type m_strWord;
     string_type m_strUser;
-    string_type m_strTime;
+    unsigned long long m_ulTime;
 
     platform_list m_List;
 
@@ -239,12 +258,16 @@ public:
     Credential() = default;
     explicit Credential(const string_type& strWord) : m_strWord(strWord) { }
 
-    platform_list* operator->() { return &m_List; }
-    const platform_list* operator->() const { return &m_List; }
+    void Clear();
+    
+    bool IsValid() const { return !(m_strUser.empty() || m_strWord.empty()); }
 
+    platform_list& List() { return m_List; }
+    const platform_list& List() const { return m_List; }
+    
     const string_type& GetWord() const { return m_strWord; }
     const string_type& GetUser() const { return m_strUser; }
-    const string_type& GetTime() const { return m_strTime; }
+    unsigned long long GetTime() const { return m_ulTime; }
     void SetWord(const string_type& strWord) { m_strWord = strWord; }
     void SetUser(const string_type& strUser) { m_strUser = strUser; }
     void UpdateTime();

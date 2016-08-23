@@ -1,28 +1,17 @@
-﻿#include <list>
-
-#include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
+﻿#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QMenu>
+#include <QtGui/QContextMenuEvent>
 
 #include "../CredentialManager/bnb_global.h"
 #include "../CredentialManager/Credential/Credential.h"
 
 #include "CredentialView.h"
 
-static inline QLabel* MakeLabel(const QString& strText, unsigned int width, QWidget* parent)
-{
-    QLabel* label = new QLabel(strText, parent);
-    label->setAlignment(Qt::AlignCenter);
-    label->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Minimum);
-    label->setFixedWidth(width);
-    label->setMinimumHeight(28);
-    label->setStyleSheet("QLabel { background-color:#A0FFA0; border:1px solid #6c6c6c; }");
+QT_BEGIN_NAMESPACE
 
-    return label;
-}
-
-CredentialView::CredentialView(QWidget * parent, const bnb::Credential& src)
+CredentialView::CredentialView(bnb::Credential& src, delegate_type* ptrDelegate, QWidget * parent)
     : QWidget(parent)
+    , m_ptrDelegate(ptrDelegate)
 {
     setAutoFillBackground(true);
 
@@ -30,68 +19,95 @@ CredentialView::CredentialView(QWidget * parent, const bnb::Credential& src)
     palette.setColor(QPalette::Background, QColor(255, 128, 128));
     setPalette(palette);
     
-    MakeLabelList(src);
-    LayoutView();
+    _ui.SetupUI(this);
+
+    LayoutView(src.List());
 
     setFixedSize(sizeHint());
+
+    QObject::connect(_ui.m_actAddPlatform, &QAction::triggered, this, &CredentialView::OnClickedAddPlatform);
 
     qDebug("w: %d, h: %d", width(), height());
 }
 
-void CredentialView::MakeLabelList(const bnb::Credential & src)
+void CredentialView::contextMenuEvent(QContextMenuEvent * event)
 {
-    for (auto ptr_platform = src->Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
-    {
-        _ui_element item;
-        item.m_labPlatform = MakeLabel(QString::fromStdString(ptr_platform->m_Pair.m_Key.m_Key), 400, this);
+    QMenu menu(this);
 
-        for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
-        {
-            QLabel* labAccount = MakeLabel(QString::fromStdString(ptr_account->m_Pair.m_Key.m_Key), 240, this);
+    menu.addAction(_ui.m_actAddPlatform);
 
-            item.m_listAccount.push_back(labAccount);
-        }
-
-        m_listLabel.push_back(item);
-    }
+    menu.exec(event->globalPos());
 }
 
-void CredentialView::LayoutView()
+void CredentialView::mouseDoubleClickEvent(QMouseEvent * event)
 {
-    QVBoxLayout* pMainLayout = new QVBoxLayout;
-    pMainLayout->setSpacing(2);
-    pMainLayout->setMargin(0);
-
-    if (m_listLabel.empty())
-    {
-        QLabel* labHint = new QLabel(this);
-        labHint->setText(u8R"(You haven't added any credential yet)");
-        pMainLayout->addWidget(labHint);
-
-        return;
-    }
-
-    for (const auto& item : m_listLabel)
-    {
-        QHBoxLayout* phLayout = new QHBoxLayout;
-        phLayout->addWidget(item.m_labPlatform);
-        phLayout->setSpacing(0);
-        phLayout->setMargin(0);
-
-        if (!item.m_listAccount.empty())
-        {
-            QVBoxLayout* pvLayout = new QVBoxLayout;
-            pvLayout->setSpacing(0);
-            pvLayout->setMargin(0);
-
-            for (const auto& iter : item.m_listAccount)
-                pvLayout->addWidget(iter);
-
-            phLayout->addLayout(pvLayout);
-        }
-
-        pMainLayout->addLayout(phLayout);
-    }
-
-    setLayout(pMainLayout);
 }
+
+void CredentialView::LayoutView(bnb::platform_list & listPlatform)
+{
+    QVBoxLayout* pLayout = new QVBoxLayout;
+    pLayout->setSpacing(2);
+    pLayout->setMargin(1);
+
+    for (auto ptr_platform = listPlatform.Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+    {
+        CredentialItem* pItem = new CredentialItem(ptr_platform->m_Pair.m_Key, ptr_platform->m_Pair.m_Value, this, this);
+        pLayout->addWidget(pItem);
+    }
+
+    setLayout(pLayout);
+}
+
+void CredentialView::OnClickedAddPlatform()
+{
+    m_ptrDelegate->OnAddPlatform();
+}
+
+void CredentialView::ui_type::SetupUI(CredentialView * pView)
+{
+    m_actAddPlatform = new QAction(pView);
+
+    RetranslateUI(pView);
+}
+
+void CredentialView::ui_type::RetranslateUI(CredentialView * pView)
+{
+    m_actAddPlatform->setText("Add Platform");
+}
+
+bool CredentialView::OnAddPlatform()
+{
+    return false;
+}
+
+bool CredentialView::OnAddAccount()
+{
+    return false;
+}
+
+bool CredentialView::OnRemovePlatform(bnb::platform_type * pp)
+{
+    return false;
+}
+
+bool CredentialView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    return false;
+}
+
+bool CredentialView::OnEditPlatform(bnb::platform_type * pp)
+{
+    return false;
+}
+
+bool CredentialView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    return false;
+}
+
+bool CredentialView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    return false;
+}
+
+QT_END_NAMESPACE
