@@ -8,6 +8,7 @@
 
 #include "HintDialog.h"
 #include "PasswordInput.h"
+#include "CreateDialog.h"
 #include "CredentialMainView.h"
 
 QT_BEGIN_NAMESPACE
@@ -30,6 +31,9 @@ CredentialMainView::~CredentialMainView()
 
 void CredentialMainView::OnClickedNew()
 {
+    CreateDialog dlg(this);
+
+    dlg.exec();
 }
 
 void CredentialMainView::OnClickedOpen()
