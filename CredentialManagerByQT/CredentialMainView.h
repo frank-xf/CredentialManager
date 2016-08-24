@@ -22,9 +22,6 @@ class CredentialMainView : public QWidget, public CredentialView::delegate_type
         QPushButton* m_btnOpen;
         QPushButton* m_btnMotifyName;
         QPushButton* m_btnMotifyWord;
-        QLabel* m_labFile;
-        QLabel* m_labTime;
-        QProgressBar* m_barTime;
 
         QScrollArea* m_areaCredential;
 
@@ -46,7 +43,8 @@ public:
 
 private:
 
-    void UpdateCredentail(CredentialView* view);
+    void UpdateCredentail();
+    void UpdateSize();
 
     bool OnAddPlatform() override;
     bool OnAddAccount() override;
@@ -58,9 +56,10 @@ private:
 
 private:
 
-    bnb::Credential m_Credential;
     ui_type _ui;
 
+    QString m_strFile;
+    bnb::Credential m_Credential;
 };
 
 QT_END_NAMESPACE

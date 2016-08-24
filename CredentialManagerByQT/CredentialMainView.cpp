@@ -14,9 +14,11 @@
 QT_BEGIN_NAMESPACE
 
 CredentialMainView::CredentialMainView(QWidget *parent)
-    : QWidget(parent)
+    : QWidget(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint)
 {
     _ui.SetupUI(this);
+
+    UpdateSize();
 
     QObject::connect(_ui.m_btnNew, &QPushButton::clicked, this, &CredentialMainView::OnClickedNew);
     QObject::connect(_ui.m_btnOpen, &QPushButton::clicked, this, &CredentialMainView::OnClickedOpen);
@@ -33,7 +35,18 @@ void CredentialMainView::OnClickedNew()
 {
     CreateDialog dlg(this);
 
-    dlg.exec();
+    if (QDialog::Accepted == dlg.exec())
+    {
+        m_Credential.Clear();
+
+        m_Credential.SetUser(dlg.GetUserName().toStdString());
+        m_Credential.SetWord(dlg.GetPassword().toStdString());
+        m_Credential.UpdateTime();
+
+        m_strFile = dlg.GetFilePath();
+
+        UpdateCredentail();
+    }
 }
 
 void CredentialMainView::OnClickedOpen()
@@ -46,9 +59,11 @@ void CredentialMainView::OnClickedOpen()
     QString strFile("def.credential");
     if (strFile.isEmpty()) return;
     
+    m_strFile = strFile;
+
     bnb::memory_type dst;
 
-    switch (bnb::Credential::CheckFile(strFile.toUtf8(), &dst))
+    switch (bnb::Credential::CheckFile(m_strFile.toUtf8(), &dst))
     {
     case bnb::result_type::rt_file_error:
         HintDialog("You selected file error !", "error", this).exec();
@@ -86,7 +101,7 @@ void CredentialMainView::OnClickedOpen()
         return;
     }
 
-    UpdateCredentail(new CredentialView(m_Credential, this, this));
+    UpdateCredentail();
 }
 
 void CredentialMainView::OnClickedMotifyName()
@@ -97,24 +112,46 @@ void CredentialMainView::OnClickedMotifyWord()
 {
 }
 
-void CredentialMainView::UpdateCredentail(CredentialView * view)
+void CredentialMainView::UpdateCredentail()
 {
+    CredentialView * view = new CredentialView(m_Credential, this, this);
+
     QWidget* old = _ui.m_areaCredential->takeWidget();
     if (nullptr != old) delete old;
 
     _ui.m_areaCredential->setWidget(view);
     _ui.m_areaCredential->setMaximumSize(view->width() + 20, view->height() + 2);
 
+    UpdateSize();
+
+    if (!_ui.m_btnMotifyName->isEnabled()) _ui.m_btnMotifyName->setEnabled(true);
+    if (!_ui.m_btnMotifyWord->isEnabled()) _ui.m_btnMotifyWord->setEnabled(true);
+
+    setWindowTitle(QString::fromStdString(m_Credential.GetUser()) + " - " + m_strFile);
+}
+
+void CredentialMainView::UpdateSize()
+{
     setFixedWidth(_ui.m_areaCredential->maximumWidth() + 8);
-    setMaximumHeight(_ui.m_areaCredential->maximumHeight() + 100);
+    setMaximumHeight(_ui.m_areaCredential->maximumHeight() + 32);
 }
 
 void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
 {
+    pView->setObjectName("CredentialMainView");
+    pView->setWindowTitle("Credential Manager");
+
     m_btnNew = new QPushButton(pView);
+    m_btnNew->setFixedHeight(20);
     m_btnOpen = new QPushButton(pView);
+    m_btnOpen->setFixedHeight(20);
     m_btnMotifyName = new QPushButton(pView);
+    m_btnMotifyName->setFixedHeight(20);
     m_btnMotifyWord = new QPushButton(pView);
+    m_btnMotifyWord->setFixedHeight(20);
+
+    m_btnMotifyName->setEnabled(false);
+    m_btnMotifyWord->setEnabled(false);
 
     QHBoxLayout* phLayout1 = new QHBoxLayout;
     phLayout1->setSpacing(8);
@@ -125,26 +162,15 @@ void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
     phLayout1->addWidget(m_btnMotifyName);
     phLayout1->addWidget(m_btnMotifyWord);
 
+    QLabel* labHint = new QLabel("Please new or open a credential file !");
+    labHint->setAlignment(Qt::AlignCenter);
+    labHint->setFixedSize(400, 30);
+
     m_areaCredential = new QScrollArea(pView);
-    m_areaCredential->setWidget(new QLabel("Please select credential file"));
+    m_areaCredential->setWidget(labHint);
+    m_areaCredential->setMaximumSize(420, 32);
     m_areaCredential->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_areaCredential->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-
-    m_labFile = new QLabel(pView);
-    m_labTime = new QLabel(pView);
-    m_barTime = new QProgressBar(pView);
-
-    QVBoxLayout* pvLayout1 = new QVBoxLayout;
-    pvLayout1->setSpacing(8);
-    pvLayout1->setMargin(0);
-    pvLayout1->addWidget(m_labTime);
-    pvLayout1->addWidget(m_barTime);
-
-    QHBoxLayout* phLayout2 = new QHBoxLayout;
-    phLayout2->setSpacing(8);
-    phLayout2->setMargin(0);
-    phLayout2->addWidget(m_labFile, 1);
-    phLayout2->addLayout(pvLayout1);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
     pMainLayout->setSpacing(4);
@@ -152,7 +178,6 @@ void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
 
     pMainLayout->addLayout(phLayout1);
     pMainLayout->addWidget(m_areaCredential, 1);
-    pMainLayout->addLayout(phLayout2);
 
     pView->setLayout(pMainLayout);
 
@@ -163,11 +188,9 @@ void CredentialMainView::ui_type::RetranslateUI(CredentialMainView * pView)
 {
     m_btnNew->setText("New");
     m_btnOpen->setText("Open");
-    m_btnMotifyName->setText("Motify User");
+    m_btnMotifyName->setText("Motify User Name");
     m_btnMotifyWord->setText("Motify Password");
 }
-
-QT_END_NAMESPACE
 
 bool CredentialMainView::OnAddPlatform()
 {
@@ -203,3 +226,5 @@ bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_
 {
     return false;
 }
+
+QT_END_NAMESPACE

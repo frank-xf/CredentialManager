@@ -1,5 +1,6 @@
 ﻿#include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QMenu>
+#include <QtWidgets/QLabel>
 #include <QtGui/QContextMenuEvent>
 
 #include "../CredentialManager/bnb_global.h"
@@ -22,8 +23,6 @@ CredentialView::CredentialView(bnb::Credential& src, delegate_type* ptrDelegate,
     _ui.SetupUI(this);
 
     LayoutView(src.List());
-
-    setFixedSize(sizeHint());
 
     QObject::connect(_ui.m_actAddPlatform, &QAction::triggered, this, &CredentialView::OnClickedAddPlatform);
 
@@ -49,13 +48,26 @@ void CredentialView::LayoutView(bnb::platform_list & listPlatform)
     pLayout->setSpacing(2);
     pLayout->setMargin(1);
 
-    for (auto ptr_platform = listPlatform.Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+    if (listPlatform.IsEmpty())
     {
-        CredentialItem* pItem = new CredentialItem(ptr_platform->m_Pair.m_Key, ptr_platform->m_Pair.m_Value, this, this);
-        pLayout->addWidget(pItem);
+        QLabel* labHint = new QLabel(this);
+        labHint->setAlignment(Qt::AlignCenter);
+        labHint->setMinimumSize(400, 28);
+        labHint->setText("You haven\'t added any Credential !");
+
+        pLayout->addWidget(labHint);
+    }
+    else
+    {
+        for (auto ptr_platform = listPlatform.Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+        {
+            CredentialItem* pItem = new CredentialItem(ptr_platform->m_Pair.m_Key, ptr_platform->m_Pair.m_Value, this, this);
+            pLayout->addWidget(pItem);
+        }
     }
 
     setLayout(pLayout);
+    setFixedSize(sizeHint());
 }
 
 void CredentialView::OnClickedAddPlatform()
