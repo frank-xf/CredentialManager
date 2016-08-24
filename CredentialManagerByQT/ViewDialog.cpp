@@ -19,6 +19,8 @@ ViewDialog::ViewDialog(bnb::Credential& src, QWidget * parent)
 {
     _ui.SetupUI(this);
 
+    InitView();
+
     QObject::connect(_ui.m_cboxPlatform, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &ViewDialog::OnChangedPlatform);
     QObject::connect(_ui.m_cboxAccount, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &ViewDialog::OnChangedAccount);
     QObject::connect(_ui.m_tabProperty, &QTableWidget::cellDoubleClicked, this, &ViewDialog::OnDoubleClickedProperty);
@@ -32,6 +34,38 @@ ViewDialog::ViewDialog(bnb::Credential& src, QWidget * parent)
 
 void ViewDialog::InitView()
 {
+    for (auto ptr_platform = m_Credential.List().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+        _ui.m_cboxPlatform->addItem(QString::fromStdString(ptr_platform->m_Pair.m_Key.m_Key));
+    
+    if (0 < _ui.m_cboxPlatform->count()) _ui.m_cboxPlatform->setCurrentIndex(0);
+
+    UpdateAccount();
+}
+
+void ViewDialog::UpdateAccount()
+{
+    _ui.m_cboxAccount->clear();
+
+    QString strText = _ui.m_cboxPlatform->currentText();
+
+    if (!strText.isEmpty())
+    {
+        auto ptr_platform = m_Credential.List().Find(strText.toStdString());
+        if (ptr_platform)
+        {
+            for (auto ptr_account = ptr_platform->m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
+                _ui.m_cboxAccount->addItem(QString::fromStdString(ptr_account->m_Pair.m_Key.m_Key));
+
+            if (0 < _ui.m_cboxAccount->count()) _ui.m_cboxAccount->setCurrentIndex(0);
+        }
+    }
+
+    UpdateProperty();
+}
+
+void ViewDialog::UpdateProperty()
+{
+
 }
 
 void ViewDialog::OnChangedPlatform(const QString & strText)

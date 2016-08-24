@@ -37,6 +37,9 @@ private:
 
     void InitView();
 
+    void UpdateAccount();
+    void UpdateProperty();
+
     void OnChangedPlatform(const QString& strText);
     void OnChangedAccount(const QString& strText);
     void OnDoubleClickedProperty(int row, int cln);
