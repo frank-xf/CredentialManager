@@ -2,7 +2,7 @@
 #include <QtWidgets/QWidget>
 #include <QtWidgets/QApplication>
 
-#include "CredentialMainView.h"
+#include "Major/CredentialMainView.h"
 
 int main(int argc, char *argv[])
 {

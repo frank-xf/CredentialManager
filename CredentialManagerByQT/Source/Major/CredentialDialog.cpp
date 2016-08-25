@@ -8,14 +8,14 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QPushButton>
 
-#include "../CredentialManager/bnb_global.h"
-#include "../CredentialManager/Credential/Credential.h"
+#include "bnb_global.h"
+#include "Credential/Credential.h"
 
-#include "ViewDialog.h"
+#include "Major/CredentialDialog.h"
 
 QT_BEGIN_NAMESPACE
 
-ViewDialog::ViewDialog(bnb::Credential& src, QWidget * parent)
+CredentialDialog::CredentialDialog(bnb::Credential& src, QWidget * parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowMaximizeButtonHint | Qt::WindowCloseButtonHint)
     , m_Credential(src)
 {
@@ -23,19 +23,19 @@ ViewDialog::ViewDialog(bnb::Credential& src, QWidget * parent)
 
     InitView();
 
-    QObject::connect(_ui.m_cboxPlatform, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &ViewDialog::OnChangedPlatform);
-    QObject::connect(_ui.m_cboxAccount, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &ViewDialog::OnChangedAccount);
-    QObject::connect(_ui.m_tabProperty, &QTableWidget::customContextMenuRequested, this, &ViewDialog::OnTableContextMenu);
-    QObject::connect(_ui.m_tabProperty, &QTableWidget::cellDoubleClicked, this, &ViewDialog::OnDoubleClickedProperty);
-    QObject::connect(_ui.m_actEdit, &QAction::triggered, this, &ViewDialog::OnClickedEdit);
-    QObject::connect(_ui.m_actUp, &QAction::triggered, this, &ViewDialog::OnClickedUp);
-    QObject::connect(_ui.m_actDown, &QAction::triggered, this, &ViewDialog::OnClickedDown);
-    QObject::connect(_ui.m_actAdd, &QAction::triggered, this, &ViewDialog::OnClickedAdd);
-    QObject::connect(_ui.m_actRemove, &QAction::triggered, this, &ViewDialog::OnClickedRemove);
+    QObject::connect(_ui.m_cboxPlatform, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &CredentialDialog::OnChangedPlatform);
+    QObject::connect(_ui.m_cboxAccount, static_cast<void(QComboBox::*)(const QString &)>(&QComboBox::currentIndexChanged), this, &CredentialDialog::OnChangedAccount);
+    QObject::connect(_ui.m_tabProperty, &QTableWidget::customContextMenuRequested, this, &CredentialDialog::OnTableContextMenu);
+    QObject::connect(_ui.m_tabProperty, &QTableWidget::cellDoubleClicked, this, &CredentialDialog::OnDoubleClickedProperty);
+    QObject::connect(_ui.m_actEdit, &QAction::triggered, this, &CredentialDialog::OnClickedEdit);
+    QObject::connect(_ui.m_actUp, &QAction::triggered, this, &CredentialDialog::OnClickedUp);
+    QObject::connect(_ui.m_actDown, &QAction::triggered, this, &CredentialDialog::OnClickedDown);
+    QObject::connect(_ui.m_actAdd, &QAction::triggered, this, &CredentialDialog::OnClickedAdd);
+    QObject::connect(_ui.m_actRemove, &QAction::triggered, this, &CredentialDialog::OnClickedRemove);
     QObject::connect(_ui.m_btnClose, &QPushButton::clicked, this, &QDialog::accept);
 }
 
-void ViewDialog::InitView()
+void CredentialDialog::InitView()
 {
     for (auto ptr_platform = m_Credential.List().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
         _ui.m_cboxPlatform->addItem(QString::fromStdString(ptr_platform->m_Pair.m_Key.m_Key));
@@ -56,7 +56,7 @@ void ViewDialog::InitView()
     UpdateAccount();
 }
 
-void ViewDialog::UpdateAccount()
+void CredentialDialog::UpdateAccount()
 {
     _ui.m_cboxAccount->clear();
 
@@ -85,7 +85,7 @@ void ViewDialog::UpdateAccount()
     UpdateProperty();
 }
 
-void ViewDialog::UpdateProperty()
+void CredentialDialog::UpdateProperty()
 {
     _ui.m_tabProperty->clearContents();
 
@@ -113,7 +113,7 @@ void ViewDialog::UpdateProperty()
     }
 }
 
-void ViewDialog::OnChangedPlatform(const QString & strText)
+void CredentialDialog::OnChangedPlatform(const QString & strText)
 {
     QString strKey = _ui.m_cboxPlatform->currentText();
     m_ptrCurAccount = nullptr;
@@ -129,7 +129,7 @@ void ViewDialog::OnChangedPlatform(const QString & strText)
     UpdateAccount();
 }
 
-void ViewDialog::OnChangedAccount(const QString & strText)
+void CredentialDialog::OnChangedAccount(const QString & strText)
 {
     QString strKey = _ui.m_cboxAccount->currentText();
     m_ptrCurProperty = nullptr;
@@ -145,11 +145,11 @@ void ViewDialog::OnChangedAccount(const QString & strText)
     UpdateProperty();
 }
 
-void ViewDialog::OnDoubleClickedProperty(int row, int cln)
+void CredentialDialog::OnDoubleClickedProperty(int row, int cln)
 {
 }
 
-void ViewDialog::OnTableContextMenu(const QPoint& pos)
+void CredentialDialog::OnTableContextMenu(const QPoint& pos)
 {
     QMenu menu(this);
 
@@ -164,28 +164,32 @@ void ViewDialog::OnTableContextMenu(const QPoint& pos)
     menu.exec(QCursor::pos());
 }
 
-void ViewDialog::OnClickedEdit()
+void CredentialDialog::OnClickedEdit()
 {
 }
 
-void ViewDialog::OnClickedUp()
+void CredentialDialog::OnClickedUp()
 {
 }
 
-void ViewDialog::OnClickedDown()
+void CredentialDialog::OnClickedDown()
 {
 }
 
-void ViewDialog::OnClickedAdd()
+void CredentialDialog::OnClickedAdd()
 {
 }
 
-void ViewDialog::OnClickedRemove()
+void CredentialDialog::OnClickedRemove()
 {
 }
 
-void ViewDialog::ui_type::SetupUI(ViewDialog * pView)
+void CredentialDialog::ui_type::SetupUI(CredentialDialog * pView)
 {
+    pView->setObjectName("CredentialDialog");
+    pView->setWindowIcon(QIcon(":/CredentialManager/Resources/image/credential-dialog.ico"));
+    pView->setWindowTitle("Credential");
+
     _labPlatform = new QLabel(pView);
     _labPlatform->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     _labPlatform->setFixedSize(60, 28);
@@ -257,7 +261,7 @@ void ViewDialog::ui_type::SetupUI(ViewDialog * pView)
     RetranslateUI(pView);
 }
 
-void ViewDialog::ui_type::RetranslateUI(ViewDialog * pView)
+void CredentialDialog::ui_type::RetranslateUI(CredentialDialog * pView)
 {
     _labPlatform->setText("Platform:");
     _labAccount->setText("Account:");

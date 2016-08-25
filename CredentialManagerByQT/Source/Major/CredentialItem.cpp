@@ -3,10 +3,10 @@
 #include <QtWidgets/QMenu>
 #include <QtGui/QContextMenuEvent>
 
-#include "../CredentialManager/bnb_global.h"
-#include "../CredentialManager/Credential/Credential.h"
+#include "bnb_global.h"
+#include "Credential/Credential.h"
 
-#include "CredentialItem.h"
+#include "Major/CredentialItem.h"
 
 QT_BEGIN_NAMESPACE
 

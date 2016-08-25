@@ -1,7 +1,7 @@
 ﻿#ifndef _bnb_Credential_View_H_
 #define _bnb_Credential_View_H_
 
-#include "CredentialItem.h"
+#include "Major/CredentialItem.h"
 
 QT_BEGIN_NAMESPACE
 

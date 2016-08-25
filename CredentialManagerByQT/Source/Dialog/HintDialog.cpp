@@ -3,7 +3,7 @@
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLabel>
 
-#include "HintDialog.h"
+#include "Dialog/HintDialog.h"
 
 static const QColor _g_colorText[static_cast<unsigned int>(hint_type::ht_max)]{
     QColor(0xff, 0x00, 0x00), QColor(0x80, 0x80, 0x00), QColor(0x00, 0x80, 0x00)

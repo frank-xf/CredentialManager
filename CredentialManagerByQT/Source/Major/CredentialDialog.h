@@ -6,7 +6,7 @@ QT_BEGIN_NAMESPACE
 class QComboBox;
 class QTableWidget;
 
-class ViewDialog : public QDialog
+class CredentialDialog : public QDialog
 {
     struct ui_type
     {
@@ -29,13 +29,13 @@ class ViewDialog : public QDialog
         QTableWidget* m_tabProperty;
         QPushButton* m_btnClose;
 
-        void SetupUI(ViewDialog* pView);
-        void RetranslateUI(ViewDialog* pView);
+        void SetupUI(CredentialDialog* pView);
+        void RetranslateUI(CredentialDialog* pView);
     };
 
 public:
 
-	ViewDialog(bnb::Credential& src, QWidget * parent = nullptr);
+	CredentialDialog(bnb::Credential& src, QWidget * parent = nullptr);
 	
 private:
 

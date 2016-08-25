@@ -6,7 +6,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QFileDialog>
 
-#include "CreateDialog.h"
+#include "Dialog/CreateDialog.h"
 
 QT_BEGIN_NAMESPACE
 

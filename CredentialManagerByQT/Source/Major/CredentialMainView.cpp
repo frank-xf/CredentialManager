@@ -5,11 +5,10 @@
 #include <QtWidgets/QLabel>
 
 #include "Major/CredentialMainView.h"
-
+#include "Major/CredentialDialog.h"
 #include "Dialog/HintDialog.h"
 #include "Dialog/PasswordInput.h"
 #include "Dialog/CreateDialog.h"
-#include "Dialog/ViewDialog.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -224,7 +223,7 @@ bool CredentialMainView::OnEditAccount(bnb::platform_type * pp, bnb::account_typ
 
 bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
 {
-    ViewDialog dlg(m_Credential, this);
+    CredentialDialog dlg(m_Credential, this);
 
     dlg.exec();
 

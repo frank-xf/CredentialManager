@@ -4,7 +4,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QHBoxLayout>
 
-#include "PasswordInput.h"
+#include "Dialog/PasswordInput.h"
 
 PasswordInput::PasswordInput(QWidget * parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)

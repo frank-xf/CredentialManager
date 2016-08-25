@@ -1,10 +1,10 @@
 #ifndef _bnb_Credential_Main_View_H_
 #define _bnb_Credential_Main_View_H_
 
-#include "../CredentialManager/bnb_global.h"
-#include "../CredentialManager/Credential/Credential.h"
+#include "bnb_global.h"
+#include "Credential/Credential.h"
 
-#include "CredentialView.h"
+#include "Major/CredentialView.h"
 
 QT_BEGIN_NAMESPACE
 
