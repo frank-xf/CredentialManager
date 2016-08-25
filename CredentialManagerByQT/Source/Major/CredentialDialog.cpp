@@ -1,5 +1,5 @@
 ﻿
-#include <QtWidgets/QHBoxLayout>
+#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QMenu>
@@ -274,7 +274,7 @@ void CredentialDialog::ui_type::RetranslateUI(CredentialDialog * pView)
 
     m_btnClose->setText("Close");
 
-    m_tabProperty->setHorizontalHeaderLabels({ "Key","Value" });
+    m_tabProperty->setHorizontalHeaderLabels({ "Key", "Value" });
 }
 
 QT_END_NAMESPACE
