@@ -89,37 +89,37 @@ void CredentialView::ui_type::RetranslateUI(CredentialView * pView)
 
 bool CredentialView::OnAddPlatform()
 {
-    return false;
+    return m_ptrDelegate->OnAddPlatform();
 }
 
 bool CredentialView::OnAddAccount()
 {
-    return false;
+    return m_ptrDelegate->OnAddAccount();
 }
 
 bool CredentialView::OnRemovePlatform(bnb::platform_type * pp)
 {
-    return false;
+    return m_ptrDelegate->OnRemovePlatform(pp);
 }
 
 bool CredentialView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
 {
-    return false;
+    return m_ptrDelegate->OnRemoveAccount(pp, pa);
 }
 
 bool CredentialView::OnEditPlatform(bnb::platform_type * pp)
 {
-    return false;
+    return m_ptrDelegate->OnEditPlatform(pp);
 }
 
 bool CredentialView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
 {
-    return false;
+    return m_ptrDelegate->OnEditAccount(pp, pa);
 }
 
 bool CredentialView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
 {
-    return false;
+    return m_ptrDelegate->OnViewCredential(pp, pa);
 }
 
 QT_END_NAMESPACE

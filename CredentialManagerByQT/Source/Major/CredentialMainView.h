@@ -8,11 +8,9 @@
 
 QT_BEGIN_NAMESPACE
 
-class QTableWidget;
 class QPushButton;
-class QLabel;
-class QProgressBar;
 class QScrollArea;
+class QLabel;
 
 class CredentialMainView : public QWidget, public CredentialView::delegate_type
 {

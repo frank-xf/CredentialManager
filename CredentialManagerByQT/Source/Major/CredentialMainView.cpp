@@ -1,15 +1,15 @@
 #include <QtWidgets/QHBoxLayout>
-#include <QtWidgets/QProgressBar>
-#include <QtWidgets/QTableWidget>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QScrollArea>
 #include <QtWidgets/QLabel>
 
-#include "HintDialog.h"
-#include "PasswordInput.h"
-#include "CreateDialog.h"
-#include "CredentialMainView.h"
+#include "Major/CredentialMainView.h"
+
+#include "Dialog/HintDialog.h"
+#include "Dialog/PasswordInput.h"
+#include "Dialog/CreateDialog.h"
+#include "Dialog/ViewDialog.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -66,10 +66,10 @@ void CredentialMainView::OnClickedOpen()
     switch (bnb::Credential::CheckFile(m_strFile.toUtf8(), &dst))
     {
     case bnb::result_type::rt_file_error:
-        HintDialog("You selected file error !", "error", this).exec();
+        HintDialog(hint_type::ht_error, "You selected file error !", this).exec();
         return;
     case bnb::result_type::rt_file_invalid:
-        HintDialog("You selected file invalid !", "error", this).exec();
+        HintDialog(hint_type::ht_error, "You selected file invalid !", this).exec();
         return;
     default:
         break;
@@ -82,13 +82,13 @@ void CredentialMainView::OnClickedOpen()
         switch (bnb::Credential::Decoding(dst, (const unsigned char*)password.toStdString().c_str(), password.size()))
         {
         case bnb::result_type::rt_password_invalid:
-            HintDialog("You input password invalid !", "error", this).exec();
+            HintDialog(hint_type::ht_error, "You input password invalid !", this).exec();
             return;
         case bnb::result_type::rt_password_error:
-            HintDialog("You input password error !", "error", this).exec();
+            HintDialog(hint_type::ht_error, "You input password error !", this).exec();
             return;
         case bnb::result_type::rt_file_error:
-            HintDialog("Anaylze file failed !", "error", this).exec();
+            HintDialog(hint_type::ht_error, "Anaylze file failed !", this).exec();
             return;
         default:
             break;
@@ -224,7 +224,12 @@ bool CredentialMainView::OnEditAccount(bnb::platform_type * pp, bnb::account_typ
 
 bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
 {
-    return false;
+    ViewDialog dlg(m_Credential, this);
+
+    dlg.exec();
+
+
+    return true;
 }
 
 QT_END_NAMESPACE

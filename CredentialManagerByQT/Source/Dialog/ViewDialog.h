@@ -3,6 +3,9 @@
 
 QT_BEGIN_NAMESPACE
 
+class QComboBox;
+class QTableWidget;
+
 class ViewDialog : public QDialog
 {
     struct ui_type
@@ -14,16 +17,17 @@ class ViewDialog : public QDialog
 
     public:
 
+        QAction* m_actEdit;
+        QAction* m_actUp;
+        QAction* m_actDown;
+        QAction* m_actAdd;
+        QAction* m_actRemove;
+
         QComboBox* m_cboxPlatform;
         QComboBox* m_cboxAccount;
 
-        QPushButton* m_btnUp;
-        QPushButton* m_btnAdd;
-        QPushButton* m_btnDown;
-        QPushButton* m_btnClose;
-        QPushButton* m_btnRemove;
-
         QTableWidget* m_tabProperty;
+        QPushButton* m_btnClose;
 
         void SetupUI(ViewDialog* pView);
         void RetranslateUI(ViewDialog* pView);
@@ -43,7 +47,8 @@ private:
     void OnChangedPlatform(const QString& strText);
     void OnChangedAccount(const QString& strText);
     void OnDoubleClickedProperty(int row, int cln);
-    void OnChangedCurrentProperty(int curRow, int curCln, int preRow, int preCln);
+    void OnTableContextMenu(const QPoint& pos);
+    void OnClickedEdit();
     void OnClickedUp();
     void OnClickedDown();
     void OnClickedAdd();
@@ -52,6 +57,9 @@ private:
 private:
 	
     bnb::Credential& m_Credential;
+
+    bnb::account_list* m_ptrCurAccount{ nullptr };
+    bnb::property_list* m_ptrCurProperty{ nullptr };
 
     ui_type _ui;
 };
