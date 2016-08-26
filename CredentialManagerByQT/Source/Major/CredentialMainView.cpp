@@ -5,10 +5,13 @@
 #include <QtWidgets/QLabel>
 
 #include "Major/CredentialMainView.h"
+#include "Major/CredentialView.h"
 #include "Major/CredentialDialog.h"
+
 #include "Dialog/HintDialog.h"
 #include "Dialog/PasswordInput.h"
 #include "Dialog/CreateDialog.h"
+#include "Dialog/EditDialog.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -227,8 +230,21 @@ bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_
 
     dlg.exec();
 
-
     return true;
+}
+
+bool CredentialMainView::CanUpdate(const bnb::platform_type & platform)
+{
+    return m_Credential.List().CanUpdate(platform);
+}
+
+bool CredentialMainView::CanUpdate(const bnb::platform_type & platform, const bnb::account_type & account)
+{
+    auto ptr_platform = m_Credential.List().Find(platform);
+    if (ptr_platform)
+        return ptr_platform->m_Value.CanUpdate(account);
+
+    return false;
 }
 
 QT_END_NAMESPACE

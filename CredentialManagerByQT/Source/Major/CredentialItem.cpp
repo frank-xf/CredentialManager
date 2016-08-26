@@ -6,6 +6,8 @@
 #include "bnb_global.h"
 #include "Credential/Credential.h"
 
+#include "credential_qt_delegate.h"
+
 #include "Major/CredentialItem.h"
 
 QT_BEGIN_NAMESPACE

@@ -54,14 +54,14 @@ void Credential::Clear()
 {
     m_strWord.clear();
     m_strUser.clear();
-    m_ulTime = 0;
+    m_ullTime = 0;
 
     m_List.Clear();
 }
 
 void Credential::UpdateTime()
 {
-    m_ulTime = time(nullptr);
+    m_ullTime = time(nullptr);
 }
 
 bool Credential::FromXml(const memory_type& mt)
@@ -75,7 +75,7 @@ bool Credential::FromXml(const memory_type& mt)
     m_List.Clear();
 
     m_strUser = node_credential.attribute("user").value();
-    m_ulTime = node_credential.attribute("time").as_ullong();
+    m_ullTime = node_credential.attribute("time").as_ullong();
 
     for (auto node_platform : node_credential.children("platform"))
     {
@@ -128,7 +128,7 @@ bool Credential::ToXml(memory_type& mt) const
 
     auto node_credential = doc.append_child("credential");
     node_credential.append_attribute("user").set_value(m_strUser.c_str());
-    node_credential.append_attribute("time").set_value(m_ulTime);
+    node_credential.append_attribute("time").set_value(m_ullTime);
 
     for (auto ptr_platform = m_List.Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
     {

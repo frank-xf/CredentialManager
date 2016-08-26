@@ -47,7 +47,7 @@ inline bool operator != (const pair_type<_Ty1, _Ty2>& left, const pair_type<_Ty1
 {
     return !(left == right);
 }
-
+/*
 template<typename _Ty1, typename _Ty2>
 inline bool operator == (const pair_type<_Ty1, _Ty2>& left, const string_type& key)
 {
@@ -57,18 +57,20 @@ inline bool operator == (const pair_type<_Ty1, _Ty2>& left, const string_type& k
 template<typename _Ty1, typename _Ty2>
 inline bool operator == (const string_type& key, const pair_type<_Ty1, _Ty2>& right)
 {
-    return (right.m_Key, key);
+    return (right.m_Key == key);
 }
-
+*/
 template<typename _Ty1, typename _Ty2>
 class list_type
 {
-    using data_type = pair_type<_Ty1, _Ty2>;
+    using key_type = _Ty1;
+    using value_type = _Ty2;
+    using data_type = pair_type<key_type, value_type>;
 
     struct node_type
     {
         node_type() : m_Next(nullptr) { }
-        node_type(const _Ty1& key) : m_Pair(key), m_Next(nullptr) { }
+        node_type(const key_type& key) : m_Pair(key), m_Next(nullptr) { }
 
         data_type  m_Pair;
         node_type* m_Next;
@@ -108,7 +110,7 @@ public:
     node_type* Head() { return m_Head; }
     const node_type* Head() const { return m_Head; }
 
-    data_type* Insert(const _Ty1& key)
+    data_type* Insert(const key_type& key)
     {
         node_type* prev = nullptr;
 
@@ -163,20 +165,20 @@ public:
         return false;
     }
 
-    bool CanUpdate(const node_type* key) const
+    bool CanUpdate(const key_type& key) const
     {
         for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-            if (ptr != key)
-                if (ptr->m_Pair == key->m_Pair)
+            if (&ptr->m_Pair.m_Key != &key)
+                if (ptr->m_Pair.m_Key == key)
                     return false;
 
         return true;
     }
 
-    data_type* Find(const string_type& key)
+    data_type* Find(const key_type& key)
     {
         for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-            if (ptr->m_Pair == key)
+            if (ptr->m_Pair.m_Key == key)
                 return &ptr->m_Pair;
 
         return nullptr;
@@ -246,7 +248,7 @@ class Credential
 {
     string_type m_strWord;
     string_type m_strUser;
-    unsigned long long m_ulTime;
+    unsigned long long m_ullTime;
 
     platform_list m_List;
 
@@ -267,7 +269,7 @@ public:
     
     const string_type& GetWord() const { return m_strWord; }
     const string_type& GetUser() const { return m_strUser; }
-    unsigned long long GetTime() const { return m_ulTime; }
+    unsigned long long GetTime() const { return m_ullTime; }
     void SetWord(const string_type& strWord) { m_strWord = strWord; }
     void SetUser(const string_type& strUser) { m_strUser = strUser; }
     void UpdateTime();

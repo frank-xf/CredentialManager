@@ -6,6 +6,9 @@
 #include "bnb_global.h"
 #include "Credential/Credential.h"
 
+#include "credential_qt_delegate.h"
+#include "credential_qt_utils.h"
+
 #include "Major/CredentialView.h"
 
 QT_BEGIN_NAMESPACE
@@ -14,12 +17,15 @@ CredentialView::CredentialView(bnb::Credential& src, delegate_type* ptrDelegate,
     : QWidget(parent)
     , m_ptrDelegate(ptrDelegate)
 {
+    /*
     setAutoFillBackground(true);
 
     QPalette palette;
-    palette.setColor(QPalette::Background, QColor(255, 128, 128));
+    palette.setColor(QPalette::Background, );
     setPalette(palette);
-    
+    */
+    ui_utils::SetBackgroundColor(this, QColor(255, 128, 128));
+
     _ui.SetupUI(this);
 
     LayoutView(src.List());

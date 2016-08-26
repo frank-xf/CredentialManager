@@ -9,6 +9,8 @@ class QLabel;
 
 class AccountLabel : public QWidget
 {
+    using delegate_type = delegate_ns::account_delegate;
+
     struct ui_type
     {
         QAction* m_actView;
@@ -22,15 +24,6 @@ class AccountLabel : public QWidget
     };
 
 public:
-
-    struct delegate_type
-    {
-        ~delegate_type() { }
-
-        virtual bool OnViewCredential(bnb::account_type* pAccount) = 0;
-        virtual bool OnEditAccount(bnb::account_type* pAccount) = 0;
-        virtual bool OnRemoveAccount(bnb::account_type* pAccount) = 0;
-    };
 
     AccountLabel(bnb::account_type* pAccount, delegate_type* ptrDelegate, QWidget* parent);
 
@@ -58,6 +51,8 @@ private:
 
 class PlatformLabel : public QWidget
 {
+    using delegate_type = delegate_ns::platform_delegate;
+
     struct ui_type
     {
         QAction* m_actView;
@@ -73,17 +68,6 @@ class PlatformLabel : public QWidget
     };
 
 public:
-
-    struct delegate_type
-    {
-        ~delegate_type() { }
-
-        virtual bool OnEditPlatform(bnb::platform_type* ptrPlatform) = 0;
-        virtual bool OnRemovePlatform(bnb::platform_type* ptrPlatform) = 0;
-        virtual bool OnViewCredential(bnb::platform_type* ptrPlatform) = 0;
-        virtual bool OnAddPlatform() = 0;
-        virtual bool OnAddAccount() = 0;
-    };
 
     PlatformLabel(bnb::platform_type* ptrPlatform, delegate_type* ptrDelegate, QWidget* parent);
 
@@ -114,23 +98,12 @@ private:
 
 class CredentialItem
     : public QWidget
-    , public AccountLabel::delegate_type
-    , public PlatformLabel::delegate_type
+    , public delegate_ns::account_delegate
+    , public delegate_ns::platform_delegate
 {
+    using delegate_type = delegate_ns::credential_delegate;
+
 public:
-
-    struct delegate_type
-    {
-        ~delegate_type() { }
-
-        virtual bool OnAddPlatform() = 0;
-        virtual bool OnAddAccount() = 0;
-        virtual bool OnRemovePlatform(bnb::platform_type* pp) = 0;
-        virtual bool OnRemoveAccount(bnb::platform_type* pp, bnb::account_type* pa) = 0;
-        virtual bool OnEditPlatform(bnb::platform_type* pp) = 0;
-        virtual bool OnEditAccount(bnb::platform_type* pp, bnb::account_type* pa) = 0;
-        virtual bool OnViewCredential(bnb::platform_type* pp, bnb::account_type* pa) = 0;
-    };
 
 	CredentialItem(bnb::platform_type& platform, bnb::account_list& account, delegate_type* ptrDelegate, QWidget* parent);
 

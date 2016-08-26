@@ -5,8 +5,10 @@
 
 QT_BEGIN_NAMESPACE
 
-class CredentialView : public QWidget, public CredentialItem::delegate_type
+class CredentialView : public QWidget, public delegate_ns::credential_delegate
 {
+    using delegate_type = delegate_ns::credential_delegate;
+
     struct ui_type
     {
         QAction* m_actAddPlatform;
@@ -16,19 +18,6 @@ class CredentialView : public QWidget, public CredentialItem::delegate_type
     };
 
 public:
-
-    struct delegate_type
-    {
-        ~delegate_type() { }
-
-        virtual bool OnAddPlatform() = 0;
-        virtual bool OnAddAccount() = 0;
-        virtual bool OnRemovePlatform(bnb::platform_type* pp) = 0;
-        virtual bool OnRemoveAccount(bnb::platform_type* pp, bnb::account_type* pa) = 0;
-        virtual bool OnEditPlatform(bnb::platform_type* pp) = 0;
-        virtual bool OnEditAccount(bnb::platform_type* pp, bnb::account_type* pa) = 0;
-        virtual bool OnViewCredential(bnb::platform_type* pp, bnb::account_type* pa) = 0;
-    };
 
     CredentialView(bnb::Credential& src, delegate_type* ptrDelegate, QWidget * parent);
 

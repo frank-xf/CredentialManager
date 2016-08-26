@@ -120,7 +120,7 @@ void CredentialDialog::OnChangedPlatform(const QString & strText)
 
     if (!strKey.isEmpty())
     {
-        auto ptr_platform = m_Credential.List().Find(strKey.toStdString());
+        auto ptr_platform = m_Credential.List().Find(bnb::platform_type(strKey.toStdString()));
 
         if (ptr_platform)
             m_ptrCurAccount = &ptr_platform->m_Value;
@@ -136,7 +136,7 @@ void CredentialDialog::OnChangedAccount(const QString & strText)
 
     if (m_ptrCurAccount && !strKey.isEmpty())
     {
-        auto ptr_account = m_ptrCurAccount->Find(strKey.toStdString());
+        auto ptr_account = m_ptrCurAccount->Find(bnb::account_type(strKey.toStdString()));
 
         if (ptr_account)
             m_ptrCurProperty = &ptr_account->m_Value;

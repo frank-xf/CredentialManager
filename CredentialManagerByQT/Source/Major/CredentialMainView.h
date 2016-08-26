@@ -4,7 +4,7 @@
 #include "bnb_global.h"
 #include "Credential/Credential.h"
 
-#include "Major/CredentialView.h"
+#include "credential_qt_delegate.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -12,7 +12,10 @@ class QPushButton;
 class QScrollArea;
 class QLabel;
 
-class CredentialMainView : public QWidget, public CredentialView::delegate_type
+class CredentialMainView
+    : public QWidget
+    , public delegate_ns::credential_delegate
+    , public delegate_ns::bool_delegate
 {
     struct ui_type
     {
@@ -51,6 +54,9 @@ private:
     bool OnEditPlatform(bnb::platform_type* pp) override;
     bool OnEditAccount(bnb::platform_type* pp, bnb::account_type* pa) override;
     bool OnViewCredential(bnb::platform_type* pp, bnb::account_type* pa) override;
+
+    bool CanUpdate(const bnb::platform_type& platform) override;
+    bool CanUpdate(const bnb::platform_type& platform, const bnb::account_type& account) override;
 
 private:
 
