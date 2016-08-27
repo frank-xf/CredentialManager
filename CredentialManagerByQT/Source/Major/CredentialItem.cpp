@@ -6,6 +6,7 @@
 #include "bnb_global.h"
 #include "Credential/Credential.h"
 
+#include "credential_qt_utils.h"
 #include "credential_qt_delegate.h"
 
 #include "Major/CredentialItem.h"
@@ -24,7 +25,7 @@ AccountLabel::AccountLabel(bnb::account_type* pAccount, delegate_type* ptrDelega
 
     Update();
 
-    setFixedSize(240, 28);
+    setFixedSize(ui_utils::lab_account_w, ui_utils::lab_account_h);
 
     QObject::connect(_ui.m_actView, &QAction::triggered, this, &AccountLabel::OnClickedView);
     QObject::connect(_ui.m_actEdit, &QAction::triggered, this, &AccountLabel::OnClickedEdit);

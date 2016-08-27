@@ -5,6 +5,7 @@
 #include <QtWidgets/QLabel>
 
 #include "Major/CredentialMainView.h"
+#include "Major/CredentialItem.h"
 #include "Major/CredentialView.h"
 #include "Major/CredentialDialog.h"
 
@@ -245,6 +246,16 @@ bool CredentialMainView::CanUpdate(const bnb::platform_type & platform, const bn
         return ptr_platform->m_Value.CanUpdate(account);
 
     return false;
+}
+
+bool CredentialMainView::ValidateUserName(const bnb::string_type & username)
+{
+    return true;
+}
+
+bool CredentialMainView::ValidatePassword(const bnb::string_type & password)
+{
+    return (m_Credential.GetWord() == password);
 }
 
 QT_END_NAMESPACE

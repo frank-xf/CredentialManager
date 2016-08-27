@@ -36,18 +36,15 @@ namespace delegate_ns
         virtual ~credential_delegate() { }
     };
 
-    struct bool_delegate
+    struct validate_delegate
     {
         virtual bool CanUpdate(const bnb::platform_type& platform) = 0;
         virtual bool CanUpdate(const bnb::platform_type& platform, const bnb::account_type& account) = 0;
+        virtual bool ValidateUserName(const bnb::string_type& username) = 0;
+        virtual bool ValidatePassword(const bnb::string_type& password) = 0;
 
-        virtual ~bool_delegate() { }
+        virtual ~validate_delegate() { }
     };
 }
-
-
-
-
-
 
 #endif  // _bnb_Credential_QT_Delegate_H_

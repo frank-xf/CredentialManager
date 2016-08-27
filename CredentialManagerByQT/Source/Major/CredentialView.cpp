@@ -9,6 +9,7 @@
 #include "credential_qt_delegate.h"
 #include "credential_qt_utils.h"
 
+#include "Major/CredentialItem.h"
 #include "Major/CredentialView.h"
 
 QT_BEGIN_NAMESPACE

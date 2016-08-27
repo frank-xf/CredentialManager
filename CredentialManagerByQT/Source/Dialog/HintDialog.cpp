@@ -5,6 +5,8 @@
 
 #include "Dialog/HintDialog.h"
 
+QT_BEGIN_NAMESPACE
+
 static const QColor _g_colorText[static_cast<unsigned int>(hint_type::ht_max)]{
     QColor(0xff, 0x00, 0x00), QColor(0x80, 0x80, 0x00), QColor(0x00, 0x80, 0x00)
 };
@@ -64,3 +66,5 @@ void HintDialog::ui_type::RetranslateUI(HintDialog * pDlg)
 {
     m_btnClose->setText("Close");
 }
+
+QT_END_NAMESPACE

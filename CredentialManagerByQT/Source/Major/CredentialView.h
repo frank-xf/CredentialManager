@@ -1,8 +1,6 @@
 ﻿#ifndef _bnb_Credential_View_H_
 #define _bnb_Credential_View_H_
 
-#include "Major/CredentialItem.h"
-
 QT_BEGIN_NAMESPACE
 
 class CredentialView : public QWidget, public delegate_ns::credential_delegate

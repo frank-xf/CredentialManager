@@ -10,6 +10,8 @@ enum class hint_type : unsigned char
     ht_max
 };
 
+QT_BEGIN_NAMESPACE
+
 class HintDialog : public QDialog
 {
     struct ui_type
@@ -33,5 +35,7 @@ private:
     ui_type _ui;
 
 };
+
+QT_END_NAMESPACE
 
 #endif  // _bnb_Hint_Dialog_H_

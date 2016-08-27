@@ -9,9 +9,99 @@ class QPushButton;
 
 //------------------------------------------------------------------------------
 
+class EditUserNameDialog : public QDialog
+{
+    using delegate_type = delegate_ns::validate_delegate;
+
+    struct ui_type
+    {
+    private:
+        
+        QLabel* _labUserName;
+
+    public:
+
+        QLabel* m_labHint;
+        QLineEdit* m_editUserName;
+
+        QPushButton* m_btnOK;
+        QPushButton* m_btnCancel;
+
+        void SetupUI(EditUserNameDialog* pView);
+        void RetranslateUI(EditUserNameDialog* pView);
+    };
+
+public:
+
+    EditUserNameDialog(const QString& strUserName, delegate_type* ptrDelegate, QWidget* parent);
+
+    QString GetUserName() const;
+
+private:
+
+    void OnChangedText(const QString&);
+    void OnClickedOK();
+    
+private:
+
+    ui_type _ui;
+
+    delegate_type* m_ptrDelegate;
+
+};  // class EditUserNameDialog
+
+//------------------------------------------------------------------------------
+
+class EditPasswordDialog : public QDialog
+{
+    using delegate_type = delegate_ns::validate_delegate;
+
+    struct ui_type
+    {
+    private:
+
+        QLabel* _labOldPassword;
+        QLabel* _labNewPassword;
+        QLabel* _labValidate;
+
+    public:
+
+        QLabel* m_labHint;
+        QLineEdit* m_editOldPassword;
+        QLineEdit* m_editNewPassword;
+        QLineEdit* m_editValidate;
+
+        QPushButton* m_btnOK;
+        QPushButton* m_btnCancel;
+
+        void SetupUI(EditPasswordDialog* pView);
+        void RetranslateUI(EditPasswordDialog* pView);
+    };
+
+public:
+
+    EditPasswordDialog(delegate_type* ptrDelegate, QWidget* parent);
+
+    QString GetPassword() const;
+
+private:
+
+    void OnChangedText(const QString&);
+    void OnClickedOK();
+
+private:
+
+    ui_type _ui;
+
+    delegate_type* m_ptrDelegate;
+
+};  // class EditPasswordDialog
+
+//------------------------------------------------------------------------------
+
 class EditPlatformDialog : public QDialog
 {
-    using delegate_type = delegate_ns::bool_delegate;
+    using delegate_type = delegate_ns::validate_delegate;
 
     struct ui_type
     {
@@ -58,7 +148,7 @@ private:
 
 class EditAccountDialog : public QDialog
 {
-    using delegate_type = delegate_ns::bool_delegate;
+    using delegate_type = delegate_ns::validate_delegate;
 
     struct ui_type
     {
@@ -99,6 +189,13 @@ private:
     delegate_type* m_ptrDelegate;
 
 };  // class EditAccountDialog
+
+//------------------------------------------------------------------------------
+
+class EditPropertyDialog : public QDialog
+{
+
+};  // class EditPropertyDialog
 
 QT_END_NAMESPACE
 

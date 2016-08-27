@@ -13,7 +13,226 @@
 #include "Dialog/EditDialog.h"
 
 //==============================================================================
-// Implementation of EditAccountDialog
+// Implementation of EditUserNameDialog
+//==============================================================================
+EditUserNameDialog::EditUserNameDialog(const QString& strUserName, delegate_type* ptrDelegate, QWidget * parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+    , m_ptrDelegate(ptrDelegate)
+{
+    _ui.SetupUI(this);
+
+    _ui.m_editUserName->setText(strUserName);
+
+    QObject::connect(_ui.m_editUserName, &QLineEdit::textEdited, this, &EditUserNameDialog::OnChangedText);
+    QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &EditUserNameDialog::OnClickedOK);
+    QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
+}
+
+QString EditUserNameDialog::GetUserName() const
+{
+    return _ui.m_editUserName->text();
+}
+
+void EditUserNameDialog::OnChangedText(const QString &)
+{
+    _ui.m_labHint->clear();
+}
+
+void EditUserNameDialog::OnClickedOK()
+{
+    if (_ui.m_editUserName->text().isEmpty())
+    {
+        _ui.m_labHint->setText("User name mustn\'t be null !");
+        return;
+    }
+
+    if (!m_ptrDelegate->ValidateUserName(_ui.m_editUserName->text().toStdString()))
+    {
+        _ui.m_labHint->setText("The user name you entered is invalid !");
+        return;
+    }
+
+    accept();
+}
+
+//------------------------------------------------------------------------------
+
+void EditUserNameDialog::ui_type::SetupUI(EditUserNameDialog * pView)
+{
+    _labUserName = new QLabel(pView);
+
+    m_labHint = new QLabel(pView);
+    m_labHint->setAlignment(Qt::AlignCenter);
+
+    m_editUserName = new QLineEdit(pView);
+    m_editUserName->setMaxLength(64);
+
+    m_btnOK = new QPushButton(pView);
+    m_btnCancel = new QPushButton(pView);
+
+    QHBoxLayout* phLayout1 = new QHBoxLayout;
+    phLayout1->setMargin(0);
+    phLayout1->setSpacing(2);
+    phLayout1->addWidget(_labUserName);
+    phLayout1->addWidget(m_editUserName);
+
+    QHBoxLayout* phLayout2 = new QHBoxLayout;
+    phLayout2->addStretch(1);
+    phLayout2->addWidget(m_btnOK);
+    phLayout2->addStretch(1);
+    phLayout2->addWidget(m_btnCancel);
+    phLayout2->addStretch(1);
+
+    QVBoxLayout* pMainLayout = new QVBoxLayout;
+    pMainLayout->setContentsMargins(4, 4, 4, 4);
+    pMainLayout->setSpacing(4);
+    pMainLayout->addWidget(m_labHint);
+    pMainLayout->addLayout(phLayout1);
+    pMainLayout->addLayout(phLayout2);
+
+    pView->setLayout(pMainLayout);
+
+    RetranslateUI(pView);
+}
+
+void EditUserNameDialog::ui_type::RetranslateUI(EditUserNameDialog * pView)
+{
+    _labUserName->setText("User Name:");
+
+    m_btnOK->setText("OK");
+    m_btnCancel->setText("Cancel");
+}
+
+//==============================================================================
+// Implementation of EditPasswordDialog
+//==============================================================================
+EditPasswordDialog::EditPasswordDialog(delegate_type * ptrDelegate, QWidget * parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+    , m_ptrDelegate(ptrDelegate)
+{
+    _ui.SetupUI(this);
+
+    QObject::connect(_ui.m_editOldPassword, &QLineEdit::textEdited, this, &EditPasswordDialog::OnChangedText);
+    QObject::connect(_ui.m_editNewPassword, &QLineEdit::textEdited, this, &EditPasswordDialog::OnChangedText);
+    QObject::connect(_ui.m_editValidate, &QLineEdit::textEdited, this, &EditPasswordDialog::OnChangedText);
+    QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &EditPasswordDialog::OnClickedOK);
+    QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
+}
+
+QString EditPasswordDialog::GetPassword() const
+{
+    return _ui.m_editNewPassword->text();
+}
+
+void EditPasswordDialog::OnChangedText(const QString &)
+{
+    _ui.m_labHint->clear();
+}
+
+void EditPasswordDialog::OnClickedOK()
+{
+    if (_ui.m_editOldPassword->text().isEmpty())
+    {
+        _ui.m_labHint->setText("Old password mustn\'t be null !");
+        return;
+    }
+
+    if (_ui.m_editNewPassword->text().isEmpty())
+    {
+        _ui.m_labHint->setText("New password mustn\'t be null !");
+        return;
+    }
+
+    if (_ui.m_editNewPassword->text() != _ui.m_editValidate->text())
+    {
+        _ui.m_labHint->setText("The two passwords you entered did not match !");
+        return;
+    }
+
+    if (!m_ptrDelegate->ValidatePassword(_ui.m_editOldPassword->text().toStdString()))
+    {
+        _ui.m_labHint->setText("The old password you entered is incorrect !");
+        return;
+    }
+
+    accept();
+}
+
+//------------------------------------------------------------------------------
+
+void EditPasswordDialog::ui_type::SetupUI(EditPasswordDialog * pView)
+{
+    _labOldPassword = new QLabel(pView);
+    _labNewPassword = new QLabel(pView);
+    _labValidate = new QLabel(pView);
+
+    m_labHint = new QLabel(pView);
+    m_labHint->setAlignment(Qt::AlignCenter);
+
+    m_editOldPassword = new QLineEdit(pView);
+    m_editOldPassword->setMaxLength(64);
+    m_editOldPassword->setEchoMode(QLineEdit::Password);
+    m_editNewPassword = new QLineEdit(pView);
+    m_editNewPassword->setMaxLength(64);
+    m_editNewPassword->setEchoMode(QLineEdit::Password);
+    m_editValidate = new QLineEdit(pView);
+    m_editValidate->setMaxLength(64);
+    m_editValidate->setEchoMode(QLineEdit::Password);
+
+    m_btnOK = new QPushButton(pView);
+    m_btnCancel = new QPushButton(pView);
+
+    QHBoxLayout* phLayout1 = new QHBoxLayout;
+    phLayout1->setMargin(0);
+    phLayout1->setSpacing(2);
+    phLayout1->addWidget(_labOldPassword);
+    phLayout1->addWidget(m_editOldPassword);
+
+    QHBoxLayout* phLayout2 = new QHBoxLayout;
+    phLayout2->setMargin(0);
+    phLayout2->setSpacing(2);
+    phLayout2->addWidget(_labNewPassword);
+    phLayout2->addWidget(m_editNewPassword);
+
+    QHBoxLayout* phLayout3 = new QHBoxLayout;
+    phLayout3->setMargin(0);
+    phLayout3->setSpacing(2);
+    phLayout3->addWidget(_labValidate);
+    phLayout3->addWidget(m_editValidate);
+
+    QHBoxLayout* phLayout4 = new QHBoxLayout;
+    phLayout4->addStretch(1);
+    phLayout4->addWidget(m_btnOK);
+    phLayout4->addStretch(1);
+    phLayout4->addWidget(m_btnCancel);
+    phLayout4->addStretch(1);
+
+    QVBoxLayout* pMainLayout = new QVBoxLayout;
+    pMainLayout->setContentsMargins(4, 4, 4, 4);
+    pMainLayout->setSpacing(4);
+    pMainLayout->addWidget(m_labHint);
+    pMainLayout->addLayout(phLayout1);
+    pMainLayout->addLayout(phLayout2);
+    pMainLayout->addLayout(phLayout3);
+    pMainLayout->addLayout(phLayout4);
+
+    pView->setLayout(pMainLayout);
+
+    RetranslateUI(pView);
+}
+
+void EditPasswordDialog::ui_type::RetranslateUI(EditPasswordDialog * pView)
+{
+    _labOldPassword->setText("Old Password:");
+    _labNewPassword->setText("New Password:");
+    _labValidate->setText("Validate:");
+
+    m_btnOK->setText("OK");
+    m_btnCancel->setText("Cancel");
+}
+
+//==============================================================================
+// Implementation of EditPlatformDialog
 //==============================================================================
 EditPlatformDialog::EditPlatformDialog(bnb::platform_type& platform, delegate_type* ptrDelegate, QWidget* parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)

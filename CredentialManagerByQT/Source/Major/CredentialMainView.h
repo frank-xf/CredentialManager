@@ -15,7 +15,7 @@ class QLabel;
 class CredentialMainView
     : public QWidget
     , public delegate_ns::credential_delegate
-    , public delegate_ns::bool_delegate
+    , public delegate_ns::validate_delegate
 {
     struct ui_type
     {
@@ -57,6 +57,8 @@ private:
 
     bool CanUpdate(const bnb::platform_type& platform) override;
     bool CanUpdate(const bnb::platform_type& platform, const bnb::account_type& account) override;
+    bool ValidateUserName(const bnb::string_type& username) override;
+    bool ValidatePassword(const bnb::string_type& password) override;
 
 private:
 
