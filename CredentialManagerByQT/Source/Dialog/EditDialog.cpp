@@ -1,5 +1,4 @@
-﻿
-#include <QtWidgets/QBoxLayout>
+﻿#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
@@ -8,6 +7,7 @@
 #include "bnb_global.h"
 #include "Credential/Credential.h"
 
+#include "credential_qt_utils.h"
 #include "credential_qt_delegate.h"
 
 #include "Dialog/EditDialog.h"
@@ -59,13 +59,19 @@ void EditUserNameDialog::OnClickedOK()
 
 void EditUserNameDialog::ui_type::SetupUI(EditUserNameDialog * pView)
 {
+    pView->setObjectName("EditUserNameDialog");
+    pView->setFixedSize(ui_utils::dlg_username_w, ui_utils::dlg_username_h);
+
     _labUserName = new QLabel(pView);
+    _labUserName->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
     m_labHint = new QLabel(pView);
     m_labHint->setAlignment(Qt::AlignCenter);
+    m_labHint->setFixedHeight(20);
 
     m_editUserName = new QLineEdit(pView);
     m_editUserName->setMaxLength(64);
+    m_editUserName->setFixedSize(ui_utils::edit_default_w, ui_utils::edit_default_h);
 
     m_btnOK = new QPushButton(pView);
     m_btnCancel = new QPushButton(pView);
@@ -74,9 +80,11 @@ void EditUserNameDialog::ui_type::SetupUI(EditUserNameDialog * pView)
     phLayout1->setMargin(0);
     phLayout1->setSpacing(2);
     phLayout1->addWidget(_labUserName);
-    phLayout1->addWidget(m_editUserName);
+    phLayout1->addWidget(m_editUserName, 1);
+    phLayout1->addWidget(ui_utils::MakeMarkLabel(pView));
 
     QHBoxLayout* phLayout2 = new QHBoxLayout;
+    phLayout2->setContentsMargins(8, 20, 8, 8);
     phLayout2->addStretch(1);
     phLayout2->addWidget(m_btnOK);
     phLayout2->addStretch(1);
@@ -84,11 +92,11 @@ void EditUserNameDialog::ui_type::SetupUI(EditUserNameDialog * pView)
     phLayout2->addStretch(1);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
-    pMainLayout->setContentsMargins(4, 4, 4, 4);
-    pMainLayout->setSpacing(4);
+    pMainLayout->setMargin(4);
+    pMainLayout->setSpacing(2);
     pMainLayout->addWidget(m_labHint);
     pMainLayout->addLayout(phLayout1);
-    pMainLayout->addLayout(phLayout2);
+    pMainLayout->addLayout(phLayout2, 1);
 
     pView->setLayout(pMainLayout);
 
@@ -145,7 +153,7 @@ void EditPasswordDialog::OnClickedOK()
 
     if (_ui.m_editNewPassword->text() != _ui.m_editValidate->text())
     {
-        _ui.m_labHint->setText("The two passwords you entered did not match !");
+        _ui.m_labHint->setText("The two passwords you entered didn\'t match !");
         return;
     }
 
@@ -162,9 +170,18 @@ void EditPasswordDialog::OnClickedOK()
 
 void EditPasswordDialog::ui_type::SetupUI(EditPasswordDialog * pView)
 {
+    pView->setObjectName("EditPasswordDialog");
+    pView->setFixedSize(ui_utils::dlg_password_w, ui_utils::dlg_password_h);
+
     _labOldPassword = new QLabel(pView);
+    _labOldPassword->setFixedSize(84, 20);
+    _labOldPassword->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     _labNewPassword = new QLabel(pView);
+    _labNewPassword->setFixedSize(84, 20);
+    _labNewPassword->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
     _labValidate = new QLabel(pView);
+    _labValidate->setFixedSize(84, 20);
+    _labValidate->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
 
     m_labHint = new QLabel(pView);
     m_labHint->setAlignment(Qt::AlignCenter);
@@ -186,21 +203,26 @@ void EditPasswordDialog::ui_type::SetupUI(EditPasswordDialog * pView)
     phLayout1->setMargin(0);
     phLayout1->setSpacing(2);
     phLayout1->addWidget(_labOldPassword);
-    phLayout1->addWidget(m_editOldPassword);
+    phLayout1->addWidget(m_editOldPassword, 1);
+    phLayout1->addWidget(ui_utils::MakeMarkLabel(pView));
 
     QHBoxLayout* phLayout2 = new QHBoxLayout;
     phLayout2->setMargin(0);
     phLayout2->setSpacing(2);
     phLayout2->addWidget(_labNewPassword);
-    phLayout2->addWidget(m_editNewPassword);
+    phLayout2->addWidget(m_editNewPassword, 1);
+    phLayout2->addWidget(ui_utils::MakeMarkLabel(pView));
 
     QHBoxLayout* phLayout3 = new QHBoxLayout;
     phLayout3->setMargin(0);
     phLayout3->setSpacing(2);
     phLayout3->addWidget(_labValidate);
-    phLayout3->addWidget(m_editValidate);
+    phLayout3->addWidget(m_editValidate, 1);
+    phLayout3->addWidget(ui_utils::MakeMarkLabel(pView));
 
     QHBoxLayout* phLayout4 = new QHBoxLayout;
+    phLayout4->setContentsMargins(10, 20, 10, 8);
+    phLayout4->addStretch(1);
     phLayout4->addStretch(1);
     phLayout4->addWidget(m_btnOK);
     phLayout4->addStretch(1);
@@ -208,13 +230,13 @@ void EditPasswordDialog::ui_type::SetupUI(EditPasswordDialog * pView)
     phLayout4->addStretch(1);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
-    pMainLayout->setContentsMargins(4, 4, 4, 4);
+    pMainLayout->setMargin(4);
     pMainLayout->setSpacing(4);
     pMainLayout->addWidget(m_labHint);
     pMainLayout->addLayout(phLayout1);
     pMainLayout->addLayout(phLayout2);
     pMainLayout->addLayout(phLayout3);
-    pMainLayout->addLayout(phLayout4);
+    pMainLayout->addLayout(phLayout4, 1);
 
     pView->setLayout(pMainLayout);
 

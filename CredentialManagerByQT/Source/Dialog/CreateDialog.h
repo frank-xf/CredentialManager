@@ -3,6 +3,10 @@
 
 QT_BEGIN_NAMESPACE
 
+class QLabel;
+class QPushButton;
+class QLineEdit;
+
 class CreateDialog : public QDialog
 {
     struct ui_type

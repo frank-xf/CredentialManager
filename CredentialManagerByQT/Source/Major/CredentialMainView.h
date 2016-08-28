@@ -33,22 +33,20 @@ class CredentialMainView
 public:
 
     CredentialMainView(QWidget *parent = nullptr);
-    ~CredentialMainView();
 
-public:
+private:
+
+    void UpdateSize();
+    void UpdateTitle();
+    void UpdateCredentail();
 
     void OnClickedNew();
     void OnClickedOpen();
     void OnClickedMotifyName();
     void OnClickedMotifyWord();
 
-private:
-
-    void UpdateCredentail();
-    void UpdateSize();
-
     bool OnAddPlatform() override;
-    bool OnAddAccount() override;
+    bool OnAddAccount(bnb::platform_type* pp) override;
     bool OnRemovePlatform(bnb::platform_type* pp) override;
     bool OnRemoveAccount(bnb::platform_type* pp, bnb::account_type* pa) override;
     bool OnEditPlatform(bnb::platform_type* pp) override;

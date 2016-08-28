@@ -25,7 +25,7 @@ AccountLabel::AccountLabel(bnb::account_type* pAccount, delegate_type* ptrDelega
 
     Update();
 
-    setFixedSize(ui_utils::lab_account_w, ui_utils::lab_account_h);
+    setFixedSize(ui_utils::item_account_w, ui_utils::item_account_h);
 
     QObject::connect(_ui.m_actView, &QAction::triggered, this, &AccountLabel::OnClickedView);
     QObject::connect(_ui.m_actEdit, &QAction::triggered, this, &AccountLabel::OnClickedEdit);
@@ -61,8 +61,8 @@ void AccountLabel::OnClickedView()
 
 void AccountLabel::OnClickedEdit()
 {
-    m_ptrDelegate->OnEditAccount(m_ptrAccount);
-    Update();
+    if (m_ptrDelegate->OnEditAccount(m_ptrAccount))
+        Update();
 }
 
 void AccountLabel::OnClickedRemove()
@@ -111,7 +111,7 @@ PlatformLabel::PlatformLabel(bnb::platform_type* ptrPlatform, delegate_type* ptr
 
     Update();
 
-    setMinimumSize(400, 28);
+    setMinimumSize(ui_utils::item_platform_w, ui_utils::item_platform_h);
 
     QObject::connect(_ui.m_actView, &QAction::triggered, this, &PlatformLabel::OnClickedView);
     QObject::connect(_ui.m_actEdit, &QAction::triggered, this, &PlatformLabel::OnClickedEdit);
@@ -152,8 +152,8 @@ void PlatformLabel::OnClickedView()
 
 void PlatformLabel::OnClickedEdit()
 {
-    m_ptrDelegate->OnEditPlatform(m_ptrPlatform);
-    Update();
+    if (m_ptrDelegate->OnEditPlatform(m_ptrPlatform))
+        Update();
 }
 
 void PlatformLabel::OnClickedRemove()
@@ -168,7 +168,7 @@ void PlatformLabel::OnClickedAddPlatform()
 
 void PlatformLabel::OnClickedAddAccount()
 {
-    m_ptrDelegate->OnAddAccount();
+    m_ptrDelegate->OnAddAccount(m_ptrPlatform);
 }
 
 //------------------------------------------------------------------------------
@@ -238,39 +238,39 @@ bool CredentialItem::OnAddPlatform()
     return m_ptrDelegate->OnAddPlatform();
 }
 
-bool CredentialItem::OnAddAccount()
+bool CredentialItem::OnAddAccount(bnb::platform_type* pp)
 {
-    return m_ptrDelegate->OnAddAccount();
+    return m_ptrDelegate->OnAddAccount(pp);
 }
 
-bool CredentialItem::OnEditPlatform(bnb::platform_type * ptrPlatform)
+bool CredentialItem::OnEditPlatform(bnb::platform_type * pp)
 {
-    return m_ptrDelegate->OnEditPlatform(ptrPlatform);
+    return m_ptrDelegate->OnEditPlatform(pp);
 }
 
-bool CredentialItem::OnEditAccount(bnb::account_type * pAccount)
+bool CredentialItem::OnEditAccount(bnb::account_type * pa)
 {
-    return m_ptrDelegate->OnEditAccount(m_labPlatform->GetPlatform(), pAccount);
+    return m_ptrDelegate->OnEditAccount(m_labPlatform->GetPlatform(), pa);
 }
 
-bool CredentialItem::OnRemoveAccount(bnb::account_type * pAccount)
+bool CredentialItem::OnRemoveAccount(bnb::account_type * pa)
 {
-    return m_ptrDelegate->OnRemoveAccount(m_labPlatform->GetPlatform(), pAccount);
+    return m_ptrDelegate->OnRemoveAccount(m_labPlatform->GetPlatform(), pa);
 }
 
-bool CredentialItem::OnRemovePlatform(bnb::platform_type * ptrPlatform)
+bool CredentialItem::OnRemovePlatform(bnb::platform_type * pp)
 {
-    return m_ptrDelegate->OnRemovePlatform(ptrPlatform);
+    return m_ptrDelegate->OnRemovePlatform(pp);
 }
 
-bool CredentialItem::OnViewCredential(bnb::platform_type * ptrPlatform)
+bool CredentialItem::OnViewCredential(bnb::platform_type * pp)
 {
-    return m_ptrDelegate->OnViewCredential(ptrPlatform, nullptr);
+    return m_ptrDelegate->OnViewCredential(pp, nullptr);
 }
 
-bool CredentialItem::OnViewCredential(bnb::account_type * pAccount)
+bool CredentialItem::OnViewCredential(bnb::account_type * pa)
 {
-    return m_ptrDelegate->OnViewCredential(m_labPlatform->GetPlatform(), pAccount);
+    return m_ptrDelegate->OnViewCredential(m_labPlatform->GetPlatform(), pa);
 }
 
 QT_END_NAMESPACE

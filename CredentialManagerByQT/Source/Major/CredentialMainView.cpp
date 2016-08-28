@@ -4,6 +4,8 @@
 #include <QtWidgets/QScrollArea>
 #include <QtWidgets/QLabel>
 
+#include "credential_qt_utils.h"
+
 #include "Major/CredentialMainView.h"
 #include "Major/CredentialItem.h"
 #include "Major/CredentialView.h"
@@ -19,6 +21,8 @@ QT_BEGIN_NAMESPACE
 CredentialMainView::CredentialMainView(QWidget *parent)
     : QWidget(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint)
 {
+    ui_utils::SetBackgroundColor(this, ui_utils::g_defColor);
+
     _ui.SetupUI(this);
 
     UpdateSize();
@@ -29,9 +33,31 @@ CredentialMainView::CredentialMainView(QWidget *parent)
     QObject::connect(_ui.m_btnMotifyWord, &QPushButton::clicked, this, &CredentialMainView::OnClickedMotifyWord);
 }
 
-CredentialMainView::~CredentialMainView()
+void CredentialMainView::UpdateCredentail()
 {
+    CredentialView * view = new CredentialView(m_Credential, this, this);
 
+    QWidget* old = _ui.m_areaCredential->takeWidget();
+    if (nullptr != old) delete old;
+
+    _ui.m_areaCredential->setWidget(view);
+    _ui.m_areaCredential->setMaximumSize(view->width() + 20, view->height() + 2);
+
+    if (!_ui.m_btnMotifyName->isEnabled()) _ui.m_btnMotifyName->setEnabled(true);
+    if (!_ui.m_btnMotifyWord->isEnabled()) _ui.m_btnMotifyWord->setEnabled(true);
+
+    UpdateSize();
+}
+
+void CredentialMainView::UpdateSize()
+{
+    setFixedWidth(_ui.m_areaCredential->maximumWidth() + 8);
+    setMaximumHeight(_ui.m_areaCredential->maximumHeight() + 32);
+}
+
+void CredentialMainView::UpdateTitle()
+{
+    setWindowTitle("Credential - " + QString::fromStdString(m_Credential.GetUser()) + " (" + m_strFile + ")");
 }
 
 void CredentialMainView::OnClickedNew()
@@ -49,6 +75,7 @@ void CredentialMainView::OnClickedNew()
         m_strFile = dlg.GetFilePath();
 
         UpdateCredentail();
+        UpdateTitle();
     }
 }
 
@@ -105,38 +132,130 @@ void CredentialMainView::OnClickedOpen()
     }
 
     UpdateCredentail();
+    UpdateTitle();
 }
 
 void CredentialMainView::OnClickedMotifyName()
 {
+    EditUserNameDialog dlg(QString::fromStdString(m_Credential.GetUser()), this, this);
+
+    if (QDialog::Accepted == dlg.exec())
+    {
+        m_Credential.SetUser(dlg.GetUserName().toStdString());
+
+        UpdateTitle();
+    }
 }
 
 void CredentialMainView::OnClickedMotifyWord()
 {
+    EditPasswordDialog dlg(this, this);
+
+    if (QDialog::Accepted == dlg.exec())
+        m_Credential.SetWord(dlg.GetPassword().toStdString());
 }
 
-void CredentialMainView::UpdateCredentail()
+bool CredentialMainView::OnAddPlatform()
 {
-    CredentialView * view = new CredentialView(m_Credential, this, this);
+    bnb::platform_type platform;
+    EditPlatformDialog dlg(platform, this, this);
+    if (QDialog::Accepted == dlg.exec())
+    {
+        m_Credential.List().Insert(platform);
+        UpdateCredentail();
+        return true;
+    }
 
-    QWidget* old = _ui.m_areaCredential->takeWidget();
-    if (nullptr != old) delete old;
-
-    _ui.m_areaCredential->setWidget(view);
-    _ui.m_areaCredential->setMaximumSize(view->width() + 20, view->height() + 2);
-
-    UpdateSize();
-
-    if (!_ui.m_btnMotifyName->isEnabled()) _ui.m_btnMotifyName->setEnabled(true);
-    if (!_ui.m_btnMotifyWord->isEnabled()) _ui.m_btnMotifyWord->setEnabled(true);
-
-    setWindowTitle(QString::fromStdString(m_Credential.GetUser()) + " - " + m_strFile);
+    return false;
 }
 
-void CredentialMainView::UpdateSize()
+bool CredentialMainView::OnAddAccount(bnb::platform_type* pp)
 {
-    setFixedWidth(_ui.m_areaCredential->maximumWidth() + 8);
-    setMaximumHeight(_ui.m_areaCredential->maximumHeight() + 32);
+    auto ptr_platform = m_Credential.List().Find(*pp);
+    if (ptr_platform)
+    {
+        bnb::account_type account;
+        EditAccountDialog dlg(*pp, account, this, this);
+        if (QDialog::Accepted == dlg.exec())
+        {
+            ptr_platform->m_Value.Insert(account);
+            UpdateCredentail();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CredentialMainView::OnRemovePlatform(bnb::platform_type * pp)
+{
+    if (m_Credential.List().Remove(*pp))
+    {
+        UpdateCredentail();
+        return true;
+    }
+    
+    return false;
+}
+
+bool CredentialMainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    auto ptr_platform = m_Credential.List().Find(*pp);
+    if (ptr_platform)
+    {
+        if (ptr_platform->m_Value.Remove(*pa))
+        {
+            UpdateCredentail();
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool CredentialMainView::OnEditPlatform(bnb::platform_type * pp)
+{
+    EditPlatformDialog dlg(*pp, this, this);
+    return (QDialog::Accepted == dlg.exec());
+}
+
+bool CredentialMainView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    EditAccountDialog dlg(*pp, *pa, this, this);
+    return (QDialog::Accepted == dlg.exec());
+}
+
+bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
+{
+    CredentialDialog dlg(m_Credential, this);
+
+    dlg.exec();
+
+    return true;
+}
+
+bool CredentialMainView::CanUpdate(const bnb::platform_type & platform)
+{
+    return m_Credential.List().CanUpdate(platform);
+}
+
+bool CredentialMainView::CanUpdate(const bnb::platform_type & platform, const bnb::account_type & account)
+{
+    auto ptr_platform = m_Credential.List().Find(platform);
+    if (ptr_platform)
+        return ptr_platform->m_Value.CanUpdate(account);
+
+    return false;
+}
+
+bool CredentialMainView::ValidateUserName(const bnb::string_type & username)
+{
+    return true;
+}
+
+bool CredentialMainView::ValidatePassword(const bnb::string_type & password)
+{
+    return (m_Credential.GetWord() == password);
 }
 
 void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
@@ -193,69 +312,6 @@ void CredentialMainView::ui_type::RetranslateUI(CredentialMainView * pView)
     m_btnOpen->setText("Open");
     m_btnMotifyName->setText("Motify User Name");
     m_btnMotifyWord->setText("Motify Password");
-}
-
-bool CredentialMainView::OnAddPlatform()
-{
-    return false;
-}
-
-bool CredentialMainView::OnAddAccount()
-{
-    return false;
-}
-
-bool CredentialMainView::OnRemovePlatform(bnb::platform_type * pp)
-{
-    return false;
-}
-
-bool CredentialMainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
-{
-    return false;
-}
-
-bool CredentialMainView::OnEditPlatform(bnb::platform_type * pp)
-{
-    return false;
-}
-
-bool CredentialMainView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
-{
-    return false;
-}
-
-bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
-{
-    CredentialDialog dlg(m_Credential, this);
-
-    dlg.exec();
-
-    return true;
-}
-
-bool CredentialMainView::CanUpdate(const bnb::platform_type & platform)
-{
-    return m_Credential.List().CanUpdate(platform);
-}
-
-bool CredentialMainView::CanUpdate(const bnb::platform_type & platform, const bnb::account_type & account)
-{
-    auto ptr_platform = m_Credential.List().Find(platform);
-    if (ptr_platform)
-        return ptr_platform->m_Value.CanUpdate(account);
-
-    return false;
-}
-
-bool CredentialMainView::ValidateUserName(const bnb::string_type & username)
-{
-    return true;
-}
-
-bool CredentialMainView::ValidatePassword(const bnb::string_type & password)
-{
-    return (m_Credential.GetWord() == password);
 }
 
 QT_END_NAMESPACE

@@ -3,7 +3,9 @@
 
 QT_BEGIN_NAMESPACE
 
+class QLabel;
 class QComboBox;
+class QPushButton;
 class QTableWidget;
 
 class CredentialDialog : public QDialog

@@ -28,7 +28,7 @@ private:
     void OnClickedAddPlatform();
 
     bool OnAddPlatform() override;
-    bool OnAddAccount() override;
+    bool OnAddAccount(bnb::platform_type* pp) override;
     bool OnRemovePlatform(bnb::platform_type* pp) override;
     bool OnRemoveAccount(bnb::platform_type* pp, bnb::account_type* pa) override;
     bool OnEditPlatform(bnb::platform_type* pp) override;

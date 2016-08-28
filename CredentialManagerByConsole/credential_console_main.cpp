@@ -67,6 +67,20 @@ int main()
    <property name="k3"><![CDATA[v3]]></property>
   </account>
  </platform>
+ <platform name="platform4" url="http://" display="">
+  <account name="account5" display="">
+  </account>
+  <account name="account6" display="">
+   <property name="k1"><![CDATA[v1]]></property>
+  </account>
+  <account name="account9" display="">
+   <property name="k8"><![CDATA[v8]]></property>
+   <property name="k6"><![CDATA[v6]]></property>
+   <property name="k9"><![CDATA[v9]]></property>
+  </account>
+ </platform>
+ <platform name="platform7" url="http://" display="">
+ </platform>
 </credential>)";
 
     bnb::memory_type mt;

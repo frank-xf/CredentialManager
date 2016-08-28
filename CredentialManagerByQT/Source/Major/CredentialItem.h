@@ -110,13 +110,13 @@ public:
 private:
 
     bool OnAddPlatform() override;
-    bool OnAddAccount() override;
-    bool OnEditPlatform(bnb::platform_type* ptrPlatform) override;
-    bool OnEditAccount(bnb::account_type* pAccount) override;
-    bool OnRemoveAccount(bnb::account_type* pAccount) override;
-    bool OnRemovePlatform(bnb::platform_type* ptrPlatform) override;
-    bool OnViewCredential(bnb::platform_type* ptrPlatform) override;
-    bool OnViewCredential(bnb::account_type* pAccount) override;
+    bool OnAddAccount(bnb::platform_type* pp) override;
+    bool OnEditPlatform(bnb::platform_type* pp) override;
+    bool OnEditAccount(bnb::account_type* pa) override;
+    bool OnRemoveAccount(bnb::account_type* pa) override;
+    bool OnRemovePlatform(bnb::platform_type* pp) override;
+    bool OnViewCredential(bnb::platform_type* pp) override;
+    bool OnViewCredential(bnb::account_type* pa) override;
 
     delegate_type* m_ptrDelegate;
     PlatformLabel* m_labPlatform;

@@ -47,19 +47,7 @@ inline bool operator != (const pair_type<_Ty1, _Ty2>& left, const pair_type<_Ty1
 {
     return !(left == right);
 }
-/*
-template<typename _Ty1, typename _Ty2>
-inline bool operator == (const pair_type<_Ty1, _Ty2>& left, const string_type& key)
-{
-    return (left.m_Key == key);
-}
 
-template<typename _Ty1, typename _Ty2>
-inline bool operator == (const string_type& key, const pair_type<_Ty1, _Ty2>& right)
-{
-    return (right.m_Key == key);
-}
-*/
 template<typename _Ty1, typename _Ty2>
 class list_type
 {
@@ -142,11 +130,11 @@ public:
         return &ptr->m_Pair;
     }
 
-    bool Remove(const string_type& key)
+    bool Remove(const key_type& key)
     {
         for (node_type *prev = nullptr, *curr = m_Head; curr; curr = curr->m_Next)
         {
-            if (curr->m_Pair == key)
+            if (curr->m_Pair.m_Key == key)
             {
                 if (curr == m_Head)
                     m_Head = curr->m_Next;

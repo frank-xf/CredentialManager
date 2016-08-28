@@ -18,13 +18,6 @@ CredentialView::CredentialView(bnb::Credential& src, delegate_type* ptrDelegate,
     : QWidget(parent)
     , m_ptrDelegate(ptrDelegate)
 {
-    /*
-    setAutoFillBackground(true);
-
-    QPalette palette;
-    palette.setColor(QPalette::Background, );
-    setPalette(palette);
-    */
     ui_utils::SetBackgroundColor(this, QColor(255, 128, 128));
 
     _ui.SetupUI(this);
@@ -59,7 +52,7 @@ void CredentialView::LayoutView(bnb::platform_list & listPlatform)
     {
         QLabel* labHint = new QLabel(this);
         labHint->setAlignment(Qt::AlignCenter);
-        labHint->setMinimumSize(400, 28);
+        labHint->setMinimumSize(ui_utils::item_platform_w, ui_utils::item_platform_h);
         labHint->setText("You haven\'t added any Credential !");
 
         pLayout->addWidget(labHint);
@@ -99,9 +92,9 @@ bool CredentialView::OnAddPlatform()
     return m_ptrDelegate->OnAddPlatform();
 }
 
-bool CredentialView::OnAddAccount()
+bool CredentialView::OnAddAccount(bnb::platform_type* pp)
 {
-    return m_ptrDelegate->OnAddAccount();
+    return m_ptrDelegate->OnAddAccount(pp);
 }
 
 bool CredentialView::OnRemovePlatform(bnb::platform_type * pp)
