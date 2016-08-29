@@ -7,6 +7,9 @@
 
 QT_BEGIN_NAMESPACE
 
+class QLabel;
+class QPushButton;
+
 namespace ui_utils
 {
     enum ui_size
@@ -16,8 +19,14 @@ namespace ui_utils
         edit_default_w = 160,
         edit_default_h = 20,
 
+        btn_default_w = 60,
+        btn_default_h = 20,
+
         lab_default_w = 60,
-        lab_default_h = 28,
+        lab_default_h = 20,
+
+        lab_mark_w = 16,
+        lab_mark_h = 20,
 
         item_account_w = 240,
         item_account_h = 28,
@@ -31,17 +40,21 @@ namespace ui_utils
         dlg_password_w = 300,
         dlg_password_h = 152,
 
+        dlg_platform_w = 400,
+        dlg_platform_h = 152,
+
     };
 
-    const QColor g_defColor{ 168, 240, 255};
+    const QColor g_clrManView{ 168, 240, 255 };
 
 
     template<typename _Ty>
     constexpr unsigned int to_uint(_Ty value) { return static_cast<unsigned int>(value); }
 
     void SetBackgroundColor(QWidget* pView, const QColor& color);
-    QLabel* MakeMarkLabel(QWidget* parent);
-
+    QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = to_uint(lab_mark_w), unsigned int h = to_uint(lab_mark_h));
+    QLabel* MakeShowLabel(QWidget* parent, unsigned int w = to_uint(lab_default_w), unsigned int h = to_uint(lab_default_h));
+    QPushButton* MakeButton(QWidget* parent, unsigned int w = to_uint(btn_default_w), unsigned int h = to_uint(btn_default_h));
 }
 
 QT_END_NAMESPACE

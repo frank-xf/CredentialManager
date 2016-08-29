@@ -309,6 +309,9 @@ void EditPlatformDialog::OnClickedOK()
 
 void EditPlatformDialog::ui_type::SetupUI(EditPlatformDialog * pView)
 {
+    pView->setObjectName("EditPlatformDialog");
+    pView->setFixedSize(ui_utils::dlg_platform_w, ui_utils::dlg_platform_h);
+
     _labPlatform = new QLabel(pView);
     _labUrl = new QLabel(pView);
     _labDisplay = new QLabel(pView);
@@ -426,6 +429,9 @@ void EditAccountDialog::OnClickedOK()
 
 void EditAccountDialog::ui_type::SetupUI(EditAccountDialog * pView)
 {
+    pView->setObjectName("EditPasswordDialog");
+    pView->setFixedSize(ui_utils::dlg_password_w, ui_utils::dlg_password_h);
+
     _labPlatform = new QLabel(pView);
     _labAccount = new QLabel(pView);
     _labDisplay = new QLabel(pView);

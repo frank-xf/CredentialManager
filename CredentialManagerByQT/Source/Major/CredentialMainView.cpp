@@ -21,7 +21,7 @@ QT_BEGIN_NAMESPACE
 CredentialMainView::CredentialMainView(QWidget *parent)
     : QWidget(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint)
 {
-    ui_utils::SetBackgroundColor(this, ui_utils::g_defColor);
+    ui_utils::SetBackgroundColor(this, ui_utils::g_clrManView);
 
     _ui.SetupUI(this);
 
@@ -57,7 +57,7 @@ void CredentialMainView::UpdateSize()
 
 void CredentialMainView::UpdateTitle()
 {
-    setWindowTitle("Credential - " + QString::fromStdString(m_Credential.GetUser()) + " (" + m_strFile + ")");
+    setWindowTitle("Credential - " + QString::fromStdString(m_Credential.GetUser()) + " [" + m_strFile + "]");
 }
 
 void CredentialMainView::OnClickedNew()
@@ -106,9 +106,9 @@ void CredentialMainView::OnClickedOpen()
     }
     
     PasswordInput dlg(this);
-    // if (QDialog::Accepted == dlg.exec())
+    if (QDialog::Accepted == dlg.exec())
     {
-        QString password = "123"; // dlg.GetPassword();
+        QString password = /*"123"; //*/ dlg.GetPassword();
         switch (bnb::Credential::Decoding(dst, (const unsigned char*)password.toStdString().c_str(), password.size()))
         {
         case bnb::result_type::rt_password_invalid:
@@ -263,10 +263,9 @@ void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
     pView->setObjectName("CredentialMainView");
     pView->setWindowTitle("Credential Manager");
 
-    m_btnNew = new QPushButton(pView);
-    m_btnNew->setFixedHeight(20);
-    m_btnOpen = new QPushButton(pView);
-    m_btnOpen->setFixedHeight(20);
+    m_btnNew = ui_utils::MakeButton(pView);
+    m_btnOpen = ui_utils::MakeButton(pView);
+
     m_btnMotifyName = new QPushButton(pView);
     m_btnMotifyName->setFixedHeight(20);
     m_btnMotifyWord = new QPushButton(pView);
