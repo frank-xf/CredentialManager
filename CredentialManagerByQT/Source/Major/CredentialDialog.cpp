@@ -155,11 +155,11 @@ void CredentialDialog::OnTableContextMenu(const QPoint& pos)
 
     menu.addAction(_ui.m_actEdit);
     menu.addSeparator();
-    menu.addAction(_ui.m_actUp);
-    menu.addAction(_ui.m_actDown);
-    menu.addSeparator();
     menu.addAction(_ui.m_actAdd);
     menu.addAction(_ui.m_actRemove);
+    menu.addSeparator();
+    menu.addAction(_ui.m_actUp);
+    menu.addAction(_ui.m_actDown);
 
     menu.exec(QCursor::pos());
 }

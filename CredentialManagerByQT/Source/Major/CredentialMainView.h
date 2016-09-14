@@ -36,6 +36,8 @@ public:
 
 private:
 
+    bool SaveCredential() const;
+
     void UpdateSize();
     void UpdateTitle();
     void UpdateCredentail();

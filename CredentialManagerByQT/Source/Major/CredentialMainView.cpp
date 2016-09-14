@@ -33,6 +33,14 @@ CredentialMainView::CredentialMainView(QWidget *parent)
     QObject::connect(_ui.m_btnMotifyWord, &QPushButton::clicked, this, &CredentialMainView::OnClickedMotifyWord);
 }
 
+bool CredentialMainView::SaveCredential() const
+{
+    if (m_Credential.GetWord().empty()) return false;
+    if (m_strFile.isEmpty()) return false;
+
+    return m_Credential.Save(m_strFile.toStdString().c_str());
+}
+
 void CredentialMainView::UpdateCredentail()
 {
     CredentialView * view = new CredentialView(m_Credential, this, this);
@@ -76,6 +84,7 @@ void CredentialMainView::OnClickedNew()
 
         UpdateCredentail();
         UpdateTitle();
+        SaveCredential();
     }
 }
 
@@ -144,6 +153,7 @@ void CredentialMainView::OnClickedMotifyName()
         m_Credential.SetUser(dlg.GetUserName().toStdString());
 
         UpdateTitle();
+        SaveCredential();
     }
 }
 
@@ -152,7 +162,10 @@ void CredentialMainView::OnClickedMotifyWord()
     EditPasswordDialog dlg(this, this);
 
     if (QDialog::Accepted == dlg.exec())
+    {
         m_Credential.SetWord(dlg.GetPassword().toStdString());
+        SaveCredential();
+    }
 }
 
 bool CredentialMainView::OnAddPlatform()
@@ -163,6 +176,7 @@ bool CredentialMainView::OnAddPlatform()
     {
         m_Credential.List().Insert(platform);
         UpdateCredentail();
+        SaveCredential();
         return true;
     }
 
@@ -180,6 +194,7 @@ bool CredentialMainView::OnAddAccount(bnb::platform_type* pp)
         {
             ptr_platform->m_Value.Insert(account);
             UpdateCredentail();
+            SaveCredential();
             return true;
         }
     }
@@ -192,6 +207,7 @@ bool CredentialMainView::OnRemovePlatform(bnb::platform_type * pp)
     if (m_Credential.List().Remove(*pp))
     {
         UpdateCredentail();
+        SaveCredential();
         return true;
     }
     
@@ -206,6 +222,7 @@ bool CredentialMainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_t
         if (ptr_platform->m_Value.Remove(*pa))
         {
             UpdateCredentail();
+            SaveCredential();
             return true;
         }
     }
@@ -216,13 +233,21 @@ bool CredentialMainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_t
 bool CredentialMainView::OnEditPlatform(bnb::platform_type * pp)
 {
     EditPlatformDialog dlg(*pp, this, this);
-    return (QDialog::Accepted == dlg.exec());
+    if (QDialog::Accepted == dlg.exec())
+    {
+        SaveCredential();
+        return true;
+    }
 }
 
 bool CredentialMainView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
 {
     EditAccountDialog dlg(*pp, *pa, this, this);
-    return (QDialog::Accepted == dlg.exec());
+    if (QDialog::Accepted == dlg.exec())
+    {
+        SaveCredential();
+        return true;
+    }
 }
 
 bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
