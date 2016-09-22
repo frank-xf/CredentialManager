@@ -163,6 +163,17 @@ public:
         return true;
     }
 
+    bool SetKey(key_type& src, const key_type& dst)
+    {
+        for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            if (&ptr->m_Pair.m_Key != &src)
+                if (ptr->m_Pair.m_Key == dst)
+                    return false;
+
+        src = dst;
+        return true;
+    }
+
     data_type* Find(const key_type& key)
     {
         for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
@@ -195,6 +206,7 @@ struct platform_data
 
 using account_type = pair_type<string_type, account_data>;
 using platform_type = pair_type<string_type, platform_data>;
+using property_type = pair_type<string_type, string_type>;
 
 using property_list = list_type<string_type, string_type>;
 using account_list = list_type<account_type, property_list>;

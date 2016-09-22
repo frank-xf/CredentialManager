@@ -40,7 +40,6 @@ namespace delegate_ns
     {
         virtual bool SetPlatform(bnb::platform_type& p1, const bnb::platform_type& p2) = 0;
         virtual bool SetAccount(const bnb::platform_type& pp, bnb::account_type& a1, const bnb::account_type& a2) = 0;
-        virtual bool SetKey(const bnb::platform_type& pp, const bnb::account_type& pa, bnb::string_type& k1, const bnb::string_type& k2) = 0;
         virtual bool ValidateUserName(const bnb::string_type& username) = 0;
         virtual bool ValidatePassword(const bnb::string_type& password) = 0;
 

@@ -184,18 +184,6 @@ void CredentialDialog::OnClickedRemove()
 {
 }
 
-bool CredentialDialog::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
-{
-    EditAccountDialog dlg(*pp, *pa, this, this);
-    if (QDialog::Accepted == dlg.exec())
-    {
-        SaveCredential();
-        return true;
-    }
-
-    return false;
-}
-
 void CredentialDialog::ui_type::SetupUI(CredentialDialog * pView)
 {
     pView->setObjectName("CredentialDialog");

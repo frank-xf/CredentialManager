@@ -194,46 +194,6 @@ private:
 
 class EditPropertyDialog : public QDialog
 {
-    using delegate_type = delegate_ns::validate_delegate;
-
-    struct ui_type
-    {
-    private:
-
-        QLabel* _labKey;
-        QLabel* _labValue;
-
-    public:
-
-        QLabel* m_labHint;
-
-        QLineEdit* m_editKey;
-        QLineEdit* m_editValue;
-
-        QPushButton* m_btnOK;
-        QPushButton* m_btnCancel;
-
-        void SetupUI(EditPropertyDialog* pView);
-        void RetranslateUI(EditPropertyDialog* pView);
-    };
-
-public:
-
-    EditPropertyDialog(bnb::platform_type& platform, bnb::account_type& account, delegate_type* ptrDelegate, QWidget * parent);
-
-    void OnChangedText(const QString&);
-    void OnClickedOK();
-
-private:
-
-    ui_type _ui;
-
-    bnb::& m_Account;
-    bnb::platform_type& m_Platform;
-    delegate_type* m_ptrDelegate;
-
-
-
 
 };  // class EditPropertyDialog
 

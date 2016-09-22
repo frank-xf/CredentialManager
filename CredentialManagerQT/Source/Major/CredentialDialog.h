@@ -56,8 +56,6 @@ private:
     void OnClickedAdd();
     void OnClickedRemove();
 
-    bool SetKey(const bnb::platform_type& pp, const bnb::account_type& pa, bnb::string_type& k1, const bnb::string_type& k2) override;
-
 private:
 	
     bnb::Credential& m_Credential;
