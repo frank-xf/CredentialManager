@@ -11,31 +11,44 @@ QT_BEGIN_NAMESPACE
 class QPushButton;
 class QScrollArea;
 class QLabel;
-class NavigationView;
+class ToolBar;
 class ContentView;
 class QTreeWidget;
 
-class CredentialMainView
+class MainView
     : public QWidget
     , public delegate_ns::credential_delegate
     , public delegate_ns::validate_delegate
 {
     struct ui_type
     {
-        NavigationView* m_viewNavigation;
+        QAction* m_actAddAccount;
+        QAction* m_actAddPlatform;
+        QAction* m_actAddProperty;
+        QAction* m_actDelAccount;
+        QAction* m_actDelPlatform;
+        QAction* m_actDelProperty;
+        QAction* m_actEditAccount;
+        QAction* m_actEditPlatform;
+        QAction* m_actEditProperty;
+        QAction* m_actAlterPassword;
+        QAction* m_actAlterUserName;
+        
+        ToolBar* m_viewNavigation;
         ContentView* m_viewContent;
         QTreeWidget* m_treeView;
 
-        void SetupUI(CredentialMainView* pView);
-        void RetranslateUI(CredentialMainView* pView);
+        void SetupUI(MainView* pView);
+        void RetranslateUI(MainView* pView);
     };
 
 public:
 
-    CredentialMainView(QWidget *parent = nullptr);
+    MainView(QWidget *parent = nullptr);
 
 private:
 
+    void ResetCredential();
     bool SaveCredential() const;
 
     void UpdateTitle();
@@ -43,6 +56,9 @@ private:
 
     void OnClickedNew();
     void OnClickedOpen();
+    void OnClickedAbout();
+    void OnTreeContextMenu(const QPoint&);
+
     void OnClickedMotifyName();
     void OnClickedMotifyWord();
 

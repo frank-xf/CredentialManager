@@ -5,13 +5,14 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QSplitter>
+#include <QtWidgets/QStyleFactory>
 
 #include "credential_qt_utils.h"
 
-#include "Major/NavigationView.h"
+#include "Major/ToolBar.h"
 #include "Major/ContentView.h"
 
-#include "Major/CredentialMainView.h"
+#include "Major/MainView.h"
 #include "Major/CredentialItem.h"
 #include "Major/CredentialView.h"
 #include "Major/CredentialDialog.h"
@@ -23,16 +24,63 @@
 
 QT_BEGIN_NAMESPACE
 
-CredentialMainView::CredentialMainView(QWidget *parent)
+MainView::MainView(QWidget *parent)
     : QWidget(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint)
 {
     ui_utils::SetBackgroundColor(this, ui_utils::g_clrManView);
 
     _ui.SetupUI(this);
 
+    QObject::connect(_ui.m_viewNavigation->UI().m_btnNew, &QPushButton::clicked, this, &MainView::OnClickedNew);
+    QObject::connect(_ui.m_viewNavigation->UI().m_btnOpen, &QPushButton::clicked, this, &MainView::OnClickedOpen);
+    QObject::connect(_ui.m_viewNavigation->UI().m_btnAbout, &QPushButton::clicked, this, &MainView::OnClickedAbout);
+
+    QObject::connect(_ui.m_treeView, &QTreeWidget::customContextMenuRequested, this, &MainView::OnTreeContextMenu);
+
+
+
+
+    ResetCredential();
 }
 
-bool CredentialMainView::SaveCredential() const
+void MainView::ResetCredential()
+{
+    _ui.m_treeView->clear();
+
+    QString strRoot("Credential");
+
+    if (m_Credential.IsValid())
+        strRoot += (" - " + QString::fromStdString(m_Credential.GetUser()));
+
+    QTreeWidgetItem* item_root = new QTreeWidgetItem({ strRoot });
+    item_root->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+    _ui.m_treeView->setHeaderItem(item_root);
+
+    for (auto ptr_platform = m_Credential.List().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+    {
+        QTreeWidgetItem* item_platform = new QTreeWidgetItem(_ui.m_treeView, { QString::fromStdString(ptr_platform->m_Pair.m_Key.m_Key) });
+        item_platform->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+        _ui.m_treeView->addTopLevelItem(item_platform);
+
+        for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
+        {
+            QTreeWidgetItem* item_account = new QTreeWidgetItem(item_platform, { QString::fromStdString(ptr_account->m_Pair.m_Key.m_Key) });
+            item_account->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+            item_platform->addChild(item_account);
+            
+            for (auto ptr_property = ptr_account->m_Pair.m_Value.Head(); ptr_property; ptr_property = ptr_property->m_Next)
+            {
+                QTreeWidgetItem* item_property = new QTreeWidgetItem(item_account, { QString::fromStdString(ptr_property->m_Pair.m_Key) });
+                item_property->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+                item_account->addChild(item_property);
+            }
+        }
+    }
+
+    _ui.m_treeView->expandAll();
+}
+
+bool MainView::SaveCredential() const
 {
     if (m_Credential.GetWord().empty()) return false;
     if (m_strFile.isEmpty()) return false;
@@ -40,7 +88,7 @@ bool CredentialMainView::SaveCredential() const
     return m_Credential.Save(m_strFile.toStdString().c_str());
 }
 
-void CredentialMainView::UpdateCredentail()
+void MainView::UpdateCredentail()
 {
     /*
     CredentialView * view = new CredentialView(m_Credential, this, this);
@@ -58,12 +106,12 @@ void CredentialMainView::UpdateCredentail()
     */
 }
 
-void CredentialMainView::UpdateTitle()
+void MainView::UpdateTitle()
 {
     // setWindowTitle("Credential - " + QString::fromStdString(m_Credential.GetUser()) + " [" + m_strFile + "]");
 }
 
-void CredentialMainView::OnClickedNew()
+void MainView::OnClickedNew()
 {
     CreateDialog dlg(this);
 
@@ -83,7 +131,7 @@ void CredentialMainView::OnClickedNew()
     }
 }
 
-void CredentialMainView::OnClickedOpen()
+void MainView::OnClickedOpen()
 {
     /*
     QString strFile = QFileDialog::getOpenFileName(
@@ -135,11 +183,20 @@ void CredentialMainView::OnClickedOpen()
         return;
     }
 
-    UpdateCredentail();
-    UpdateTitle();
+    //UpdateCredentail();
+    //UpdateTitle();
+    ResetCredential();
 }
 
-void CredentialMainView::OnClickedMotifyName()
+void MainView::OnClickedAbout()
+{
+}
+
+void MainView::OnTreeContextMenu(const QPoint &)
+{
+}
+
+void MainView::OnClickedMotifyName()
 {
     EditUserNameDialog dlg(QString::fromStdString(m_Credential.GetUser()), this, this);
 
@@ -152,7 +209,7 @@ void CredentialMainView::OnClickedMotifyName()
     }
 }
 
-void CredentialMainView::OnClickedMotifyWord()
+void MainView::OnClickedMotifyWord()
 {
     EditPasswordDialog dlg(this, this);
 
@@ -163,7 +220,7 @@ void CredentialMainView::OnClickedMotifyWord()
     }
 }
 
-bool CredentialMainView::OnAddPlatform()
+bool MainView::OnAddPlatform()
 {
     bnb::platform_type platform;
     EditPlatformDialog dlg(platform, this, this);
@@ -178,7 +235,7 @@ bool CredentialMainView::OnAddPlatform()
     return false;
 }
 
-bool CredentialMainView::OnAddAccount(bnb::platform_type* pp)
+bool MainView::OnAddAccount(bnb::platform_type* pp)
 {
     auto ptr_platform = m_Credential.List().Find(*pp);
     if (ptr_platform)
@@ -197,7 +254,7 @@ bool CredentialMainView::OnAddAccount(bnb::platform_type* pp)
     return false;
 }
 
-bool CredentialMainView::OnRemovePlatform(bnb::platform_type * pp)
+bool MainView::OnRemovePlatform(bnb::platform_type * pp)
 {
     if (m_Credential.List().Remove(*pp))
     {
@@ -209,7 +266,7 @@ bool CredentialMainView::OnRemovePlatform(bnb::platform_type * pp)
     return false;
 }
 
-bool CredentialMainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
+bool MainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
 {
     auto ptr_platform = m_Credential.List().Find(*pp);
     if (ptr_platform)
@@ -225,7 +282,7 @@ bool CredentialMainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_t
     return false;
 }
 
-bool CredentialMainView::OnEditPlatform(bnb::platform_type * pp)
+bool MainView::OnEditPlatform(bnb::platform_type * pp)
 {
     EditPlatformDialog dlg(*pp, this, this);
     if (QDialog::Accepted == dlg.exec())
@@ -237,7 +294,7 @@ bool CredentialMainView::OnEditPlatform(bnb::platform_type * pp)
     return false;
 }
 
-bool CredentialMainView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
+bool MainView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
 {
     EditAccountDialog dlg(*pp, *pa, this, this);
     if (QDialog::Accepted == dlg.exec())
@@ -249,7 +306,7 @@ bool CredentialMainView::OnEditAccount(bnb::platform_type * pp, bnb::account_typ
     return false;
 }
 
-bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
+bool MainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
 {
     /*
     CredentialDialog dlg(m_Credential, this);
@@ -259,12 +316,12 @@ bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_
     return true;
 }
 
-bool CredentialMainView::SetPlatform(bnb::platform_type & p1, const bnb::platform_type & p2)
+bool MainView::SetPlatform(bnb::platform_type & p1, const bnb::platform_type & p2)
 {
     return m_Credential.List().SetKey(p1, p2);
 }
 
-bool CredentialMainView::SetAccount(const bnb::platform_type & pp, bnb::account_type & a1, const bnb::account_type & a2)
+bool MainView::SetAccount(const bnb::platform_type & pp, bnb::account_type & a1, const bnb::account_type & a2)
 {
     auto ptr_platform = m_Credential.List().Find(pp);
     if (ptr_platform)
@@ -273,25 +330,28 @@ bool CredentialMainView::SetAccount(const bnb::platform_type & pp, bnb::account_
     return false;
 }
 
-bool CredentialMainView::ValidateUserName(const bnb::string_type & username)
+bool MainView::ValidateUserName(const bnb::string_type & username)
 {
     return !username.empty();
 }
 
-bool CredentialMainView::ValidatePassword(const bnb::string_type & password)
+bool MainView::ValidatePassword(const bnb::string_type & password)
 {
     return (m_Credential.GetWord() == password);
 }
 
-void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
+void MainView::ui_type::SetupUI(MainView* pView)
 {
-    pView->setObjectName("CredentialMainView");
+    pView->setObjectName("MainView");
     pView->setWindowTitle("Credential Manager");
 
     QSplitter* phSplitter = new QSplitter(Qt::Horizontal, pView);
     phSplitter->setObjectName("MainSplitter");
 
     m_treeView = new QTreeWidget(phSplitter);
+    m_treeView->setStyle(QStyleFactory::create("Windows"));
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+
     m_viewContent = new ContentView(phSplitter);
     
     phSplitter->setHandleWidth(1);
@@ -299,7 +359,7 @@ void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
     phSplitter->setChildrenCollapsible(false);
     phSplitter->setStretchFactor(1, 1);
 
-    m_viewNavigation = new NavigationView(pView);
+    m_viewNavigation = new ToolBar(pView);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
     pMainLayout->setMargin(2);
@@ -312,7 +372,7 @@ void CredentialMainView::ui_type::SetupUI(CredentialMainView* pView)
     RetranslateUI(pView);
 }
 
-void CredentialMainView::ui_type::RetranslateUI(CredentialMainView * pView)
+void MainView::ui_type::RetranslateUI(MainView * pView)
 {
 
 }

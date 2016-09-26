@@ -1,16 +1,18 @@
 ﻿#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QLabel>
-#include "Major/NavigationView.h"
 
-NavigationView::NavigationView(QWidget * parent) : QWidget(parent)
+#include "Major/ToolBar.h"
+
+ToolBar::ToolBar(QWidget * parent) : QWidget(parent)
 {
     _ui.SetupUI(this);
+
 }
 
-void NavigationView::ui_type::SetupUI(QWidget * pView)
+void ToolBar::ui_type::SetupUI(QWidget * pView)
 {
-    pView->setObjectName("NavigationView");
+    pView->setObjectName("ToolBar");
 
     m_editPath = new QLabel(pView);
     m_btnOpen = new QPushButton(pView);
@@ -35,7 +37,7 @@ void NavigationView::ui_type::SetupUI(QWidget * pView)
     RetranslateUI(pView);
 }
 
-void NavigationView::ui_type::RetranslateUI(QWidget * pView)
+void ToolBar::ui_type::RetranslateUI(QWidget * pView)
 {
     m_btnOpen->setText("Open");
     m_btnNew->setText("New");

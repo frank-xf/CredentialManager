@@ -14,6 +14,9 @@ namespace ui_utils
 {
     enum ui_size
     {
+        tree_item_w = 64,
+        tree_item_h = 24,
+
         view_default_h = 520,
 
         edit_default_w = 160,
@@ -55,6 +58,8 @@ namespace ui_utils
     QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = to_uint(lab_mark_w), unsigned int h = to_uint(lab_mark_h));
     QLabel* MakeShowLabel(QWidget* parent, unsigned int w = to_uint(lab_default_w), unsigned int h = to_uint(lab_default_h));
     QPushButton* MakeButton(QWidget* parent, unsigned int w = to_uint(btn_default_w), unsigned int h = to_uint(btn_default_h));
+
+    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, const QString& f, unsigned int u);
 }
 
 QT_END_NAMESPACE

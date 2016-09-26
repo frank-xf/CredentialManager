@@ -229,13 +229,13 @@ void CredentialDialog::ui_type::SetupUI(CredentialDialog * pView)
     m_tabProperty->setSelectionMode(QAbstractItemView::SingleSelection);
     m_tabProperty->setSelectionBehavior(QAbstractItemView::SelectRows);
     m_tabProperty->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    m_tabProperty->verticalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    m_tabProperty->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     m_tabProperty->verticalHeader()->setDefaultSectionSize(28);
     m_tabProperty->verticalHeader()->setVisible(false);
     m_tabProperty->horizontalHeader()->setFixedHeight(24);
     m_tabProperty->horizontalHeader()->setHighlightSections(false);
     m_tabProperty->horizontalHeader()->setStretchLastSection(true);
-    m_tabProperty->horizontalHeader()->setSectionResizeMode(QHeaderView::Fixed);
+    m_tabProperty->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_tabProperty->horizontalHeader()->resizeSection(0, 200);
     m_tabProperty->horizontalHeader()->resizeSection(1, 200);
 

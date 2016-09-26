@@ -212,6 +212,14 @@ using property_list = list_type<string_type, string_type>;
 using account_list = list_type<account_type, property_list>;
 using platform_list = list_type<platform_type, account_list>;
 
+enum class node_type : unsigned char
+{
+    nt_credential,
+    nt_platform,
+    nt_account,
+    nt_property
+};
+
 enum class result_type : unsigned char
 {
     rt_success,
