@@ -22,7 +22,7 @@ CredentialView::CredentialView(bnb::Credential& src, delegate_type* ptrDelegate,
 
     _ui.SetupUI(this);
 
-    LayoutView(src.List());
+    LayoutView(src.Tree());
 
     QObject::connect(_ui.m_actAddPlatform, &QAction::triggered, this, &CredentialView::OnClickedAddPlatform);
 

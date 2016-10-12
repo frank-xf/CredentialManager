@@ -4,10 +4,13 @@
 #include <QtWidgets/QScrollArea>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QTreeWidget>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QSplitter>
 #include <QtWidgets/QStyleFactory>
 
 #include "credential_qt_utils.h"
+#include "credential_qt_manager.h"
+#include "credential_model_manager.h"
 
 #include "Major/ToolBar.h"
 #include "Major/ContentView.h"
@@ -24,54 +27,71 @@
 
 QT_BEGIN_NAMESPACE
 
+inline static bnb::credential_type GetItemType(const QTreeWidgetItem& item)
+{
+    return static_cast<bnb::credential_type>(item.data(0, Qt::UserRole).toUInt());
+}
+
 MainView::MainView(QWidget *parent)
     : QWidget(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint)
 {
+	setAttribute(Qt::WA_DeleteOnClose, true);
+
     ui_utils::SetBackgroundColor(this, ui_utils::g_clrManView);
 
     _ui.SetupUI(this);
 
-    QObject::connect(_ui.m_viewNavigation->UI().m_btnNew, &QPushButton::clicked, this, &MainView::OnClickedNew);
-    QObject::connect(_ui.m_viewNavigation->UI().m_btnOpen, &QPushButton::clicked, this, &MainView::OnClickedOpen);
-    QObject::connect(_ui.m_viewNavigation->UI().m_btnAbout, &QPushButton::clicked, this, &MainView::OnClickedAbout);
+    QObject::connect(_ui.m_viewToolBar->UI().m_btnNew, &QPushButton::clicked, this, &MainView::OnClickedNew);
+    QObject::connect(_ui.m_viewToolBar->UI().m_btnOpen, &QPushButton::clicked, this, &MainView::OnClickedOpen);
+    QObject::connect(_ui.m_viewToolBar->UI().m_btnAbout, &QPushButton::clicked, this, &MainView::OnClickedAbout);
 
     QObject::connect(_ui.m_treeView, &QTreeWidget::customContextMenuRequested, this, &MainView::OnTreeContextMenu);
+    QObject::connect(_ui.m_treeView, &QTreeWidget::currentItemChanged, this, &MainView::OnItemChanged);
+	QObject::connect(_ui.m_treeView, &QTreeWidget::itemDoubleClicked, this, &MainView::OnDoubleClickedItem);
 
+	QObject::connect(_ui.m_actAddAccount, &QAction::triggered, this, &MainView::OnAddAccount);
+	QObject::connect(_ui.m_actAddPlatform, &QAction::triggered, this, &MainView::OnAddPlatform);
+	QObject::connect(_ui.m_actAddProperty, &QAction::triggered, this, &MainView::OnAddProperty);
+	QObject::connect(_ui.m_actDelAccount, &QAction::triggered, this, &MainView::OnRemoveAccount);
+	QObject::connect(_ui.m_actDelPlatform, &QAction::triggered, this, &MainView::OnRemovePlatform);
+	QObject::connect(_ui.m_actDelProperty, &QAction::triggered, this, &MainView::OnRemoveProperty);
+	QObject::connect(_ui.m_actEditAccount, &QAction::triggered, this, &MainView::OnEditAccount);
+	QObject::connect(_ui.m_actEditPlatform, &QAction::triggered, this, &MainView::OnEditPlatform);
+	QObject::connect(_ui.m_actEditProperty, &QAction::triggered, this, &MainView::OnEditProperty);
+	QObject::connect(_ui.m_actModifyPassword, &QAction::triggered, this, &MainView::OnMotifyPassword);
+	QObject::connect(_ui.m_actEditCredential, &QAction::triggered, this, &MainView::OnEditCredential);
 
-
-
-    ResetCredential();
+    InitCredential();
 }
 
-void MainView::ResetCredential()
+void MainView::InitCredential()
 {
-    _ui.m_treeView->clear();
-
-    QString strRoot("Credential");
-
-    if (m_Credential.IsValid())
-        strRoot += (" - " + QString::fromStdString(m_Credential.GetUser()));
-
-    QTreeWidgetItem* item_root = new QTreeWidgetItem({ strRoot });
+    QTreeWidgetItem* item_root = new QTreeWidgetItem;
     item_root->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+    item_root->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_credential));
     _ui.m_treeView->setHeaderItem(item_root);
 
-    for (auto ptr_platform = m_Credential.List().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+	UpdateHeader();
+
+    for (auto ptr_platform = g_AppMgr.Model().Info().Tree().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
     {
-        QTreeWidgetItem* item_platform = new QTreeWidgetItem(_ui.m_treeView, { QString::fromStdString(ptr_platform->m_Pair.m_Key.m_Key) });
+        QTreeWidgetItem* item_platform = new QTreeWidgetItem(_ui.m_treeView, { QString::fromStdString(ptr_platform->m_Pair.m_Key.m_strName) });
         item_platform->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+        item_platform->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_platform));
         _ui.m_treeView->addTopLevelItem(item_platform);
 
         for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
         {
-            QTreeWidgetItem* item_account = new QTreeWidgetItem(item_platform, { QString::fromStdString(ptr_account->m_Pair.m_Key.m_Key) });
+            QTreeWidgetItem* item_account = new QTreeWidgetItem(item_platform, { QString::fromStdString(ptr_account->m_Pair.m_Key.m_strName) });
             item_account->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+            item_account->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_account));
             item_platform->addChild(item_account);
             
             for (auto ptr_property = ptr_account->m_Pair.m_Value.Head(); ptr_property; ptr_property = ptr_property->m_Next)
             {
-                QTreeWidgetItem* item_property = new QTreeWidgetItem(item_account, { QString::fromStdString(ptr_property->m_Pair.m_Key) });
+                QTreeWidgetItem* item_property = new QTreeWidgetItem(item_account, { QString::fromStdString(ptr_property->m_Pair.m_Key.m_strName) });
                 item_property->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+                item_property->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_property));
                 item_account->addChild(item_property);
             }
         }
@@ -80,264 +100,177 @@ void MainView::ResetCredential()
     _ui.m_treeView->expandAll();
 }
 
-bool MainView::SaveCredential() const
+void MainView::ClearCredential()
 {
-    if (m_Credential.GetWord().empty()) return false;
-    if (m_strFile.isEmpty()) return false;
+	_ui.m_treeView->clear();
 
-    return m_Credential.Save(m_strFile.toStdString().c_str());
 }
 
-void MainView::UpdateCredentail()
+void MainView::UpdateHeader()
 {
-    /*
-    CredentialView * view = new CredentialView(m_Credential, this, this);
-
-    QWidget* old = _ui.m_areaCredential->takeWidget();
-    if (nullptr != old) delete old;
-
-    _ui.m_areaCredential->setWidget(view);
-    _ui.m_areaCredential->setMaximumSize(view->width() + 20, view->height() + 2);
-
-    if (!_ui.m_btnMotifyName->isEnabled()) _ui.m_btnMotifyName->setEnabled(true);
-    if (!_ui.m_btnMotifyWord->isEnabled()) _ui.m_btnMotifyWord->setEnabled(true);
-
-    UpdateSize();
-    */
-}
-
-void MainView::UpdateTitle()
-{
-    // setWindowTitle("Credential - " + QString::fromStdString(m_Credential.GetUser()) + " [" + m_strFile + "]");
+	QTreeWidgetItem* pItem = _ui.m_treeView->headerItem();
+	if (pItem)
+	{
+		if (g_AppMgr.Model().Info().IsValid())
+			pItem->setText(0, QString::fromStdString("Credential - " + g_AppMgr.Model().Info().GetUser()));
+		else
+			pItem->setText(0, "Credential");
+	}
 }
 
 void MainView::OnClickedNew()
 {
-    CreateDialog dlg(this);
+	CreateDialog dlg(this);
 
-    if (QDialog::Accepted == dlg.exec())
-    {
-        m_Credential.Clear();
-
-        m_Credential.SetUser(dlg.GetUserName().toStdString());
-        m_Credential.SetWord(dlg.GetPassword().toStdString());
-        m_Credential.UpdateTime();
-
-        m_strFile = dlg.GetFilePath();
-
-        UpdateCredentail();
-        UpdateTitle();
-        SaveCredential();
-    }
+	if (QDialog::Accepted == dlg.exec())
+	{
+		ClearCredential();
+		InitCredential();
+	}
 }
 
 void MainView::OnClickedOpen()
 {
-    /*
-    QString strFile = QFileDialog::getOpenFileName(
-        this, "Please select a credential file", ".", "credential file(*.credential)");
-        */
+	/*
+	QString strFile = QFileDialog::getOpenFileName(
+	this, "Please select a credential file", ".", "credential file(*.credential)");
+	*/
 
-    QString strFile("def.credential");
-    if (strFile.isEmpty()) return;
-    
-    m_strFile = strFile;
+	QString strFile("def.credential");
+	if (strFile.isEmpty()) return;
 
-    bnb::memory_type dst;
-
-    switch (bnb::Credential::CheckFile(m_strFile.toUtf8(), &dst))
-    {
-    case bnb::result_type::rt_file_error:
-        HintDialog(hint_type::ht_error, "You selected file error !", this).exec();
-        return;
-    case bnb::result_type::rt_file_invalid:
-        HintDialog(hint_type::ht_error, "You selected file invalid !", this).exec();
-        return;
-    default:
-        break;
-    }
-    
-    PasswordInput dlg(this);
-    if (QDialog::Accepted == dlg.exec())
-    {
-        QString password = /*"123"; //*/ dlg.GetPassword();
-        switch (bnb::Credential::Decoding(dst, (const unsigned char*)password.toStdString().c_str(), password.size()))
-        {
-        case bnb::result_type::rt_password_invalid:
-            HintDialog(hint_type::ht_error, "You input password invalid !", this).exec();
-            return;
-        case bnb::result_type::rt_password_error:
-            HintDialog(hint_type::ht_error, "You input password error !", this).exec();
-            return;
-        case bnb::result_type::rt_file_error:
-            HintDialog(hint_type::ht_error, "Anaylze file failed !", this).exec();
-            return;
-        default:
-            break;
-        }
-    }
-    
-    if (!m_Credential.FromXml(dst))
-    {
-        m_Credential.SetWord(dlg.GetPassword().toStdString());
-        return;
-    }
-
-    //UpdateCredentail();
-    //UpdateTitle();
-    ResetCredential();
+	if (g_AppMgr.Model().Load(strFile.toStdString()))
+	{
+		ClearCredential();
+		InitCredential();
+	}
 }
 
 void MainView::OnClickedAbout()
 {
 }
 
-void MainView::OnTreeContextMenu(const QPoint &)
+void MainView::OnTreeContextMenu(const QPoint & pos)
+{
+	QTreeWidgetItem* pItem = _ui.m_treeView->itemAt(pos);
+
+	QMenu treeMenu(_ui.m_treeView);
+
+	if (nullptr == pItem /*|| nullptr == pItem->parent()*/)
+	{
+		treeMenu.addAction(_ui.m_actEditCredential);
+		treeMenu.addAction(_ui.m_actModifyPassword);
+		treeMenu.addSeparator();
+		treeMenu.addAction(_ui.m_actAddPlatform);
+	}
+	else
+	{
+		switch (static_cast<bnb::credential_type>(pItem->data(0, Qt::UserRole).toUInt()))
+		{
+		case bnb::credential_type::ct_property:
+			treeMenu.addAction(_ui.m_actEditProperty);
+			treeMenu.addAction(_ui.m_actDelProperty);
+			break;
+		case bnb::credential_type::ct_account:
+			treeMenu.addAction(_ui.m_actEditAccount);
+			treeMenu.addAction(_ui.m_actDelAccount);
+			treeMenu.addSeparator();
+			treeMenu.addAction(_ui.m_actAddProperty);
+			break;
+		case bnb::credential_type::ct_platform:
+			treeMenu.addAction(_ui.m_actEditPlatform);
+			treeMenu.addAction(_ui.m_actDelPlatform);
+			treeMenu.addSeparator();
+			treeMenu.addAction(_ui.m_actAddAccount);
+			break;
+		default:
+			break;
+		}
+	}
+
+	treeMenu.exec(QCursor::pos());
+}
+
+void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 {
 }
 
-void MainView::OnClickedMotifyName()
+void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
 {
-    EditUserNameDialog dlg(QString::fromStdString(m_Credential.GetUser()), this, this);
+}
 
-    if (QDialog::Accepted == dlg.exec())
+void MainView::OnEditCredential()
+{
+	EditCredentialDialog dlg(this);
+
+	if (QDialog::Accepted == dlg.exec())
+	{
+		UpdateHeader();
+	}
+}
+
+void MainView::OnMotifyPassword()
+{
+	EditPasswordDialog dlg(this);
+
+	dlg.exec();
+}
+
+void MainView::OnAddPlatform()
+{
+}
+
+void MainView::OnAddAccount()
+{
+}
+
+void MainView::OnAddProperty()
+{
+}
+
+void MainView::OnEditPlatform()
+{
+}
+
+void MainView::OnEditAccount()
+{
+    QTreeWidgetItem* pAccount = _ui.m_treeView->currentItem();
+    if (nullptr == pAccount)
     {
-        m_Credential.SetUser(dlg.GetUserName().toStdString());
-
-        UpdateTitle();
-        SaveCredential();
+        return;
     }
-}
-
-void MainView::OnClickedMotifyWord()
-{
-    EditPasswordDialog dlg(this, this);
-
-    if (QDialog::Accepted == dlg.exec())
+    if (bnb::credential_type::ct_account != GetItemType(*pAccount))
     {
-        m_Credential.SetWord(dlg.GetPassword().toStdString());
-        SaveCredential();
-    }
-}
-
-bool MainView::OnAddPlatform()
-{
-    bnb::platform_type platform;
-    EditPlatformDialog dlg(platform, this, this);
-    if (QDialog::Accepted == dlg.exec())
-    {
-        m_Credential.List().Insert(platform);
-        UpdateCredentail();
-        SaveCredential();
-        return true;
-    }
-
-    return false;
-}
-
-bool MainView::OnAddAccount(bnb::platform_type* pp)
-{
-    auto ptr_platform = m_Credential.List().Find(*pp);
-    if (ptr_platform)
-    {
-        bnb::account_type account;
-        EditAccountDialog dlg(*pp, account, this, this);
-        if (QDialog::Accepted == dlg.exec())
-        {
-            ptr_platform->m_Value.Insert(account);
-            UpdateCredentail();
-            SaveCredential();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool MainView::OnRemovePlatform(bnb::platform_type * pp)
-{
-    if (m_Credential.List().Remove(*pp))
-    {
-        UpdateCredentail();
-        SaveCredential();
-        return true;
-    }
-    
-    return false;
-}
-
-bool MainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
-{
-    auto ptr_platform = m_Credential.List().Find(*pp);
-    if (ptr_platform)
-    {
-        if (ptr_platform->m_Value.Remove(*pa))
-        {
-            UpdateCredentail();
-            SaveCredential();
-            return true;
-        }
-    }
-
-    return false;
-}
-
-bool MainView::OnEditPlatform(bnb::platform_type * pp)
-{
-    EditPlatformDialog dlg(*pp, this, this);
-    if (QDialog::Accepted == dlg.exec())
-    {
-        SaveCredential();
-        return true;
+        return;
     }
 
-    return false;
-}
-
-bool MainView::OnEditAccount(bnb::platform_type * pp, bnb::account_type * pa)
-{
-    EditAccountDialog dlg(*pp, *pa, this, this);
-    if (QDialog::Accepted == dlg.exec())
+    QTreeWidgetItem* pPlatform = pAccount->parent();
+    if (nullptr == pPlatform)
     {
-        SaveCredential();
-        return true;
+        return;
+    }
+    if (bnb::credential_type::ct_platform != GetItemType(*pPlatform))
+    {
+        return;
     }
 
-    return false;
+
 }
 
-bool MainView::OnViewCredential(bnb::platform_type * pp, bnb::account_type * pa)
+void MainView::OnEditProperty()
 {
-    /*
-    CredentialDialog dlg(m_Credential, this);
-
-    dlg.exec();
-    */
-    return true;
 }
 
-bool MainView::SetPlatform(bnb::platform_type & p1, const bnb::platform_type & p2)
+void MainView::OnRemovePlatform()
 {
-    return m_Credential.List().SetKey(p1, p2);
 }
 
-bool MainView::SetAccount(const bnb::platform_type & pp, bnb::account_type & a1, const bnb::account_type & a2)
+void MainView::OnRemoveAccount()
 {
-    auto ptr_platform = m_Credential.List().Find(pp);
-    if (ptr_platform)
-        return ptr_platform->m_Value.SetKey(a1, a2);
-
-    return false;
 }
 
-bool MainView::ValidateUserName(const bnb::string_type & username)
+void MainView::OnRemoveProperty()
 {
-    return !username.empty();
-}
-
-bool MainView::ValidatePassword(const bnb::string_type & password)
-{
-    return (m_Credential.GetWord() == password);
 }
 
 void MainView::ui_type::SetupUI(MainView* pView)
@@ -347,33 +280,56 @@ void MainView::ui_type::SetupUI(MainView* pView)
 
     QSplitter* phSplitter = new QSplitter(Qt::Horizontal, pView);
     phSplitter->setObjectName("MainSplitter");
-
-    m_treeView = new QTreeWidget(phSplitter);
-    m_treeView->setStyle(QStyleFactory::create("Windows"));
-    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-
-    m_viewContent = new ContentView(phSplitter);
-    
     phSplitter->setHandleWidth(1);
     phSplitter->setOpaqueResize(true);
     phSplitter->setChildrenCollapsible(false);
     phSplitter->setStretchFactor(1, 1);
 
-    m_viewNavigation = new ToolBar(pView);
+    m_treeView = new QTreeWidget(phSplitter);
+    m_treeView->setStyle(QStyleFactory::create("Windows"));
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    // m_treeView->setHeaderHidden(true);
+
+    m_viewContent = new ContentView(phSplitter);
+    
+    m_viewToolBar = new ToolBar(pView);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
     pMainLayout->setMargin(2);
     pMainLayout->setSpacing(2);
-    pMainLayout->addWidget(m_viewNavigation);
+    pMainLayout->addWidget(m_viewToolBar);
     pMainLayout->addWidget(phSplitter, 1);
 
     pView->setLayout(pMainLayout);
+
+    m_actAddAccount = new QAction(m_treeView);
+    m_actAddPlatform = new QAction(m_treeView);
+    m_actAddProperty = new QAction(m_treeView);
+    m_actDelAccount = new QAction(m_treeView);
+    m_actDelPlatform = new QAction(m_treeView);
+    m_actDelProperty = new QAction(m_treeView);
+    m_actEditAccount = new QAction(m_treeView);
+    m_actEditPlatform = new QAction(m_treeView);
+    m_actEditProperty = new QAction(m_treeView);
+    m_actModifyPassword = new QAction(m_treeView);
+    m_actEditCredential = new QAction(m_treeView);
 
     RetranslateUI(pView);
 }
 
 void MainView::ui_type::RetranslateUI(MainView * pView)
 {
+    m_actAddAccount->setText("Add Account");
+    m_actAddPlatform->setText("Add Platform");
+    m_actAddProperty->setText("Add Property");
+    m_actDelAccount->setText("Remove Account");
+    m_actDelPlatform->setText("Remove Platform");
+    m_actDelProperty->setText("Remove Property");
+    m_actEditAccount->setText("Edit Account");
+    m_actEditPlatform->setText("Edit Platform");
+    m_actEditProperty->setText("Edit Property");
+    m_actModifyPassword->setText("Modify Password");
+    m_actEditCredential->setText("Edit Credential");
 
 }
 

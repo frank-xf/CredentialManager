@@ -37,15 +37,15 @@ CredentialDialog::CredentialDialog(bnb::Credential& src, QWidget * parent)
 
 void CredentialDialog::InitView()
 {
-    for (auto ptr_platform = m_Credential.List().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+    for (auto ptr_platform = m_Credential.Tree().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
         _ui.m_cboxPlatform->addItem(QString::fromStdString(ptr_platform->m_Pair.m_Key.m_Key));
     
     if (0 < _ui.m_cboxPlatform->count())
     {
         _ui.m_cboxPlatform->setCurrentIndex(0);
 
-        if (m_Credential.List().Head())
-            m_ptrCurAccount = &m_Credential.List().Head()->m_Pair.m_Value;
+        if (m_Credential.Tree().Head())
+            m_ptrCurAccount = &m_Credential.Tree().Head()->m_Pair.m_Value;
     }
     else
     {
@@ -120,7 +120,7 @@ void CredentialDialog::OnChangedPlatform(const QString & strText)
 
     if (!strKey.isEmpty())
     {
-        auto ptr_platform = m_Credential.List().Find(bnb::platform_type(strKey.toStdString()));
+        auto ptr_platform = m_Credential.Tree().Find(bnb::platform_type(strKey.toStdString()));
 
         if (ptr_platform)
             m_ptrCurAccount = &ptr_platform->m_Value;

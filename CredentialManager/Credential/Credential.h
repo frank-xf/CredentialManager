@@ -25,56 +25,40 @@ struct pair_type
 };
 
 template<typename _Ty1, typename _Ty2>
-inline bool operator < (const pair_type<_Ty1, _Ty2>& left, const pair_type<_Ty1, _Ty2>& right)
-{
-    return left.m_Key < right.m_Key;
-}
-
-template<typename _Ty1, typename _Ty2>
-inline bool operator > (const pair_type<_Ty1, _Ty2>& left, const pair_type<_Ty1, _Ty2>& right)
-{
-    return right.m_Key < left.m_Key;
-}
-
-template<typename _Ty1, typename _Ty2>
-inline bool operator == (const pair_type<_Ty1, _Ty2>& left, const pair_type<_Ty1, _Ty2>& right)
-{
-    return (left.m_Key == right.m_Key);
-}
-
-template<typename _Ty1, typename _Ty2>
-inline bool operator != (const pair_type<_Ty1, _Ty2>& left, const pair_type<_Ty1, _Ty2>& right)
-{
-    return !(left == right);
-}
-
-template<typename _Ty1, typename _Ty2>
-class list_type
+class tree_type
 {
     using key_type = _Ty1;
     using value_type = _Ty2;
     using data_type = pair_type<key_type, value_type>;
 
-    struct node_type
+    class node_type
     {
+	private:
+
+		node_type(const node_type&) = delete;
+		node_type& operator=(const node_type&) = delete;
+
+	public:
+
         node_type() : m_Next(nullptr) { }
         node_type(const key_type& key) : m_Pair(key), m_Next(nullptr) { }
 
         data_type  m_Pair;
         node_type* m_Next;
+
     };
 
     node_type* m_Head{ nullptr };
     size_t m_nCount{ 0 };
 
-    list_type(const list_type&) = delete;
-    list_type& operator=(const list_type&) = delete;
+    tree_type(const tree_type&) = delete;
+    tree_type& operator=(const tree_type&) = delete;
 
 public:
 
-    list_type() = default;
+    tree_type() = default;
 
-    ~list_type()
+    ~tree_type()
     {
         Clear();
     }
@@ -185,51 +169,85 @@ public:
 
 };
 
-struct account_data
+enum class credential_type : unsigned char
 {
-    string_type m_strDisplay;
-
-    explicit account_data(const string_type& display = string_type())
-        : m_strDisplay(display)
-    { }
+    ct_credential,
+    ct_platform,
+    ct_account,
+    ct_property
 };
 
-struct platform_data
+struct credential_base
 {
+    const credential_type m_Type;
+    string_type m_strName;
+
+protected:
+
+    explicit credential_base(credential_type ct) : m_Type(ct) { }
+    credential_base(credential_type ct, const string_type& name) : m_Type(ct), m_strName(name) { }
+
+};
+
+struct platform_type : public credential_base
+{
+    platform_type(const string_type& name = string_type(), const string_type& url = string_type(), const string_type& display = string_type())
+        : credential_base(credential_type::ct_property, name)
+        , m_strUrl(url)
+        , m_strDisplay(display)
+    { }
+
     string_type m_strUrl;
     string_type m_strDisplay;
+};
 
-    explicit platform_data(const string_type& url = string_type(), const string_type& display = string_type())
-        : m_strUrl(url), m_strDisplay(display)
+struct account_type : public credential_base
+{
+    account_type(const string_type& name = string_type(), const string_type& display = string_type())
+        : credential_base(credential_type::ct_property, name)
+        , m_strDisplay(display)
     { }
+
+    string_type m_strDisplay;
 };
 
-using account_type = pair_type<string_type, account_data>;
-using platform_type = pair_type<string_type, platform_data>;
-using property_type = pair_type<string_type, string_type>;
-
-using property_list = list_type<string_type, string_type>;
-using account_list = list_type<account_type, property_list>;
-using platform_list = list_type<platform_type, account_list>;
-
-enum class node_type : unsigned char
+struct property_type : public credential_base
 {
-    nt_credential,
-    nt_platform,
-    nt_account,
-    nt_property
+    property_type(const string_type& name = string_type())
+        : credential_base(credential_type::ct_property, name)
+    { }
+
 };
 
-enum class result_type : unsigned char
+struct property_value
 {
-    rt_success,
-    rt_file_invalid,
-    rt_file_error,
-    rt_password_invalid,
-    rt_password_error
+    property_value(const string_type& value = string_type()) : m_strValue(value) { }
+
+    string_type m_strValue;
 };
 
-inline property_list::data_type* property_list::Insert(const string_type& key)
+inline bool operator < (const platform_type& a, const platform_type& b) { return a.m_strName < b.m_strName; }
+inline bool operator < (const account_type& a, const account_type& b) { return a.m_strName < b.m_strName; }
+inline bool operator < (const property_type& a, const property_type& b) { return a.m_strName < b.m_strName; }
+inline bool operator < (const property_value& a, const property_value& b) { return a.m_strValue < b.m_strValue; }
+inline bool operator > (const platform_type& a, const platform_type& b) { return b.m_strName < a.m_strName; }
+inline bool operator > (const account_type& a, const account_type& b) { return b.m_strName < a.m_strName; }
+inline bool operator > (const property_type& a, const property_type& b) { return b.m_strName < a.m_strName; }
+inline bool operator > (const property_value& a, const property_value& b) { return b.m_strValue < a.m_strValue; }
+inline bool operator == (const platform_type& a, const platform_type& b) { return a.m_strName == b.m_strName; }
+inline bool operator == (const account_type& a, const account_type& b) { return a.m_strName == b.m_strName; }
+inline bool operator == (const property_type& a, const property_type& b) { return a.m_strName == b.m_strName; }
+inline bool operator == (const property_value& a, const property_value& b) { return a.m_strValue == b.m_strValue; }
+inline bool operator != (const platform_type& a, const platform_type& b) { return !(a.m_strName == b.m_strName); }
+inline bool operator != (const account_type& a, const account_type& b) { return !(a.m_strName == b.m_strName); }
+inline bool operator != (const property_type& a, const property_type& b) { return !(a.m_strName == b.m_strName); }
+inline bool operator != (const property_value& a, const property_value& b) { return !(a.m_strValue == b.m_strValue); }
+
+using property_tree = tree_type<property_type, property_value>;
+using account_tree = tree_type<account_type, property_tree>;
+using platform_tree = tree_type<platform_type, account_tree>;
+
+inline property_tree::data_type* property_tree::Insert(const property_type& key)
 {
     node_type* last = nullptr;
 
@@ -258,7 +276,7 @@ class Credential
     string_type m_strUser;
     unsigned long long m_ullTime;
 
-    platform_list m_List;
+    platform_tree m_Tree;
 
     Credential(const Credential&) = delete;
     Credential& operator=(const Credential&) = delete;
@@ -272,8 +290,8 @@ public:
     
     bool IsValid() const { return !(m_strUser.empty() || m_strWord.empty()); }
 
-    platform_list& List() { return m_List; }
-    const platform_list& List() const { return m_List; }
+    platform_tree& Tree() { return m_Tree; }
+    const platform_tree& Tree() const { return m_Tree; }
     
     const string_type& GetWord() const { return m_strWord; }
     const string_type& GetUser() const { return m_strUser; }
@@ -281,16 +299,17 @@ public:
     void SetWord(const string_type& strWord) { m_strWord = strWord; }
     void SetUser(const string_type& strUser) { m_strUser = strUser; }
     void UpdateTime();
+	bool ValidateWord(const string_type& strWord) const;
 
     bool FromXml(const memory_type& mt);
     bool ToXml(memory_type& mt) const;
 
-    result_type Load(const char* file);
+    bool Load(const char* file);
     bool Save(const char* file) const;
 
     static bool Encoding(memory_type& mt, const byte_t* key, size_t n);
-    static result_type Decoding(memory_type& mt, const byte_t* key, size_t n);
-    static result_type CheckFile(const char* file, memory_type* dst);
+    static bool Decoding(memory_type& mt, const byte_t* key, size_t n);
+    static bool CheckFile(const char* file, memory_type* dst);
 
 };
 

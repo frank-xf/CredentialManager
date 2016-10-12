@@ -9,36 +9,32 @@
 
 #include "credential_qt_utils.h"
 #include "credential_qt_delegate.h"
+#include "credential_qt_manager.h"
+#include "credential_model_manager.h"
 
 #include "Dialog/EditDialog.h"
 
 //==============================================================================
 // Implementation of EditUserNameDialog
 //==============================================================================
-EditUserNameDialog::EditUserNameDialog(const QString& strUserName, delegate_type* ptrDelegate, QWidget * parent)
+EditCredentialDialog::EditCredentialDialog(QWidget * parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
-    , m_ptrDelegate(ptrDelegate)
 {
     _ui.SetupUI(this);
 
-    _ui.m_editUserName->setText(strUserName);
+    _ui.m_editUserName->setText(QString::fromStdString(g_AppMgr.Model().Info().GetUser()));
 
-    QObject::connect(_ui.m_editUserName, &QLineEdit::textEdited, this, &EditUserNameDialog::OnChangedText);
-    QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &EditUserNameDialog::OnClickedOK);
+    QObject::connect(_ui.m_editUserName, &QLineEdit::textEdited, this, &EditCredentialDialog::OnChangedText);
+    QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &EditCredentialDialog::OnClickedOK);
     QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-QString EditUserNameDialog::GetUserName() const
-{
-    return _ui.m_editUserName->text();
-}
-
-void EditUserNameDialog::OnChangedText(const QString &)
+void EditCredentialDialog::OnChangedText(const QString &)
 {
     _ui.m_labHint->clear();
 }
 
-void EditUserNameDialog::OnClickedOK()
+void EditCredentialDialog::OnClickedOK()
 {
     if (_ui.m_editUserName->text().isEmpty())
     {
@@ -46,20 +42,23 @@ void EditUserNameDialog::OnClickedOK()
         return;
     }
 
-    if (!m_ptrDelegate->ValidateUserName(_ui.m_editUserName->text().toStdString()))
+    if (!true)
     {
         _ui.m_labHint->setText("The user name you entered is invalid !");
         return;
     }
+
+	g_AppMgr.Model().Info().SetUser(_ui.m_editUserName->text().toStdString());
+	g_AppMgr.Model().SaveCredential();
 
     accept();
 }
 
 //------------------------------------------------------------------------------
 
-void EditUserNameDialog::ui_type::SetupUI(EditUserNameDialog * pView)
+void EditCredentialDialog::ui_type::SetupUI(EditCredentialDialog * pView)
 {
-    pView->setObjectName("EditUserNameDialog");
+    pView->setObjectName("EditCredentialDialog");
     pView->setFixedSize(ui_utils::dlg_username_w, ui_utils::dlg_username_h);
 
     _labUserName = new QLabel(pView);
@@ -103,7 +102,7 @@ void EditUserNameDialog::ui_type::SetupUI(EditUserNameDialog * pView)
     RetranslateUI(pView);
 }
 
-void EditUserNameDialog::ui_type::RetranslateUI(EditUserNameDialog * pView)
+void EditCredentialDialog::ui_type::RetranslateUI(EditCredentialDialog * pView)
 {
     _labUserName->setText("User Name:");
 
@@ -114,9 +113,8 @@ void EditUserNameDialog::ui_type::RetranslateUI(EditUserNameDialog * pView)
 //==============================================================================
 // Implementation of EditPasswordDialog
 //==============================================================================
-EditPasswordDialog::EditPasswordDialog(delegate_type * ptrDelegate, QWidget * parent)
+EditPasswordDialog::EditPasswordDialog(QWidget * parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
-    , m_ptrDelegate(ptrDelegate)
 {
     _ui.SetupUI(this);
 
@@ -125,11 +123,6 @@ EditPasswordDialog::EditPasswordDialog(delegate_type * ptrDelegate, QWidget * pa
     QObject::connect(_ui.m_editValidate, &QLineEdit::textEdited, this, &EditPasswordDialog::OnChangedText);
     QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &EditPasswordDialog::OnClickedOK);
     QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
-}
-
-QString EditPasswordDialog::GetPassword() const
-{
-    return _ui.m_editNewPassword->text();
 }
 
 void EditPasswordDialog::OnChangedText(const QString &)
@@ -157,11 +150,14 @@ void EditPasswordDialog::OnClickedOK()
         return;
     }
 
-    if (!m_ptrDelegate->ValidatePassword(_ui.m_editOldPassword->text().toStdString()))
+    if (!g_AppMgr.Model().Info().ValidateWord(_ui.m_editOldPassword->text().toStdString()))
     {
         _ui.m_labHint->setText("The old password you entered is incorrect !");
         return;
     }
+
+	g_AppMgr.Model().Info().SetWord(_ui.m_editNewPassword->text().toStdString());
+	g_AppMgr.Model().SaveCredential();
 
     accept();
 }

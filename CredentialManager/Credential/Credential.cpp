@@ -39,7 +39,7 @@ public:
 
     explicit xml_memory_writer(memory_type& mt) : _memory(mt) { }
 
-    virtual void write(const void* data, size_t n)
+    void write(const void* data, size_t n) override
     {
         _memory.assign(static_cast<const byte_t*>(data), n);
     }
@@ -56,12 +56,25 @@ void Credential::Clear()
     m_strUser.clear();
     m_ullTime = 0;
 
-    m_List.Clear();
+    m_Tree.Clear();
 }
 
 void Credential::UpdateTime()
 {
     m_ullTime = time(nullptr);
+}
+
+bool Credential::ValidateWord(const string_type& strWord) const
+{
+	if (strWord.empty() || m_strWord.size() != strWord.size()) return false;
+	
+	const char_t* ps1 = m_strWord.c_str();
+	const char_t* ps2 = strWord.c_str();
+	for (size_t i = 0; i < m_strWord.size(); ++i)
+		if (ps1[i] != ps2[i])
+			return false;
+
+	return true;
 }
 
 bool Credential::FromXml(const memory_type& mt)
@@ -72,7 +85,7 @@ bool Credential::FromXml(const memory_type& mt)
     auto node_credential = doc.child("credential");
     if (pugi::node_element != node_credential.type()) return false;
 
-    m_List.Clear();
+    m_Tree.Clear();
 
     m_strUser = node_credential.attribute("user").value();
     m_ullTime = node_credential.attribute("time").as_ullong();
@@ -82,9 +95,8 @@ bool Credential::FromXml(const memory_type& mt)
         auto name_attr_platform = node_platform.attribute("name");
         if (name_attr_platform.empty()) return false;
 
-        auto ptr_platform = m_List.Insert(
-            bnb::platform_type(name_attr_platform.value(),
-            bnb::platform_data(node_platform.attribute("url").value(), node_platform.attribute("display").value()))
+        auto ptr_platform = m_Tree.Insert({
+			name_attr_platform.value(), node_platform.attribute("url").value(), node_platform.attribute("display").value() }
         );
 
         for (auto node_account : node_platform.children("account"))
@@ -92,24 +104,21 @@ bool Credential::FromXml(const memory_type& mt)
             auto name_attr_account = node_account.attribute("name");
             if (name_attr_account.empty()) return false;
 
-            auto ptr_account = ptr_platform->m_Value.Insert(
-                bnb::account_type(name_attr_account.value(),
-                bnb::account_data(node_account.attribute("display").value()))
-            );
+			auto ptr_account = ptr_platform->m_Value.Insert({ name_attr_account.value(), node_account.attribute("display").value() });
 
             for (auto node_property : node_account.children("property"))
             {
                 auto name_attr_property = node_property.attribute("name");
                 if (name_attr_property.empty()) return false;
 
-                auto ptr_property = ptr_account->m_Value.Insert(bnb::string_type(name_attr_property.value()));
+				auto ptr_property = ptr_account->m_Value.Insert({ name_attr_property.value() });
 
                 auto node_value = node_property.first_child();
                 if (!node_value.empty())
                 {
                     if (pugi::node_cdata != node_value.type()) return false;
 
-                    ptr_property->m_Value = node_value.value();
+                    ptr_property->m_Value.m_strValue = node_value.value();
                 }
             }
         }
@@ -130,24 +139,24 @@ bool Credential::ToXml(memory_type& mt) const
     node_credential.append_attribute("user").set_value(m_strUser.c_str());
     node_credential.append_attribute("time").set_value(m_ullTime);
 
-    for (auto ptr_platform = m_List.Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+    for (auto ptr_platform = m_Tree.Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
     {
         auto node_platform = node_credential.append_child("platform");
-        node_platform.append_attribute("name").set_value(ptr_platform->m_Pair.m_Key.m_Key.c_str());
-        node_platform.append_attribute("url").set_value(ptr_platform->m_Pair.m_Key.m_Value.m_strUrl.c_str());
-        node_platform.append_attribute("display").set_value(ptr_platform->m_Pair.m_Key.m_Value.m_strDisplay.c_str());
+        node_platform.append_attribute("name").set_value(ptr_platform->m_Pair.m_Key.m_strName.c_str());
+        node_platform.append_attribute("url").set_value(ptr_platform->m_Pair.m_Key.m_strUrl.c_str());
+        node_platform.append_attribute("display").set_value(ptr_platform->m_Pair.m_Key.m_strDisplay.c_str());
 
         for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
         {
             auto node_account = node_platform.append_child("account");
-            node_account.append_attribute("name").set_value(ptr_account->m_Pair.m_Key.m_Key.c_str());
-            node_account.append_attribute("display").set_value(ptr_account->m_Pair.m_Key.m_Value.m_strDisplay.c_str());
+            node_account.append_attribute("name").set_value(ptr_account->m_Pair.m_Key.m_strName.c_str());
+            node_account.append_attribute("display").set_value(ptr_account->m_Pair.m_Key.m_strDisplay.c_str());
 
             for (auto ptr_property = ptr_account->m_Pair.m_Value.Head(); ptr_property; ptr_property = ptr_property->m_Next)
             {
                 auto node_property = node_account.append_child("property");
-                node_property.append_attribute("name").set_value(ptr_property->m_Pair.m_Key.c_str());
-                node_property.append_child(pugi::node_cdata).set_value(ptr_property->m_Pair.m_Value.c_str());
+                node_property.append_attribute("name").set_value(ptr_property->m_Pair.m_Key.m_strName.c_str());
+                node_property.append_child(pugi::node_cdata).set_value(ptr_property->m_Pair.m_Value.m_strValue.c_str());
             }
         }
     }
@@ -157,24 +166,16 @@ bool Credential::ToXml(memory_type& mt) const
     return true;
 }
 
-result_type Credential::Load(const char * file)
+bool Credential::Load(const char * file)
 {
     memory_type dst;
 
-    bnb::result_type result = CheckFile(file, &dst);
-    if (bnb::result_type::rt_success == result)
-    {
-        result = Decoding(dst, (const byte_t*)m_strWord.c_str(), m_strWord.size());
-        if (bnb::result_type::rt_success == result)
-        {
-            if (!FromXml(dst))
-            {
-                result = bnb::result_type::rt_file_error;
-            }
-        }
-    }
+	if (CheckFile(file, &dst))
+		if (Decoding(dst, (const byte_t*)m_strWord.c_str(), m_strWord.size()))
+			if (FromXml(dst))
+				return true;
 
-    return result;
+	return false;
 }
 
 bool Credential::Save(const char * file) const
@@ -203,7 +204,6 @@ bool Credential::Encoding(memory_type & mt, const byte_t * key, size_t n)
     if (key && n)
     {
         byte_t sha_key[32] = { 0 };
-
         _sha256(sha_key, key, n);
 
         RC4Encoding((byte_t*)mt.c_str(), mt.c_str(), mt.size(), key, n);
@@ -222,74 +222,60 @@ bool Credential::Encoding(memory_type & mt, const byte_t * key, size_t n)
     return false;
 }
 
-result_type Credential::Decoding(memory_type & mt, const byte_t * key, size_t n)
+bool Credential::Decoding(memory_type & mt, const byte_t * key, size_t n)
 {
-    if (nullptr == key || 0 == n) return result_type::rt_password_invalid;
+	if (key && n && 0x40 < mt.size())
+	{
+		byte_t sha_key[32] = { 0 };
+		_sha256(sha_key, key, n);
 
-    if (mt.size() < 64) return result_type::rt_file_invalid;
+		size_t pos = _hash_seq(key, n) % (mt.size() - 32);
 
-    byte_t sha_key[32] = { 0 };
-    /*
-    _sha256(sha_key, mt.c_str() + 32, mt.size() - 32);
+		RC4Encoding((byte_t*)mt.c_str(), mt.c_str(), mt.size(), sha_key, 32);
 
-    if (memcmp(sha_key, mt.c_str(), 32)) return result_type::rt_file_error;
+		if (0 == memcmp(sha_key, mt.c_str() + pos, 32))
+		{
+			mt.erase(pos, 32);
 
-    mt.erase(0, 32);
-    */
-    _sha256(sha_key, key, n);
+			return (0 < RC4Encoding((byte_t*)mt.c_str(), mt.c_str(), mt.size(), key, n));
+		}
+	}
 
-    size_t pos = _hash_seq(key, n) % (mt.size() - 32);
-
-    RC4Encoding((byte_t*)mt.c_str(), mt.c_str(), mt.size(), sha_key, 32);
-
-    if (memcmp(sha_key, mt.c_str() + pos, 32)) return result_type::rt_password_error;
-
-    mt.erase(pos, 32);
-
-    RC4Encoding((byte_t*)mt.c_str(), mt.c_str(), mt.size(), key, n);
-
-    return result_type::rt_success;
+    return false;
 }
 
-result_type Credential::CheckFile(const char * file, memory_type* dst)
+bool Credential::CheckFile(const char * file, memory_type* dst)
 {
+	bool result = false;
+
     std::ifstream fin;
     fin.open(file, std::ios::in | std::ios::binary);
-    if (!fin.is_open())
-    {
-        return result_type::rt_file_invalid;
-    }
 
-    fin.seekg(0, std::ios::end);
-    unsigned int n = (unsigned int)fin.tellg();
+	if (fin.is_open())
+	{
+		fin.seekg(0, std::ios::end);
+		unsigned int n = (unsigned int)fin.tellg();
 
-    if (n < 64)
-    {
-        fin.close();
-        return result_type::rt_file_invalid;
-    }
+		if (0x40 < n)
+		{
+			byte_t* buf = new byte_t[n];
+			fin.seekg(0, std::ios::beg);
+			fin.read((char*)buf, n);
 
-    byte_t* buf = new byte_t[n];
-    fin.seekg(0, std::ios::beg);
-    fin.read((char*)buf, n);
-    fin.close();
+			byte_t sha_key[32] = { 0 };
+			_sha256(sha_key, buf + 32, n - 32);
 
-    byte_t sha_key[32] = { 0 };
-    _sha256(sha_key, buf + 32, n - 32);
+			if (result = (0 == memcmp(sha_key, buf, 32)))
+				if (dst)
+					dst->assign(buf + 32, n - 32);
 
-    if (memcmp(sha_key, buf, 32))
-    {
-        delete[] buf;
-        return result_type::rt_file_error;
-    }
+			delete[] buf;
+		}
 
-    if (dst)
-    {
-        dst->assign(buf + 32, n - 32);
-    }
+		fin.close();
+	}
 
-    delete[] buf;
-    return result_type::rt_success;
+	return result;
 }
 
 _bnb_space_end_

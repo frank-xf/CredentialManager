@@ -6,6 +6,9 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QFileDialog>
 
+#include "credential_qt_manager.h"
+#include "credential_model_manager.h"
+
 #include "Dialog/CreateDialog.h"
 
 QT_BEGIN_NAMESPACE
@@ -64,6 +67,12 @@ void CreateDialog::OnClickedOK()
         _ui.m_labHint->setText("Credential file path mustn\'t be null !");
         return;
     }
+
+	g_AppMgr.Model().Info().Clear();
+	g_AppMgr.Model().Info().SetUser(_ui.m_editUserName->text().toStdString());
+	g_AppMgr.Model().Info().SetWord(s1.toStdString());
+	g_AppMgr.Model().SetFile(_ui.m_editFilePath->text().toStdString());
+	g_AppMgr.Model().SaveCredential();
 
     accept();
 }

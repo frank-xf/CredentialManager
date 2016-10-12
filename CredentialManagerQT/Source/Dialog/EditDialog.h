@@ -9,10 +9,8 @@ class QPushButton;
 
 //------------------------------------------------------------------------------
 
-class EditUserNameDialog : public QDialog
+class EditCredentialDialog : public QDialog
 {
-    using delegate_type = delegate_ns::validate_delegate;
-
     struct ui_type
     {
     private:
@@ -27,15 +25,13 @@ class EditUserNameDialog : public QDialog
         QPushButton* m_btnOK;
         QPushButton* m_btnCancel;
 
-        void SetupUI(EditUserNameDialog* pView);
-        void RetranslateUI(EditUserNameDialog* pView);
+        void SetupUI(EditCredentialDialog* pView);
+        void RetranslateUI(EditCredentialDialog* pView);
     };
 
 public:
 
-    EditUserNameDialog(const QString& strUserName, delegate_type* ptrDelegate, QWidget* parent);
-
-    QString GetUserName() const;
+    EditCredentialDialog(QWidget* parent = nullptr);
 
 private:
 
@@ -46,16 +42,12 @@ private:
 
     ui_type _ui;
 
-    delegate_type* m_ptrDelegate;
-
 };  // class EditUserNameDialog
 
 //------------------------------------------------------------------------------
 
 class EditPasswordDialog : public QDialog
 {
-    using delegate_type = delegate_ns::validate_delegate;
-
     struct ui_type
     {
     private:
@@ -80,9 +72,7 @@ class EditPasswordDialog : public QDialog
 
 public:
 
-    EditPasswordDialog(delegate_type* ptrDelegate, QWidget* parent);
-
-    QString GetPassword() const;
+    EditPasswordDialog(QWidget* parent = nullptr);
 
 private:
 
@@ -92,8 +82,6 @@ private:
 private:
 
     ui_type _ui;
-
-    delegate_type* m_ptrDelegate;
 
 };  // class EditPasswordDialog
 

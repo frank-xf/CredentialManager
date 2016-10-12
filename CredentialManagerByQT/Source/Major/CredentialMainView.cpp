@@ -174,7 +174,7 @@ bool CredentialMainView::OnAddPlatform()
     EditPlatformDialog dlg(platform, this, this);
     if (QDialog::Accepted == dlg.exec())
     {
-        m_Credential.List().Insert(platform);
+        m_Credential.Tree().Insert(platform);
         UpdateCredentail();
         SaveCredential();
         return true;
@@ -185,7 +185,7 @@ bool CredentialMainView::OnAddPlatform()
 
 bool CredentialMainView::OnAddAccount(bnb::platform_type* pp)
 {
-    auto ptr_platform = m_Credential.List().Find(*pp);
+    auto ptr_platform = m_Credential.Tree().Find(*pp);
     if (ptr_platform)
     {
         bnb::account_type account;
@@ -204,7 +204,7 @@ bool CredentialMainView::OnAddAccount(bnb::platform_type* pp)
 
 bool CredentialMainView::OnRemovePlatform(bnb::platform_type * pp)
 {
-    if (m_Credential.List().Remove(*pp))
+    if (m_Credential.Tree().Remove(*pp))
     {
         UpdateCredentail();
         SaveCredential();
@@ -216,7 +216,7 @@ bool CredentialMainView::OnRemovePlatform(bnb::platform_type * pp)
 
 bool CredentialMainView::OnRemoveAccount(bnb::platform_type * pp, bnb::account_type * pa)
 {
-    auto ptr_platform = m_Credential.List().Find(*pp);
+    auto ptr_platform = m_Credential.Tree().Find(*pp);
     if (ptr_platform)
     {
         if (ptr_platform->m_Value.Remove(*pa))
@@ -253,12 +253,12 @@ bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_
 
 bool CredentialMainView::SetPlatform(bnb::platform_type & p1, const bnb::platform_type & p2)
 {
-    return m_Credential.List().SetKey(p1, p2);
+    return m_Credential.Tree().SetKey(p1, p2);
 }
 
 bool CredentialMainView::SetAccount(const bnb::platform_type & pp, bnb::account_type & a1, const bnb::account_type & a2)
 {
-    auto ptr_platform = m_Credential.List().Find(pp);
+    auto ptr_platform = m_Credential.Tree().Find(pp);
     if (ptr_platform)
         return ptr_platform->m_Value.SetKey(a1, a2);
 
@@ -267,7 +267,7 @@ bool CredentialMainView::SetAccount(const bnb::platform_type & pp, bnb::account_
 
 bool CredentialMainView::SetKey(const bnb::platform_type & pp, const bnb::account_type & pa, bnb::string_type & k1, const bnb::string_type & k2)
 {
-    auto ptr_platform = m_Credential.List().Find(pp);
+    auto ptr_platform = m_Credential.Tree().Find(pp);
     if (ptr_platform)
     {
         auto ptr_account = ptr_platform->m_Value.Find(pa);
