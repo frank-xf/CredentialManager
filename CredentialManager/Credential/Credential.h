@@ -18,9 +18,9 @@ namespace bnb
 	using string_type = std::basic_string<char_t, std::char_traits<char_t>, std::allocator<char_t>>;
 	using memory_type = std::basic_string<byte_t, std::char_traits<byte_t>, std::allocator<byte_t>>;
 
-	bool operator < (const string_type& a, const string_type& b);
-	inline bool operator > (const string_type& a, const string_type& b) { return b < a; }
-	bool operator == (const string_type& a, const string_type& b);
+	inline bool operator < (const string_type& a, const string_type& b) { return (_stricmp(a.c_str(), b.c_str()) < 0); }
+	inline bool operator > (const string_type& a, const string_type& b) { return (b < a); }
+	inline bool operator == (const string_type& a, const string_type& b) { return (0 == _stricmp(a.c_str(), b.c_str())); }
 	inline bool operator != (const string_type& a, const string_type& b) { return !(a == b); }
 
 	enum class credential_type : unsigned char { ct_credential, ct_platform, ct_account, ct_property };
@@ -237,18 +237,18 @@ namespace bnb
 	inline bool operator < (const account_type& a, const account_type& b) { return a.m_strName < b.m_strName; }
 	inline bool operator < (const property_type& a, const property_type& b) { return a.m_strName < b.m_strName; }
 	inline bool operator < (const property_value& a, const property_value& b) { return a.m_strValue < b.m_strValue; }
-	inline bool operator > (const platform_type& a, const platform_type& b) { return b.m_strName < a.m_strName; }
-	inline bool operator > (const account_type& a, const account_type& b) { return b.m_strName < a.m_strName; }
-	inline bool operator > (const property_type& a, const property_type& b) { return b.m_strName < a.m_strName; }
-	inline bool operator > (const property_value& a, const property_value& b) { return b.m_strValue < a.m_strValue; }
+	inline bool operator > (const platform_type& a, const platform_type& b) { return (b < a); }
+	inline bool operator > (const account_type& a, const account_type& b) { return (b < a); }
+	inline bool operator > (const property_type& a, const property_type& b) { return (b < a); }
+	inline bool operator > (const property_value& a, const property_value& b) { return (b < a); }
 	inline bool operator == (const platform_type& a, const platform_type& b) { return a.m_strName == b.m_strName; }
 	inline bool operator == (const account_type& a, const account_type& b) { return a.m_strName == b.m_strName; }
 	inline bool operator == (const property_type& a, const property_type& b) { return a.m_strName == b.m_strName; }
 	inline bool operator == (const property_value& a, const property_value& b) { return a.m_strValue == b.m_strValue; }
-	inline bool operator != (const platform_type& a, const platform_type& b) { return !(a.m_strName == b.m_strName); }
-	inline bool operator != (const account_type& a, const account_type& b) { return !(a.m_strName == b.m_strName); }
-	inline bool operator != (const property_type& a, const property_type& b) { return !(a.m_strName == b.m_strName); }
-	inline bool operator != (const property_value& a, const property_value& b) { return !(a.m_strValue == b.m_strValue); }
+	inline bool operator != (const platform_type& a, const platform_type& b) { return !(a == b); }
+	inline bool operator != (const account_type& a, const account_type& b) { return !(a == b); }
+	inline bool operator != (const property_type& a, const property_type& b) { return !(a == b); }
+	inline bool operator != (const property_value& a, const property_value& b) { return !(a == b); }
 
 	using property_tree = tree_type<property_type, property_value>;
 	using account_tree = tree_type<account_type, property_tree>;

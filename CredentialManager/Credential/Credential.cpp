@@ -11,16 +11,6 @@
 namespace bnb
 {
 
-	bool operator == (const string_type& a, const string_type& b)
-	{
-		return (0 == _stricmp(a.c_str(), b.c_str()));
-	}
-
-	bool operator < (const string_type& a, const string_type& b)
-	{
-		return (_stricmp(a.c_str(), b.c_str()) < 0);
-	}
-
 	inline size_t _hash_seq(const byte_t *ptr, size_t n)
 	{
 		size_t _value = 2166136261U;
