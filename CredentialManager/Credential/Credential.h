@@ -18,10 +18,10 @@ namespace bnb
 	using string_type = std::basic_string<char_t, std::char_traits<char_t>, std::allocator<char_t>>;
 	using memory_type = std::basic_string<byte_t, std::char_traits<byte_t>, std::allocator<byte_t>>;
 
-	inline bool operator < (const string_type& a, const string_type& b);
+	bool operator < (const string_type& a, const string_type& b);
 	inline bool operator > (const string_type& a, const string_type& b) { return b < a; }
-	inline bool operator == (const string_type& a, const string_type& b);
-	inline bool operator != (const string_type& a, const string_type& b) { return a != b; }
+	bool operator == (const string_type& a, const string_type& b);
+	inline bool operator != (const string_type& a, const string_type& b) { return !(a == b); }
 
 	enum class credential_type : unsigned char { ct_credential, ct_platform, ct_account, ct_property };
 
