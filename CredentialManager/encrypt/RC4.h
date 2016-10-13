@@ -1,10 +1,11 @@
 #ifndef _bnb_RC4_H_
 #define _bnb_RC4_H_
 
-_bnb_space_begin_
+namespace bnb
+{
 
-size_t RC4Encoding(byte_t* dst, const byte_t* src, size_t nsrc, const byte_t* key, size_t nkey);
+	unsigned int RC4Encoding(unsigned char* dst, const unsigned char* src, unsigned int nsrc, const unsigned char* key, unsigned int nkey);
 
-_bnb_space_end_
+}
 
 #endif

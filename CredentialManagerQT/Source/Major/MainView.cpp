@@ -14,11 +14,7 @@
 
 #include "Major/ToolBar.h"
 #include "Major/ContentView.h"
-
 #include "Major/MainView.h"
-#include "Major/CredentialItem.h"
-#include "Major/CredentialView.h"
-#include "Major/CredentialDialog.h"
 
 #include "Dialog/HintDialog.h"
 #include "Dialog/PasswordInput.h"
@@ -254,7 +250,27 @@ void MainView::OnEditAccount()
         return;
     }
 
+	auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() });
+	if (!ptr_platform)
+	{
+		return;
+	}
+	auto ptr_account = ptr_platform->m_Value.Find({pAccount->text(0).toStdString()});
+	if (!ptr_account)
+	{
+		return;
+	}
 
+	EditAccountDialog dlg(&ptr_platform->m_Key, &ptr_account->m_Key, this);
+	if (QDialog::Accepted == dlg.exec())
+	{
+		pAccount->setText(0, QString::fromStdString(ptr_account->m_Key.m_strName));
+		/*
+		
+		...
+		
+		*/
+	}
 }
 
 void MainView::OnEditProperty()

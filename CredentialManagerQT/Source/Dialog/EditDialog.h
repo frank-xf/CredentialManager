@@ -89,8 +89,6 @@ private:
 
 class EditPlatformDialog : public QDialog
 {
-    using delegate_type = delegate_ns::validate_delegate;
-
     struct ui_type
     {
     private:
@@ -116,7 +114,7 @@ class EditPlatformDialog : public QDialog
 
 public:
 
-	EditPlatformDialog(bnb::platform_type& platform, delegate_type* ptrDelegate, QWidget* parent);
+	EditPlatformDialog(bnb::platform_type* platform, QWidget* parent);
 
 private:
 
@@ -127,8 +125,7 @@ private:
 	
     ui_type _ui;
 
-    delegate_type* m_ptrDelegate;
-    bnb::platform_type& m_Platform;
+    bnb::platform_type* m_Platform;
 
 };  // class EditPlatformDialog
 
@@ -136,8 +133,6 @@ private:
 
 class EditAccountDialog : public QDialog
 {
-    using delegate_type = delegate_ns::validate_delegate;
-
     struct ui_type
     {
     private:
@@ -163,7 +158,7 @@ class EditAccountDialog : public QDialog
 
 public:
 
-    EditAccountDialog(bnb::platform_type& platform, bnb::account_type& account, delegate_type* ptrDelegate, QWidget * parent);
+    EditAccountDialog(bnb::platform_type* pp, bnb::account_type* pa, QWidget * parent);
 
     void OnChangedText(const QString&);
     void OnClickedOK();
@@ -172,9 +167,8 @@ private:
 
     ui_type _ui;
 
-    bnb::account_type& m_Account;
-    bnb::platform_type& m_Platform;
-    delegate_type* m_ptrDelegate;
+    bnb::account_type* m_Account;
+    bnb::platform_type* m_Platform;
 
 };  // class EditAccountDialog
 

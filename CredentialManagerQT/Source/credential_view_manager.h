@@ -1,6 +1,8 @@
 #ifndef _bnb_Credential_View_Manager_H_
 #define _bnb_Credential_View_Manager_H_
 
+class QWidget;
+
 class CredentialViewManager
 {
 public:

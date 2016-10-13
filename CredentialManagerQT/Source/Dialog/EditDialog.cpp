@@ -4,11 +4,9 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 
-#include "bnb_global.h"
 #include "Credential/Credential.h"
 
 #include "credential_qt_utils.h"
-#include "credential_qt_delegate.h"
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
 
@@ -252,21 +250,27 @@ void EditPasswordDialog::ui_type::RetranslateUI(EditPasswordDialog * pView)
 //==============================================================================
 // Implementation of EditPlatformDialog
 //==============================================================================
-EditPlatformDialog::EditPlatformDialog(bnb::platform_type& platform, delegate_type* ptrDelegate, QWidget* parent)
+EditPlatformDialog::EditPlatformDialog(bnb::platform_type* platform, QWidget* parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
-    , m_ptrDelegate(ptrDelegate)
     , m_Platform(platform)
 {
     _ui.SetupUI(this);
 
-    if (!m_Platform.m_Key.empty())
-        _ui.m_editPlatform->setText(QString::fromStdString(m_Platform.m_Key));
+	if (m_Platform)
+	{
+		if (!m_Platform->m_strName.empty())
+			_ui.m_editPlatform->setText(QString::fromStdString(m_Platform->m_strName));
+		if (!m_Platform->m_strUrl.empty())
+			_ui.m_editUrl->setText(QString::fromStdString(m_Platform->m_strUrl));
+		if (!m_Platform->m_strDisplay.empty())
+			_ui.m_editDisplay->setText(QString::fromStdString(m_Platform->m_strDisplay));
 
-    if (!m_Platform.m_Value.m_strUrl.empty())
-        _ui.m_editUrl->setText(QString::fromStdString(m_Platform.m_Value.m_strUrl));
-
-    if (!m_Platform.m_Value.m_strDisplay.empty())
-        _ui.m_editDisplay->setText(QString::fromStdString(m_Platform.m_Value.m_strDisplay));
+		setWindowTitle("Edit Platform");
+	}
+	else
+	{
+		setWindowTitle("Add Platform");
+	}
 
     QObject::connect(_ui.m_editPlatform, &QLineEdit::textEdited, this, &EditPlatformDialog::OnChangedText);
     QObject::connect(_ui.m_editUrl, &QLineEdit::textEdited, this, &EditPlatformDialog::OnChangedText);
@@ -288,16 +292,33 @@ void EditPlatformDialog::OnClickedOK()
         return;
     }
 
-    bnb::platform_type platform(_ui.m_editPlatform->text().toStdString(),
-        bnb::platform_data(_ui.m_editUrl->text().toStdString(), _ui.m_editDisplay->text().toStdString()));
+    bnb::platform_type platform(
+		_ui.m_editPlatform->text().toStdString(),
+		_ui.m_editUrl->text().toStdString(),
+		_ui.m_editDisplay->text().toStdString());
 
-    if (m_ptrDelegate->SetPlatform(m_Platform, platform))
-    {
-        accept();
-        return;
-    }
+	if (m_Platform)
+	{
+		if (!g_AppMgr.Model().Info().Tree().SetKey(*m_Platform, platform))
+		{
+			_ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
+			return;
+		}
+	}
+	else
+	{
+		auto ptr_platform = g_AppMgr.Model().Info().Tree().Insert(platform);
+		if (nullptr == ptr_platform)
+		{
+			_ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
+			return;
+		}
 
-    _ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
+		m_Platform = &ptr_platform->m_Key;
+	}
+
+	g_AppMgr.Model().SaveCredential();
+	accept();
 }
 
 //------------------------------------------------------------------------------
@@ -373,21 +394,30 @@ void EditPlatformDialog::ui_type::RetranslateUI(EditPlatformDialog * pView)
 //==============================================================================
 // Implementation of EditAccountDialog
 //==============================================================================
-EditAccountDialog::EditAccountDialog(bnb::platform_type & platform, bnb::account_type & account, delegate_type * ptrDelegate, QWidget * parent)
+EditAccountDialog::EditAccountDialog(bnb::platform_type * pp, bnb::account_type * pa, QWidget * parent)
     : QDialog(parent)
-    , m_ptrDelegate(ptrDelegate)
-    , m_Account(account)
-    , m_Platform(platform)
+    , m_Account(pa)
+    , m_Platform(pp)
 {
     _ui.SetupUI(this);
 
-    _ui.m_editPlatform->setText(QString::fromStdString(m_Platform.m_Key));
+	if (m_Platform && !m_Platform->m_strName.empty())
+		_ui.m_editPlatform->setText(QString::fromStdString(m_Platform->m_strName));
 
-    if (!m_Account.m_Key.empty())
-        _ui.m_editAccount->setText(QString::fromStdString(m_Account.m_Key));
+	if (m_Account)
+	{
+		if (!m_Account->m_strName.empty())
+			_ui.m_editAccount->setText(QString::fromStdString(m_Account->m_strName));
 
-    if (!m_Account.m_Value.m_strDisplay.empty())
-        _ui.m_editDisplay->setText(QString::fromStdString(m_Account.m_Value.m_strDisplay));
+		if (!m_Account->m_strDisplay.empty())
+			_ui.m_editDisplay->setText(QString::fromStdString(m_Account->m_strDisplay));
+
+		setWindowTitle("Edit Account");
+	}
+	else
+	{
+		setWindowTitle("Add Account");
+	}
 
     QObject::connect(_ui.m_editAccount, &QLineEdit::textEdited, this, &EditAccountDialog::OnChangedText);
     QObject::connect(_ui.m_editDisplay, &QLineEdit::textEdited, this, &EditAccountDialog::OnChangedText);
@@ -408,16 +438,37 @@ void EditAccountDialog::OnClickedOK()
         return;
     }
 
-    bnb::account_type account(_ui.m_editAccount->text().toStdString(),
-        bnb::account_data(_ui.m_editDisplay->text().toStdString()));
+	auto ptr_platform = g_AppMgr.Model().Info().Tree().Find(*m_Platform);
+	if (ptr_platform)
+	{
+		_ui.m_labHint->setText("Platform data error !");
+		return;
+	}
 
-    if (m_ptrDelegate->SetAccount(m_Platform, m_Account, account))
-    {
-        accept();
-        return;
-    }
+	bnb::account_type account(_ui.m_editAccount->text().toStdString(), _ui.m_editDisplay->text().toStdString());
 
-    _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
+	if (m_Account)
+	{
+		if (!ptr_platform->m_Value.SetKey(*m_Account, account))
+		{
+			_ui.m_labHint->setText("The account name you entered already exists or is invalid !");
+			return;
+		}
+	}
+	else
+	{
+		auto ptr_account = ptr_platform->m_Value.Insert(account);
+		if (nullptr == ptr_account)
+		{
+			_ui.m_labHint->setText("The account name you entered already exists or is invalid !");
+			return;
+		}
+
+		m_Account = &ptr_account->m_Key;
+	}
+
+	g_AppMgr.Model().SaveCredential();
+	accept();
 }
 
 //------------------------------------------------------------------------------
