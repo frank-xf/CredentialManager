@@ -159,6 +159,8 @@ class EditAccountDialog : public QDialog
 public:
 
     EditAccountDialog(bnb::platform_type* pp, bnb::account_type* pa, QWidget * parent);
+	const bnb::account_type* GetAccount() const;
+
 
     void OnChangedText(const QString&);
     void OnClickedOK();

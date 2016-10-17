@@ -1,15 +1,12 @@
-
-#include <QtWidgets/QWidget>
 #include <QtWidgets/QApplication>
 
-#include "Major/MainView.h"
+#include "credential_qt_manager.h"
 
 int main(int argc, char *argv[])
 {
-    QApplication app(argc, argv);
+	QApplication app(argc, argv);
 
-    MainView view;
-    view.show();
+	g_AppMgr.Initialize();
 
-    return app.exec();
+	return app.exec();
 }

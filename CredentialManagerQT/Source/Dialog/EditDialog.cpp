@@ -425,6 +425,11 @@ EditAccountDialog::EditAccountDialog(bnb::platform_type * pp, bnb::account_type 
     QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
 }
 
+const bnb::account_type * EditAccountDialog::GetAccount() const
+{
+	return m_Account;
+}
+
 void EditAccountDialog::OnChangedText(const QString &)
 {
     _ui.m_labHint->clear();

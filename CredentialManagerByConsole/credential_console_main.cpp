@@ -1,46 +1,55 @@
 #include <iostream>
 #include <string>
 
-#include "../CredentialManager/bnb_global.h"
 #include "../CredentialManager/Credential/Credential.h"
+
+void fun1();
+void fun2();
 
 int main()
 {
-    /*
-    bnb::Credential bc;
+	fun2();
 
-    auto ptr1 = bc->Insert(bnb::platform_type("platform1", bnb::platform_data("http://")));
-    auto pacc1 = ptr1->m_Value.Insert(bnb::account_type("account3"));
-    auto pacc2 = ptr1->m_Value.Insert(bnb::account_type("account2"));
+    return (0);
+}
 
-    pacc1->m_Value.Insert(bnb::string_type("k1"))->m_Value = "v1";
-    pacc1->m_Value.Insert(bnb::string_type("k2"))->m_Value = "v2";
-    pacc2->m_Value.Insert(bnb::string_type("k1"))->m_Value = "v1";
-    pacc2->m_Value.Insert(bnb::string_type("k4"))->m_Value = "v4";
-    pacc2->m_Value.Insert(bnb::string_type("k3"))->m_Value = "v3";
+void fun1()
+{
+	/*
+	bnb::Credential bc;
 
-    auto ptr2 = bc->Insert(bnb::platform_type("platform2", bnb::platform_data("http://")));
-    auto pacc3 = ptr2->m_Value.Insert(bnb::account_type("account7"));
-    auto pacc4 = ptr2->m_Value.Insert(bnb::account_type("account6"));
-    auto pacc5 = ptr2->m_Value.Insert(bnb::account_type("account5"));
+	auto ptr1 = bc->Insert(bnb::platform_type("platform1", bnb::platform_data("http://")));
+	auto pacc1 = ptr1->m_Value.Insert(bnb::account_type("account3"));
+	auto pacc2 = ptr1->m_Value.Insert(bnb::account_type("account2"));
 
-    pacc3->m_Value.Insert(bnb::string_type("k1"))->m_Value = "v1";
-    pacc3->m_Value.Insert(bnb::string_type("k5"))->m_Value = "v5";
-    pacc3->m_Value.Insert(bnb::string_type("k3"))->m_Value = "v3";
-    pacc5->m_Value.Insert(bnb::string_type("k7"))->m_Value = "v7";
-    pacc5->m_Value.Insert(bnb::string_type("k2"))->m_Value = "v2";
-    pacc4->m_Value.Insert(bnb::string_type("k1"))->m_Value = "v1";
+	pacc1->m_Value.Insert(bnb::string_type("k1"))->m_Value = "v1";
+	pacc1->m_Value.Insert(bnb::string_type("k2"))->m_Value = "v2";
+	pacc2->m_Value.Insert(bnb::string_type("k1"))->m_Value = "v1";
+	pacc2->m_Value.Insert(bnb::string_type("k4"))->m_Value = "v4";
+	pacc2->m_Value.Insert(bnb::string_type("k3"))->m_Value = "v3";
 
-    bnb::memory_type mt;
+	auto ptr2 = bc->Insert(bnb::platform_type("platform2", bnb::platform_data("http://")));
+	auto pacc3 = ptr2->m_Value.Insert(bnb::account_type("account7"));
+	auto pacc4 = ptr2->m_Value.Insert(bnb::account_type("account6"));
+	auto pacc5 = ptr2->m_Value.Insert(bnb::account_type("account5"));
 
-    bc.UpdateTime();
-    std::cout << bc.Save(mt) << std::endl;
+	pacc3->m_Value.Insert(bnb::string_type("k1"))->m_Value = "v1";
+	pacc3->m_Value.Insert(bnb::string_type("k5"))->m_Value = "v5";
+	pacc3->m_Value.Insert(bnb::string_type("k3"))->m_Value = "v3";
+	pacc5->m_Value.Insert(bnb::string_type("k7"))->m_Value = "v7";
+	pacc5->m_Value.Insert(bnb::string_type("k2"))->m_Value = "v2";
+	pacc4->m_Value.Insert(bnb::string_type("k1"))->m_Value = "v1";
 
-    std::cout << mt.c_str() << std::endl << "-----";
-    */
-    // bnb::Encoding(mt, (const unsigned char*)bc.GetWord().c_str(), bc.GetWord().size());
+	bnb::memory_type mt;
 
-    const char strText[] = R"(<?xml version="1.0" encoding="UTF-8"?>
+	bc.UpdateTime();
+	std::cout << bc.Save(mt) << std::endl;
+
+	std::cout << mt.c_str() << std::endl << "-----";
+	*/
+	// bnb::Encoding(mt, (const unsigned char*)bc.GetWord().c_str(), bc.GetWord().size());
+
+	const char strText[] = R"(<?xml version="1.0" encoding="UTF-8"?>
 <credential user="" time="1466185402">
  <platform name="platform1" url="http://" display="">
   <account name="account2" display="">
@@ -83,19 +92,59 @@ int main()
  </platform>
 </credential>)";
 
-    bnb::memory_type mt;
+	bnb::memory_type mt;
 
-    bnb::Credential xx("123");
+	bnb::Credential xx("123");
 
-    xx.FromXml(bnb::memory_type((const unsigned char*)strText, sizeof(strText)));
+	xx.FromXml(bnb::memory_type((const unsigned char*)strText, sizeof(strText)));
 
-    xx.SetUser("Frank");
-    xx.UpdateTime();
-    std::cout << xx.ToXml(mt) << std::endl;
+	xx.SetUser("Frank");
+	xx.UpdateTime();
+	std::cout << xx.ToXml(mt) << std::endl;
 
-    std::cout << mt.c_str() << std::endl << "-----";
+	std::cout << mt.c_str() << std::endl << "-----";
 
-    xx.Save("def.credential");
+	xx.Save("def.credential");
+}
 
-    return (0);
+
+class TBase {
+public:
+
+	virtual ~TBase() { }
+};
+
+class T1 : public TBase {};
+class T2 : public TBase {};
+
+void Print(void* ptr)
+{
+	std::cout << (ptr ? "yes" : "null") << std::endl;
+}
+
+void fun2()
+{
+	TBase* tb = new TBase();
+	TBase* t1 = new T1();
+	TBase* t2 = new T2();
+
+	T1* p1 = dynamic_cast<T1*>(t1);
+	T1* p2 = dynamic_cast<T1*>(t2);
+	T2* p3 = dynamic_cast<T2*>(t1);
+	T2* p4 = dynamic_cast<T2*>(t2);
+
+	TBase* p5 = dynamic_cast<TBase*>(t1);
+	TBase* p6 = dynamic_cast<TBase*>(t2);
+	T1* p7 = dynamic_cast<T1*>(tb);
+	T2* p8 = dynamic_cast<T2*>(tb);
+
+	Print(p1);
+	Print(p2);
+	Print(p3);
+	Print(p4);
+	Print(p5);
+	Print(p6);
+	Print(p7);
+	Print(p8);
+
 }

@@ -8,7 +8,7 @@ class QScrollArea;
 class QLabel;
 class ToolBar;
 class ContentView;
-class QTreeWidget;
+class TreeView;
 class QTreeWidgetItem;
 
 class MainView : public QWidget
@@ -29,7 +29,7 @@ class MainView : public QWidget
         
         ToolBar* m_viewToolBar;
         ContentView* m_viewContent;
-        QTreeWidget* m_treeView;
+        TreeView* m_treeView;
 
         void SetupUI(MainView* pView);
         void RetranslateUI(MainView* pView);
@@ -45,7 +45,6 @@ private:
 
     void InitCredential();
 	void ClearCredential();
-	void UpdateHeader();
 
 	void OnTreeContextMenu(const QPoint& pos);
 	void OnItemChanged(QTreeWidgetItem *cur, QTreeWidgetItem *pre);

@@ -44,7 +44,6 @@ namespace bnb
 		using key_type = _Ty1;
 		using value_type = _Ty2;
 		using data_type = pair_type<key_type, value_type>;
-		using data_ptr = data_type*;
 
 	private:
 
@@ -75,12 +74,9 @@ namespace bnb
 
 		tree_type() = default;
 
-		~tree_type()
-		{
-			Clear();
-		}
+		~tree_type() { Clear(); }
 
-		bool IsEmpty() const { return (!m_Head || 0 == m_nCount); }
+		bool IsEmpty() const { return (nullptr == m_Head || 0 == m_nCount); }
 
 		size_t Size() const { return m_nCount; }
 

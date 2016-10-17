@@ -50,12 +50,12 @@ bool CredentialModelManager::SaveCredential() const
 	return m_Credential.Save(m_strFile.c_str());
 }
 
-bnb::platform_tree::data_ptr CredentialModelManager::FindPlatform(const bnb::platform_type & platform)
+bnb::platform_tree::data_type* CredentialModelManager::FindPlatform(const bnb::platform_type & platform)
 {
 	return m_Credential.Tree().Find(platform);
 }
 
-bnb::account_tree::data_ptr CredentialModelManager::FindAccount(const bnb::platform_type & platform, const bnb::account_type & account)
+bnb::account_tree::data_type* CredentialModelManager::FindAccount(const bnb::platform_type & platform, const bnb::account_type & account)
 {
 	if (auto ptr_platform = FindPlatform(platform))
 		return ptr_platform->m_Value.Find(account);

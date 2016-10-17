@@ -6,6 +6,8 @@
 
 void CredentialManagerQT::Initialize()
 {
+	Model().Initialize();
+	View().Initialize();
 }
 
 CredentialViewManager & CredentialManagerQT::View()

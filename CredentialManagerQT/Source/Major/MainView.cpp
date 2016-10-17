@@ -1,25 +1,25 @@
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QFileDialog>
-#include <QtWidgets/QScrollArea>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QTreeWidget>
+#include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QSplitter>
-#include <QtWidgets/QStyleFactory>
 
 #include "credential_qt_utils.h"
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
 
-#include "Major/ToolBar.h"
-#include "Major/ContentView.h"
-#include "Major/MainView.h"
-
 #include "Dialog/HintDialog.h"
 #include "Dialog/PasswordInput.h"
 #include "Dialog/CreateDialog.h"
 #include "Dialog/EditDialog.h"
+
+#include "Major/ToolBar.h"
+#include "Major/ContentView.h"
+#include "Major/TreeView.h"
+#include "Major/MainView.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -62,56 +62,14 @@ MainView::MainView(QWidget *parent)
 
 void MainView::InitCredential()
 {
-    QTreeWidgetItem* item_root = new QTreeWidgetItem;
-    item_root->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-    item_root->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_credential));
-    _ui.m_treeView->setHeaderItem(item_root);
-
-	UpdateHeader();
-
-    for (auto ptr_platform = g_AppMgr.Model().Info().Tree().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
-    {
-        QTreeWidgetItem* item_platform = new QTreeWidgetItem(_ui.m_treeView, { QString::fromStdString(ptr_platform->m_Pair.m_Key.m_strName) });
-        item_platform->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-        item_platform->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_platform));
-        _ui.m_treeView->addTopLevelItem(item_platform);
-
-        for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
-        {
-            QTreeWidgetItem* item_account = new QTreeWidgetItem(item_platform, { QString::fromStdString(ptr_account->m_Pair.m_Key.m_strName) });
-            item_account->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-            item_account->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_account));
-            item_platform->addChild(item_account);
-            
-            for (auto ptr_property = ptr_account->m_Pair.m_Value.Head(); ptr_property; ptr_property = ptr_property->m_Next)
-            {
-                QTreeWidgetItem* item_property = new QTreeWidgetItem(item_account, { QString::fromStdString(ptr_property->m_Pair.m_Key.m_strName) });
-                item_property->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-                item_property->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_property));
-                item_account->addChild(item_property);
-            }
-        }
-    }
-
-    _ui.m_treeView->expandAll();
+	_ui.m_treeView->InitCredential();
+	_ui.m_viewContent->InitCredential();
 }
 
 void MainView::ClearCredential()
 {
-	_ui.m_treeView->clear();
-
-}
-
-void MainView::UpdateHeader()
-{
-	QTreeWidgetItem* pItem = _ui.m_treeView->headerItem();
-	if (pItem)
-	{
-		if (g_AppMgr.Model().Info().IsValid())
-			pItem->setText(0, QString::fromStdString("Credential - " + g_AppMgr.Model().Info().GetUser()));
-		else
-			pItem->setText(0, "Credential");
-	}
+	_ui.m_treeView->ClearCredential();
+	_ui.m_viewContent->ClearCredential();
 }
 
 void MainView::OnClickedNew()
@@ -189,6 +147,32 @@ void MainView::OnTreeContextMenu(const QPoint & pos)
 
 void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 {
+	if (cur)
+	{
+		switch (GetItemType(*cur))
+		{
+		case bnb::credential_type::ct_credential:
+			break;
+		case bnb::credential_type::ct_platform:
+			break;
+		case bnb::credential_type::ct_account:
+		{
+			QTreeWidgetItem* pItem = cur->parent();
+			if (pItem && bnb::credential_type::ct_platform == GetItemType(*pItem))
+			{
+				_ui.m_viewContent->SwitchToAccount(pItem->text(0), cur->text(0));
+			}
+
+			break;
+		}
+		case bnb::credential_type::ct_property:
+			break;
+		default:
+			break;
+		}
+	}
+
+
 }
 
 void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
@@ -201,7 +185,7 @@ void MainView::OnEditCredential()
 
 	if (QDialog::Accepted == dlg.exec())
 	{
-		UpdateHeader();
+		_ui.m_treeView->UpdateHeader();
 	}
 }
 
@@ -218,6 +202,34 @@ void MainView::OnAddPlatform()
 
 void MainView::OnAddAccount()
 {
+	QTreeWidgetItem* pPlatform = _ui.m_treeView->currentItem();
+	if (nullptr == pPlatform)
+	{
+		return;
+	}
+	if (bnb::credential_type::ct_platform != GetItemType(*pPlatform))
+	{
+		return;
+	}
+
+	auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() });
+	if (!ptr_platform)
+	{
+		return;
+	}
+
+	EditAccountDialog dlg(&ptr_platform->m_Key, nullptr, this);
+	if (QDialog::Accepted == dlg.exec())
+	{
+		_ui.m_treeView->AddAccount(pPlatform, dlg.GetAccount());
+
+
+		/*
+
+		...
+
+		*/
+	}
 }
 
 void MainView::OnAddProperty()
@@ -301,10 +313,7 @@ void MainView::ui_type::SetupUI(MainView* pView)
     phSplitter->setChildrenCollapsible(false);
     phSplitter->setStretchFactor(1, 1);
 
-    m_treeView = new QTreeWidget(phSplitter);
-    m_treeView->setStyle(QStyleFactory::create("Windows"));
-    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
-    // m_treeView->setHeaderHidden(true);
+    m_treeView = new TreeView(phSplitter);
 
     m_viewContent = new ContentView(phSplitter);
     
