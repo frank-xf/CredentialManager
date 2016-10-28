@@ -3,7 +3,9 @@
 
 #include "View/ViewBase.h"
 
-ViewBase::ViewBase(QWidget * parent) : QWidget(parent)
+ViewBase::ViewBase(unsigned int id, QWidget * parent)
+	: QWidget(parent)
+	, m_ID(id)
 {
 	
 }

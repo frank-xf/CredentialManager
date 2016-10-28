@@ -7,7 +7,7 @@
 #include "View/ViewBase.h"
 #include "View/CredentialView.h"
 
-CredentialView::CredentialView(QWidget * parent) : ViewBase(parent)
+CredentialView::CredentialView(QWidget * parent) : ViewBase(0, parent)
 {
     _ui.SetupUI(this);
 }

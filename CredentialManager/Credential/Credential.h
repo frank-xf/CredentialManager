@@ -23,6 +23,7 @@ namespace bnb
 	inline bool operator == (const string_type& a, const string_type& b) { return (0 == _stricmp(a.c_str(), b.c_str())); }
 	inline bool operator != (const string_type& a, const string_type& b) { return !(a == b); }
 
+	extern size_t _g_id;
 	enum class credential_type : unsigned char { ct_credential, ct_platform, ct_account, ct_property };
 
 	template<typename _Ty1, typename _Ty2>
@@ -184,12 +185,22 @@ namespace bnb
 
 	struct credential_base
 	{
+	public:
+
+		const size_t m_ID;
 		string_type m_strName;
 
 	protected:
 
-		credential_base(const string_type& name) : m_strName(name) { }
+		credential_base(const string_type& name) : m_ID(_g_id++), m_strName(name) { }
 
+		credential_base(const credential_base& other) : m_ID(_g_id++), m_strName(other.m_strName) { }
+		credential_base& operator=(const credential_base& other) {
+			if (&other != this)
+				m_strName = other.m_strName;
+
+			return *this;
+		}
 	};
 
 	struct platform_type : public credential_base

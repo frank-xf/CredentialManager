@@ -17,8 +17,14 @@ protected:
 
 public:
 
-	ViewBase(QWidget * parent = nullptr);
+	ViewBase(unsigned int id, QWidget * parent = nullptr);
     ~ViewBase() = 0 { }
+
+	unsigned int GetID() const { return m_ID; }
+
+private:
+
+	const unsigned int m_ID;
 
 };
 

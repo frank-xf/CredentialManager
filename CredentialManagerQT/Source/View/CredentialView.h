@@ -1,25 +1,26 @@
 ﻿#ifndef _bnb_Credential_View_H_
 #define _bnb_Credential_View_H_
 
-class CredentialView : public ViewBase {
-	
-    struct ui_type : public ViewBase::ui_type
-    {
-    private:
+class CredentialView : public ViewBase
+{
 
-        QLabel* _labUpdateTime;
-        QLabel* _labUserName;
-        QLabel* _labDisplay;
+	struct ui_type : public ViewBase::ui_type
+	{
+	private:
 
-    public:
+		QLabel* _labUpdateTime;
+		QLabel* _labUserName;
+		QLabel* _labDisplay;
 
-        QLabel* m_labUpdateTime;
-        QLabel* m_labUserName;
-        QLabel* m_labDisplay;
+	public:
 
-        void SetupUI(QWidget* pView);
-        void RetranslateUI(QWidget* pView);
-    };
+		QLabel* m_labUpdateTime;
+		QLabel* m_labUserName;
+		QLabel* m_labDisplay;
+
+		void SetupUI(QWidget* pView);
+		void RetranslateUI(QWidget* pView);
+	};
 
 public:
 
@@ -27,7 +28,7 @@ public:
 
 private:
 
-    ui_type _ui;
+	ui_type _ui;
 };
 
 #endif  // _bnb_Credential_View_H_

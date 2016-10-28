@@ -291,6 +291,7 @@ void MainView::OnEditProperty()
 
 void MainView::OnRemovePlatform()
 {
+
 }
 
 void MainView::OnRemoveAccount()
@@ -327,17 +328,17 @@ void MainView::ui_type::SetupUI(MainView* pView)
 
     pView->setLayout(pMainLayout);
 
-    m_actAddAccount = new QAction(m_treeView);
-    m_actAddPlatform = new QAction(m_treeView);
-    m_actAddProperty = new QAction(m_treeView);
-    m_actDelAccount = new QAction(m_treeView);
-    m_actDelPlatform = new QAction(m_treeView);
-    m_actDelProperty = new QAction(m_treeView);
-    m_actEditAccount = new QAction(m_treeView);
-    m_actEditPlatform = new QAction(m_treeView);
-    m_actEditProperty = new QAction(m_treeView);
-    m_actModifyPassword = new QAction(m_treeView);
-    m_actEditCredential = new QAction(m_treeView);
+    m_actAddAccount = new QAction(pView);
+    m_actAddPlatform = new QAction(pView);
+    m_actAddProperty = new QAction(pView);
+    m_actDelAccount = new QAction(pView);
+    m_actDelPlatform = new QAction(pView);
+    m_actDelProperty = new QAction(pView);
+    m_actEditAccount = new QAction(pView);
+    m_actEditPlatform = new QAction(pView);
+    m_actEditProperty = new QAction(pView);
+    m_actModifyPassword = new QAction(pView);
+    m_actEditCredential = new QAction(pView);
 
     RetranslateUI(pView);
 }
