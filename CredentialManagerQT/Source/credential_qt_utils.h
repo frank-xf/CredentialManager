@@ -56,7 +56,8 @@ namespace ui_utils
 
     void SetBackgroundColor(QWidget* pView, const QColor& color);
     QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = to_uint(lab_mark_w), unsigned int h = to_uint(lab_mark_h));
-    QLabel* MakeShowLabel(QWidget* parent, unsigned int w = to_uint(lab_default_w), unsigned int h = to_uint(lab_default_h));
+    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = to_uint(lab_default_w), unsigned int h = to_uint(lab_default_h), QColor c = Qt::black, unsigned int u = 16);
+	QLabel* MakeDynamicLabel(QWidget* parent, QColor c = Qt::black, unsigned int u = 16);
     QPushButton* MakeButton(QWidget* parent, unsigned int w = to_uint(btn_default_w), unsigned int h = to_uint(btn_default_h));
 
     QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, const QString& f, unsigned int u);

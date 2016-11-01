@@ -1,5 +1,6 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QPushButton>
+#include "credential_qt_utils.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -25,15 +26,24 @@ namespace ui_utils
         return lab;
     }
 
-    QLabel* MakeShowLabel(QWidget* parent, unsigned int w, unsigned int h)
+    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w, unsigned int h, QColor c, unsigned int u)
     {
-        QLabel* lab = new QLabel(parent);
-        lab->setAlignment(Qt::AlignVCenter | Qt::AlignRight);
-        lab->setFixedSize(w, h);
-        lab->setStyleSheet("QLabel{ background:transparent; }");
-
-        return lab;
+		return MakeLabel(parent, w, h, Qt::AlignVCenter | Qt::AlignRight, c, "Courier New", u);
     }
+
+	QLabel * MakeDynamicLabel(QWidget * parent, QColor c, unsigned int u)
+	{
+		QLabel* lab = new QLabel(parent);
+		lab->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+		lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
+
+		QFont font;
+		font.setFamily("Courier New");
+		if (0 < u) font.setPointSize(u);
+		lab->setFont(font);
+
+		return lab;
+	}
 
     QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, const QString& f, unsigned int u)
     {

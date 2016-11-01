@@ -289,6 +289,7 @@ namespace bnb
 		string_type m_strWord;
 		string_type m_strUser;
 		unsigned long long m_ullTime;
+		const size_t m_uID;
 
 		platform_tree m_Tree;
 
@@ -297,8 +298,8 @@ namespace bnb
 
 	public:
 
-		Credential() = default;
-		explicit Credential(const string_type& strWord) : m_strWord(strWord) { }
+		Credential() : m_uID(_g_id++) { }
+		explicit Credential(const string_type& strWord) : m_uID(_g_id++), m_strWord(strWord) { }
 
 		void Clear();
 
@@ -307,6 +308,7 @@ namespace bnb
 		platform_tree& Tree() { return m_Tree; }
 		const platform_tree& Tree() const { return m_Tree; }
 
+		size_t GetID() const { return m_uID; }
 		const string_type& GetWord() const { return m_strWord; }
 		const string_type& GetUser() const { return m_strUser; }
 		unsigned long long GetTime() const { return m_ullTime; }

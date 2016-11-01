@@ -10,7 +10,7 @@
 
 namespace bnb
 {
-	size_t _g_id(0);
+	size_t _g_id(1);
 
 	inline size_t _hash_seq(const byte_t *ptr, size_t n)
 	{

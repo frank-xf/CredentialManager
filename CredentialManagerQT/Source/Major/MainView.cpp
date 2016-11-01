@@ -149,30 +149,12 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 {
 	if (cur)
 	{
-		switch (GetItemType(*cur))
+		unsigned int id = cur->data(0, Qt::UserRole).toUInt();
+		if (0 < id)
 		{
-		case bnb::credential_type::ct_credential:
-			break;
-		case bnb::credential_type::ct_platform:
-			break;
-		case bnb::credential_type::ct_account:
-		{
-			QTreeWidgetItem* pItem = cur->parent();
-			if (pItem && bnb::credential_type::ct_platform == GetItemType(*pItem))
-			{
-				_ui.m_viewContent->SwitchToAccount(pItem->text(0), cur->text(0));
-			}
-
-			break;
-		}
-		case bnb::credential_type::ct_property:
-			break;
-		default:
-			break;
+			_ui.m_viewContent->SwitchToView(id);
 		}
 	}
-
-
 }
 
 void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)

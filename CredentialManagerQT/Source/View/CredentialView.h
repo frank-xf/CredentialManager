@@ -24,11 +24,16 @@ class CredentialView : public ViewBase
 
 public:
 
-	CredentialView(QWidget * parent = nullptr);
+	CredentialView(bnb::Credential& credential, QWidget * parent = nullptr);
+
+	void UpdateInfo();
+	void UpdateTable();
 
 private:
 
 	ui_type _ui;
+
+	bnb::Credential& m_Credential;
 };
 
 #endif  // _bnb_Credential_View_H_
