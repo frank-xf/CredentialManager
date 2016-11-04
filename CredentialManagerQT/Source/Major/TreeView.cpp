@@ -15,7 +15,7 @@ TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
 
 	QTreeWidgetItem* item_root = new QTreeWidgetItem;
 	item_root->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-	item_root->setData(0, Qt::UserRole, g_AppMgr.Model().Info().GetID());
+	item_root->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_credential));
 	setHeaderItem(item_root);
 }
 
@@ -31,7 +31,7 @@ void TreeView::InitCredential()
 			QTreeWidgetItem* item_account = AddAccount(item_platform, &ptr_account->m_Pair.m_Key);
 			for (auto ptr_property = ptr_account->m_Pair.m_Value.Head(); ptr_property; ptr_property = ptr_property->m_Next)
 			{
-				QTreeWidgetItem* item_property = AddProperty(item_account, &ptr_property->m_Pair.m_Key, ptr_account->m_Pair.m_Key.m_ID);
+				QTreeWidgetItem* item_property = AddProperty(item_account, &ptr_property->m_Pair.m_Key);
 			}
 		}
 	}
@@ -64,7 +64,7 @@ QTreeWidgetItem * TreeView::AddPlatform(const bnb::platform_type * pp)
 		QTreeWidgetItem* item_platform = new QTreeWidgetItem(this, { QString::fromStdString(pp->m_strName) });
 		item_platform->setForeground(0, QBrush(QColor(216, 32, 32)));
 		item_platform->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-		item_platform->setData(0, Qt::UserRole, pp->m_ID);
+		item_platform->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_platform));
 		addTopLevelItem(item_platform);
 
 		return item_platform;
@@ -80,7 +80,7 @@ QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::accoun
 		QTreeWidgetItem* item_account = new QTreeWidgetItem(parent, { QString::fromStdString(pa->m_strName) });
 		item_account->setForeground(0, QBrush(QColor(64, 128, 255)));
 		item_account->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-		item_account->setData(0, Qt::UserRole, pa->m_ID);
+		item_account->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_account));
 		parent->addChild(item_account);
 
 		return item_account;
@@ -89,14 +89,14 @@ QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::accoun
 	return nullptr;
 }
 
-QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_type * pp, unsigned int id)
+QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_type * pp)
 {
 	if (pp)
 	{
 		QTreeWidgetItem* item_property = new QTreeWidgetItem(parent, { QString::fromStdString(pp->m_strName) });
 		item_property->setForeground(0, QBrush(QColor(32, 192, 32)));
 		item_property->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-		item_property->setData(0, Qt::UserRole, id);
+		item_property->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_property));
 		parent->addChild(item_property);
 
 		return item_property;

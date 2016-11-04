@@ -64,6 +64,102 @@ void ContentView::ClearCredential()
 	setCurrentWidget(m_labHint);
 }
 
+bool ContentView::UpdatePlatform(unsigned int credential_id, unsigned int platform_id)
+{
+}
+
+bool ContentView::UpdateAccount(unsigned int platform_id, unsigned int account_id)
+{
+}
+
+bool ContentView::UpdateProperty(unsigned int account_id, unsigned int property_id)
+{
+}
+
+bool ContentView::RemovePlatform(unsigned int credential_id, const std::vector<unsigned int>& ids)
+{
+	for (auto& id : ids)
+	{
+		for (int i = 0; i < count(); ++i)
+		{
+			ViewBase* ptr = dynamic_cast<ViewBase*>(widget(i));
+			if (ptr && ptr->GetID() == id)
+			{
+				removeWidget(ptr);
+				delete ptr;
+				break;
+			}
+		}
+	}
+
+	for (int i = 0; i < count(); ++i)
+	{
+		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+		if (ptr && ptr->GetID() == credential_id)
+		{
+			ptr->UpdateTable();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ContentView::RemoveAccount(unsigned int platform_id, const std::vector<unsigned int>& ids)
+{
+}
+
+bool ContentView::RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids)
+{
+}
+
+bool ContentView::AddPlatform(unsigned int credential_id, bnb::platform_tree::data_type & platform)
+{
+	for (int i = 0; i < count(); ++i)
+	{
+		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+		if (ptr && ptr->GetID() == credential_id)
+		{
+			ptr->UpdateTable();
+			addWidget(new PlatformView(platform, this));
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ContentView::AddAccount(unsigned int platform_id, bnb::account_tree::data_type & account)
+{
+	for (int i = 0; i < count(); ++i)
+	{
+		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+		if (ptr && ptr->GetID() == platform_id)
+		{
+			ptr->UpdateTable();
+			addWidget(new AccountView(account, this));
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ContentView::AddProperty(unsigned int account_id, bnb::property_tree::data_type & property)
+{
+	for (int i = 0; i < count(); ++i)
+	{
+		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+		if (ptr && ptr->GetID() == account_id)
+		{
+			ptr->UpdateTable();
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool ContentView::SwitchToCredential(unsigned int id)
 {
 	for (int i = 0; i < count(); ++i)

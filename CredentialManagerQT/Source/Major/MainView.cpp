@@ -258,7 +258,10 @@ void MainView::OnEditAccount()
 	EditAccountDialog dlg(&ptr_platform->m_Key, &ptr_account->m_Key, this);
 	if (QDialog::Accepted == dlg.exec())
 	{
+		// update tree item for account
 		pAccount->setText(0, QString::fromStdString(ptr_account->m_Key.m_strName));
+		// update content view for account
+		// update content view for platform
 		/*
 		
 		...
@@ -273,7 +276,32 @@ void MainView::OnEditProperty()
 
 void MainView::OnRemovePlatform()
 {
+	QTreeWidgetItem* pPlatform = _ui.m_treeView->currentItem();
+	if (nullptr == pPlatform || bnb::credential_type::ct_platform != GetItemType(*pPlatform))
+	{
+		return;
+	}
 
+	auto ptr_platform = g_AppMgr.Model().Info().Tree().Find({ pPlatform->text(0).toStdString() });
+	if (ptr_platform)
+	{
+		std::vector<unsigned int> vtrIds{ ptr_platform->m_Key.m_ID };
+		for (auto ptr_account = ptr_platform->m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
+			vtrIds.push_back(ptr_account->m_Pair.m_Key.m_ID);
+
+		if (g_AppMgr.Model().Info().Tree().Remove(ptr_platform->m_Key))
+		{
+			auto ptr_parent = pPlatform->parent();
+			if (ptr_parent)
+				ptr_parent->removeChild(pPlatform);
+			else
+				_ui.m_treeView->takeTopLevelItem(_ui.m_treeView->indexOfTopLevelItem(pPlatform));
+
+			delete pPlatform;
+
+			_ui.m_viewContent->RemovePlatform(ptr_platform->m_Key.m_ID, vtrIds);
+		}
+	}
 }
 
 void MainView::OnRemoveAccount()
