@@ -58,6 +58,31 @@ void CredentialView::UpdateTable()
 	}
 }
 
+void CredentialView::UpdateTable(unsigned int id)
+{
+	for (int i = 0; i < _ui.m_tabView->rowCount(); ++i)
+	{
+		if (auto pItem = _ui.m_tabView->item(i, 0))
+		{
+			if (id == pItem->data(Qt::UserRole).toUInt())
+			{
+				for (auto ptr = m_Credential.Tree().Head(); ptr; ptr = ptr->m_Next)
+				{
+					if (ptr->m_Pair.m_Key.m_ID == id)
+					{
+						pItem->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
+						_ui.m_tabView->item(i, 1)->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strUrl));
+						_ui.m_tabView->item(i, 2)->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay));
+						break;
+					}
+				}
+
+				break;
+			}
+		}
+	}
+}
+
 void CredentialView::ui_type::SetupUI(QWidget* pView)
 {
     ViewBase::ui_type::SetupUI(pView);

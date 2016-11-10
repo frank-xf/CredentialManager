@@ -17,6 +17,7 @@ public:
 	bool RemovePlatform(unsigned int credential_id, const std::vector<unsigned int>& ids);
 	bool RemoveAccount(unsigned int platform_id, const std::vector<unsigned int>& ids);
 	bool RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids);
+	unsigned int RemoveView(const std::vector<unsigned int>& ids);
 
 	bool AddPlatform(unsigned int credential_id, bnb::platform_tree::data_type& platform);
 	bool AddAccount(unsigned int platform_id, bnb::account_tree::data_type& account);

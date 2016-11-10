@@ -26,6 +26,7 @@ public:
 
 	void UpdateInfo();
 	void UpdateTable();
+	void UpdateTable(unsigned int id);
 
 private:
 

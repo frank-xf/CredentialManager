@@ -7,20 +7,19 @@
 #include "Credential/Credential.h"
 
 #include "credential_qt_utils.h"
-#include "credential_qt_manager.h"
-#include "credential_model_manager.h"
 
 #include "Dialog/EditDialog.h"
 
 //==============================================================================
 // Implementation of EditUserNameDialog
 //==============================================================================
-EditCredentialDialog::EditCredentialDialog(QWidget * parent)
+EditCredentialDialog::EditCredentialDialog(bnb::Credential* credential, QWidget * parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+	, m_Credential(credential)
 {
     _ui.SetupUI(this);
 
-    _ui.m_editUserName->setText(QString::fromStdString(g_AppMgr.Model().Info().GetUser()));
+    _ui.m_editUserName->setText(QString::fromStdString(m_Credential->GetUser()));
 
     QObject::connect(_ui.m_editUserName, &QLineEdit::textEdited, this, &EditCredentialDialog::OnChangedText);
     QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &EditCredentialDialog::OnClickedOK);
@@ -46,8 +45,8 @@ void EditCredentialDialog::OnClickedOK()
         return;
     }
 
-	g_AppMgr.Model().Info().SetUser(_ui.m_editUserName->text().toStdString());
-	g_AppMgr.Model().SaveCredential();
+	m_Credential->SetUser(_ui.m_editUserName->text().toStdString());
+	m_Credential->SetDisplay(_ui.m_editDisplay->text().toStdString());
 
     accept();
 }

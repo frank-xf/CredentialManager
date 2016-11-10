@@ -149,10 +149,43 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 {
 	if (cur)
 	{
-		unsigned int id = cur->data(0, Qt::UserRole).toUInt();
-		if (0 < id)
+		switch (GetItemType(*cur))
 		{
-			_ui.m_viewContent->SwitchToView(id);
+		case bnb::credential_type::ct_credential:
+		{
+			if (g_AppMgr.Model().Info().IsValid())
+				_ui.m_viewContent->SwitchToCredential(g_AppMgr.Model().Info().GetID());
+			else
+				_ui.m_viewContent->SwitchToHint();
+
+			return;
+		}
+		case bnb::credential_type::ct_platform:
+		{
+			if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ cur->text(0).toStdString() }))
+				_ui.m_viewContent->SwitchToPlatform(ptr_platform->m_Key.m_ID);
+
+			return;
+		}
+		case bnb::credential_type::ct_property:
+		{
+			auto pAccount = cur->parent();
+			if (pAccount && bnb::credential_type::ct_account == GetItemType(*pAccount))
+				cur = pAccount;
+			else
+				return;
+		}
+		case bnb::credential_type::ct_account:
+		{
+			auto pPlatform = cur->parent();
+			if (pPlatform && bnb::credential_type::ct_platform == GetItemType(*pPlatform))
+				if (auto ptr_account = g_AppMgr.Model().FindAccount(pPlatform->text(0).toStdString(), cur->text(0).toStdString()))
+					_ui.m_viewContent->SwitchToAccount(ptr_account->m_Key.m_ID);
+
+			return;
+		}
+		default:
+			break;
 		}
 	}
 }
@@ -225,49 +258,29 @@ void MainView::OnEditPlatform()
 void MainView::OnEditAccount()
 {
     QTreeWidgetItem* pAccount = _ui.m_treeView->currentItem();
-    if (nullptr == pAccount)
+    if (pAccount && bnb::credential_type::ct_account == GetItemType(*pAccount))
     {
-        return;
-    }
-    if (bnb::credential_type::ct_account != GetItemType(*pAccount))
-    {
-        return;
+		QTreeWidgetItem* pPlatform = pAccount->parent();
+		if (pPlatform && bnb::credential_type::ct_platform == GetItemType(*pPlatform))
+		{
+			if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() }))
+			{
+				if (auto ptr_account = ptr_platform->m_Value.Find({ pAccount->text(0).toStdString() }))
+				{
+					EditAccountDialog dlg(&ptr_platform->m_Key, &ptr_account->m_Key, this);
+					if (QDialog::Accepted == dlg.exec())
+					{
+						pAccount->setText(0, QString::fromStdString(ptr_account->m_Key.m_strName));
+						_ui.m_viewContent->UpdateAccount(ptr_platform->m_Key.m_ID, ptr_account->m_Key.m_ID);
+					}
+
+					return;
+				}
+			}
+		}
     }
 
-    QTreeWidgetItem* pPlatform = pAccount->parent();
-    if (nullptr == pPlatform)
-    {
-        return;
-    }
-    if (bnb::credential_type::ct_platform != GetItemType(*pPlatform))
-    {
-        return;
-    }
-
-	auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() });
-	if (!ptr_platform)
-	{
-		return;
-	}
-	auto ptr_account = ptr_platform->m_Value.Find({pAccount->text(0).toStdString()});
-	if (!ptr_account)
-	{
-		return;
-	}
-
-	EditAccountDialog dlg(&ptr_platform->m_Key, &ptr_account->m_Key, this);
-	if (QDialog::Accepted == dlg.exec())
-	{
-		// update tree item for account
-		pAccount->setText(0, QString::fromStdString(ptr_account->m_Key.m_strName));
-		// update content view for account
-		// update content view for platform
-		/*
-		
-		...
-		
-		*/
-	}
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnEditProperty()

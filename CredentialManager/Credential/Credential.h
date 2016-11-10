@@ -288,6 +288,7 @@ namespace bnb
 	{
 		string_type m_strWord;
 		string_type m_strUser;
+		string_type m_strDisplay;
 		unsigned long long m_ullTime;
 		const size_t m_uID;
 
@@ -311,9 +312,11 @@ namespace bnb
 		size_t GetID() const { return m_uID; }
 		const string_type& GetWord() const { return m_strWord; }
 		const string_type& GetUser() const { return m_strUser; }
+		const string_type& GetDisplay() const { return m_strDisplay; }
 		unsigned long long GetTime() const { return m_ullTime; }
 		void SetWord(const string_type& strWord) { m_strWord = strWord; }
 		void SetUser(const string_type& strUser) { m_strUser = strUser; }
+		void SetDisplay(const string_type& strDisplay) { m_strDisplay = strDisplay; }
 		void UpdateTime();
 		bool ValidateWord(const string_type& strWord) const;
 

@@ -66,31 +66,80 @@ void ContentView::ClearCredential()
 
 bool ContentView::UpdatePlatform(unsigned int credential_id, unsigned int platform_id)
 {
+	bool bResult1 = false, bResult2 = false;
+
+	for (int i = 0; i < count(); ++i)
+	{
+		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+		if (ptr && ptr->GetID() == credential_id)
+		{
+			ptr->UpdateTable(platform_id);
+			bResult1 = true;
+			break;
+		}
+	}
+
+	for (int i = 0; i < count(); ++i)
+	{
+		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+		if (ptr && ptr->GetID() == platform_id)
+		{
+			ptr->UpdateInfo();
+			bResult2 = true;
+			break;
+		}
+	}
+
+	return bResult1 && bResult2;
 }
 
 bool ContentView::UpdateAccount(unsigned int platform_id, unsigned int account_id)
 {
+	bool bResult1 = false, bResult2 = false;
+
+	for (int i = 0; i < count(); ++i)
+	{
+		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+		if (ptr && ptr->GetID() == platform_id)
+		{
+			ptr->UpdateTable(account_id);
+			bResult1 = true;
+			break;
+		}
+	}
+
+	for (int i = 0; i < count(); ++i)
+	{
+		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+		if (ptr && ptr->GetID() == account_id)
+		{
+			ptr->UpdateInfo();
+			bResult2 = true;
+			break;
+		}
+	}
+
+	return bResult1 && bResult2;
 }
 
 bool ContentView::UpdateProperty(unsigned int account_id, unsigned int property_id)
 {
+	for (int i = 0; i < count(); ++i)
+	{
+		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+		if (ptr && ptr->GetID() == account_id)
+		{
+			ptr->UpdateTable(property_id);
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool ContentView::RemovePlatform(unsigned int credential_id, const std::vector<unsigned int>& ids)
 {
-	for (auto& id : ids)
-	{
-		for (int i = 0; i < count(); ++i)
-		{
-			ViewBase* ptr = dynamic_cast<ViewBase*>(widget(i));
-			if (ptr && ptr->GetID() == id)
-			{
-				removeWidget(ptr);
-				delete ptr;
-				break;
-			}
-		}
-	}
+	RemoveView(ids);
 
 	for (int i = 0; i < count(); ++i)
 	{
@@ -107,10 +156,57 @@ bool ContentView::RemovePlatform(unsigned int credential_id, const std::vector<u
 
 bool ContentView::RemoveAccount(unsigned int platform_id, const std::vector<unsigned int>& ids)
 {
+	RemoveView(ids);
+
+	for (int i = 0; i < count(); ++i)
+	{
+		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+		if (ptr && ptr->GetID() == platform_id)
+		{
+			ptr->UpdateTable();
+			return true;
+		}
+	}
+
+	return false;
 }
 
 bool ContentView::RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids)
 {
+	RemoveView(ids);
+
+	for (int i = 0; i < count(); ++i)
+	{
+		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+		if (ptr && ptr->GetID() == account_id)
+		{
+			ptr->UpdateTable();
+			return true;
+		}
+	}
+
+	return false;
+}
+
+unsigned int ContentView::RemoveView(const std::vector<unsigned int>& ids)
+{
+	unsigned int nCount = 0;
+	for (auto& id : ids)
+	{
+		for (int i = 0; i < count(); ++i)
+		{
+			ViewBase* ptr = dynamic_cast<ViewBase*>(widget(i));
+			if (ptr && ptr->GetID() == id)
+			{
+				removeWidget(ptr);
+				delete ptr;
+				++nCount;
+				break;
+			}
+		}
+	}
+
+	return nCount;
 }
 
 bool ContentView::AddPlatform(unsigned int credential_id, bnb::platform_tree::data_type & platform)
