@@ -253,14 +253,14 @@ bool CredentialMainView::OnViewCredential(bnb::platform_type * pp, bnb::account_
 
 bool CredentialMainView::SetPlatform(bnb::platform_type & p1, const bnb::platform_type & p2)
 {
-    return m_Credential.Tree().SetKey(p1, p2);
+    return m_Credential.Tree().Update(p1, p2);
 }
 
 bool CredentialMainView::SetAccount(const bnb::platform_type & pp, bnb::account_type & a1, const bnb::account_type & a2)
 {
     auto ptr_platform = m_Credential.Tree().Find(pp);
     if (ptr_platform)
-        return ptr_platform->m_Value.SetKey(a1, a2);
+        return ptr_platform->m_Value.Update(a1, a2);
 
     return false;
 }
@@ -272,7 +272,7 @@ bool CredentialMainView::SetKey(const bnb::platform_type & pp, const bnb::accoun
     {
         auto ptr_account = ptr_platform->m_Value.Find(pa);
         if (ptr_account)
-            return ptr_account->m_Value.SetKey(k1, k2);
+            return ptr_account->m_Value.Update(k1, k2);
     }
 
     return false;

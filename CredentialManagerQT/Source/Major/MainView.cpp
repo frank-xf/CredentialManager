@@ -192,58 +192,97 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 
 void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
 {
+	if (0 == index)
+	{
+		switch (GetItemType(*pItem))
+		{
+		case bnb::credential_type::ct_credential:
+		{
+			Edi
+
+			break;
+		}
+		case bnb::credential_type::ct_platform:
+		{
+			if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ cur->text(0).toStdString() }))
+				_ui.m_viewContent->SwitchToPlatform(ptr_platform->m_Key.m_ID);
+
+			return;
+		}
+		case bnb::credential_type::ct_property:
+		{
+			auto pAccount = cur->parent();
+			if (pAccount && bnb::credential_type::ct_account == GetItemType(*pAccount))
+				cur = pAccount;
+			else
+				return;
+		}
+		case bnb::credential_type::ct_account:
+		{
+			auto pPlatform = cur->parent();
+			if (pPlatform && bnb::credential_type::ct_platform == GetItemType(*pPlatform))
+				if (auto ptr_account = g_AppMgr.Model().FindAccount(pPlatform->text(0).toStdString(), cur->text(0).toStdString()))
+					_ui.m_viewContent->SwitchToAccount(ptr_account->m_Key.m_ID);
+
+			return;
+		}
+		default:
+			break;
+		}
+	}
 }
 
 void MainView::OnEditCredential()
 {
-	EditCredentialDialog dlg(this);
+	EditCredentialDialog dlg(g_AppMgr.Model().Info(), this);
 
 	if (QDialog::Accepted == dlg.exec())
 	{
+		g_AppMgr.Model().SaveCredential();
+
 		_ui.m_treeView->UpdateHeader();
+		_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
 	}
 }
 
 void MainView::OnMotifyPassword()
 {
-	EditPasswordDialog dlg(this);
+	EditPasswordDialog dlg(g_AppMgr.Model().Info(), this);
 
-	dlg.exec();
+	if (QDialog::Accepted == dlg.exec())
+	{
+		g_AppMgr.Model().SaveCredential();
+	}
 }
 
 void MainView::OnAddPlatform()
 {
+	_ui.m_treeView->AddPlatform
 }
 
 void MainView::OnAddAccount()
 {
 	QTreeWidgetItem* pPlatform = _ui.m_treeView->currentItem();
-	if (nullptr == pPlatform)
+	if (pPlatform && bnb::credential_type::ct_platform != GetItemType(*pPlatform))
 	{
-		return;
-	}
-	if (bnb::credential_type::ct_platform != GetItemType(*pPlatform))
-	{
-		return;
-	}
-
-	auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() });
-	if (!ptr_platform)
-	{
-		return;
-	}
-
-	EditAccountDialog dlg(&ptr_platform->m_Key, nullptr, this);
-	if (QDialog::Accepted == dlg.exec())
-	{
-		_ui.m_treeView->AddAccount(pPlatform, dlg.GetAccount());
+		auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() });
+		if (ptr_platform)
+		{
 
 
-		/*
+			EditAccountDialog dlg(*ptr_platform, nullptr, this);
+			if (QDialog::Accepted == dlg.exec())
+			{
+				_ui.m_treeView->AddAccount(pPlatform, &dlg.GetAccount()->m_Key);
 
-		...
 
-		*/
+				/*
+
+				...
+
+				*/
+			}
+		}
 	}
 }
 
@@ -267,7 +306,7 @@ void MainView::OnEditAccount()
 			{
 				if (auto ptr_account = ptr_platform->m_Value.Find({ pAccount->text(0).toStdString() }))
 				{
-					EditAccountDialog dlg(&ptr_platform->m_Key, &ptr_account->m_Key, this);
+					EditAccountDialog dlg(*ptr_platform, ptr_account, this);
 					if (QDialog::Accepted == dlg.exec())
 					{
 						pAccount->setText(0, QString::fromStdString(ptr_account->m_Key.m_strName));

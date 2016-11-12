@@ -111,11 +111,17 @@ void fun1()
 class TBase {
 public:
 
-	virtual ~TBase() { }
+	TBase() { fun(); }
+
+	void fun() { std::cout << "I\'m base." << std::endl; }
 };
 
-class T1 : public TBase {};
-class T2 : public TBase {};
+class T1 : public TBase {
+	void fun() { std::cout << "I\'m T1." << std::endl; }
+};
+class T2 : public TBase {
+	void fun() { std::cout << "I\'m T2." << std::endl; }
+};
 
 void Print(void* ptr)
 {
@@ -128,23 +134,5 @@ void fun2()
 	TBase* t1 = new T1();
 	TBase* t2 = new T2();
 
-	T1* p1 = dynamic_cast<T1*>(t1);
-	T1* p2 = dynamic_cast<T1*>(t2);
-	T2* p3 = dynamic_cast<T2*>(t1);
-	T2* p4 = dynamic_cast<T2*>(t2);
-
-	TBase* p5 = dynamic_cast<TBase*>(t1);
-	TBase* p6 = dynamic_cast<TBase*>(t2);
-	T1* p7 = dynamic_cast<T1*>(tb);
-	T2* p8 = dynamic_cast<T2*>(tb);
-
-	Print(p1);
-	Print(p2);
-	Print(p3);
-	Print(p4);
-	Print(p5);
-	Print(p6);
-	Print(p7);
-	Print(p8);
 
 }

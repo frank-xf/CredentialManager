@@ -64,6 +64,21 @@ void ContentView::ClearCredential()
 	setCurrentWidget(m_labHint);
 }
 
+bool ContentView::UpdateCredential(unsigned int credential_id)
+{
+	for (int i = 0; i < count(); ++i)
+	{
+		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+		if (ptr && ptr->GetID() == credential_id)
+		{
+			ptr->UpdateInfo();
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool ContentView::UpdatePlatform(unsigned int credential_id, unsigned int platform_id)
 {
 	bool bResult1 = false, bResult2 = false;

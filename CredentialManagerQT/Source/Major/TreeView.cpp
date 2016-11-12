@@ -89,7 +89,7 @@ QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::accoun
 	return nullptr;
 }
 
-QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_type * pp)
+QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_key * pp)
 {
 	if (pp)
 	{

@@ -66,6 +66,16 @@ private:
 	void OnRemoveAccount();
 	void OnRemoveProperty();
 
+	void AddPlatform();
+	void AddAccount();
+	void AddProperty();
+	void EditPlatform();
+	void EditAccount();
+	void EditProperty();
+	void RemovePlatform();
+	void RemoveAccount();
+	void RemoveProperty();
+
 
 private:
 

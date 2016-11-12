@@ -119,7 +119,7 @@ namespace bnb
 					{
 						if (pugi::node_cdata != node_value.type()) return false;
 
-						ptr_property->m_Value.m_strValue = node_value.value();
+						ptr_property->m_Value.m_strName = node_value.value();
 					}
 				}
 			}
@@ -140,6 +140,32 @@ namespace bnb
 		node_credential.append_attribute("user").set_value(m_strUser.c_str());
 		node_credential.append_attribute("time").set_value(m_ullTime);
 
+		m_Tree.Foreach([&node_credential](const platform_tree::data_type& platform) {
+			auto node_platform = node_credential.append_child("platform");
+			node_platform.append_attribute("name").set_value(platform.m_Key.m_strName.c_str());
+			node_platform.append_attribute("url").set_value(platform.m_Key.m_strUrl.c_str());
+			node_platform.append_attribute("display").set_value(platform.m_Key.m_strDisplay.c_str());
+
+			platform.m_Value.Foreach([&node_platform](const account_tree::data_type& account) {
+				auto node_account = node_platform.append_child("account");
+				node_account.append_attribute("name").set_value(account.m_Key.m_strName.c_str());
+				node_account.append_attribute("display").set_value(account.m_Key.m_strDisplay.c_str());
+
+				account.m_Value.Foreach([&node_account](const property_tree::data_type& property) {
+					auto node_property = node_account.append_child("property");
+					node_property.append_attribute("name").set_value(property.m_Key.m_strName.c_str());
+					node_property.append_child(pugi::node_cdata).set_value(property.m_Value.m_strName.c_str());
+
+					return true;
+				});
+
+				return true;
+			});
+
+			return true;
+		});
+
+		/*
 		for (auto ptr_platform = m_Tree.Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
 		{
 			auto node_platform = node_credential.append_child("platform");
@@ -157,11 +183,11 @@ namespace bnb
 				{
 					auto node_property = node_account.append_child("property");
 					node_property.append_attribute("name").set_value(ptr_property->m_Pair.m_Key.m_strName.c_str());
-					node_property.append_child(pugi::node_cdata).set_value(ptr_property->m_Pair.m_Value.m_strValue.c_str());
+					node_property.append_child(pugi::node_cdata).set_value(ptr_property->m_Pair.m_Value.m_strName.c_str());
 				}
 			}
 		}
-
+		*/
 		doc.print(xml_memory_writer(mt), " ", pugi::format_default, pugi::encoding_utf8, 0);
 
 		return true;

@@ -41,7 +41,7 @@ void AccountView::UpdateTable()
 		{
 			QTableWidgetItem* pKey = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
 			pKey->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
-			QTableWidgetItem* pValue = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Value.m_strValue));
+			QTableWidgetItem* pValue = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Value.m_strName));
 			pValue->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
 
 			_ui.m_tabView->setItem(nIndex, 0, pKey);
@@ -67,7 +67,7 @@ void AccountView::UpdateTable(unsigned int id)
 					if (ptr->m_Pair.m_Key.m_ID == id)
 					{
 						pItem->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
-						_ui.m_tabView->item(i, 1)->setText(QString::fromStdString(ptr->m_Pair.m_Value.m_strValue));
+						_ui.m_tabView->item(i, 1)->setText(QString::fromStdString(ptr->m_Pair.m_Value.m_strName));
 						break;
 					}
 				}

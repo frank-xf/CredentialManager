@@ -58,7 +58,8 @@ namespace bnb
 		public:
 
 			node_type() : m_Next(nullptr) { }
-			node_type(const key_type& key) : m_Pair(key), m_Next(nullptr) { }
+			explicit node_type(const key_type& key) : m_Pair(key), m_Next(nullptr) { }
+			node_type(const key_type& key, const value_type& value) : m_Pair(key, value), m_Next(nullptr) { }
 
 			data_type  m_Pair;
 			node_type* m_Next;
@@ -96,6 +97,28 @@ namespace bnb
 		node_type* Head() { return m_Head; }
 		const node_type* Head() const { return m_Head; }
 
+		template<typename _Func>
+		size_t Foreach(_Func pFunc)
+		{
+			size_t nCount = 0;
+			for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+				if (pFunc(ptr->m_Pair))
+					++nCount;
+
+			return nCount;
+		}
+
+		template<typename _Func>
+		size_t Foreach(_Func pFunc) const
+		{
+			size_t nCount = 0;
+			for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+				if (pFunc(ptr->m_Pair))
+					++nCount;
+
+			return nCount;
+		}
+
 		data_type* Insert(const key_type& key)
 		{
 			node_type* prev = nullptr;
@@ -128,11 +151,22 @@ namespace bnb
 			return &ptr->m_Pair;
 		}
 
+		data_type* Insert(const key_type& key, const value_type& value)
+		{
+			if (auto ptr = Insert(key))
+			{
+				ptr->m_Value = value;
+				return ptr;
+			}
+
+			return nullptr;
+		}
+
 		bool Remove(const key_type& key)
 		{
 			for (node_type *prev = nullptr, *curr = m_Head; curr; curr = curr->m_Next)
 			{
-				if (curr->m_Pair.m_Key == key)
+				if (&key == &curr->m_Pair.m_Key || key == curr->m_Pair.m_Key)
 				{
 					if (curr == m_Head)
 						m_Head = curr->m_Next;
@@ -151,31 +185,59 @@ namespace bnb
 			return false;
 		}
 
-		bool CanUpdate(const key_type& key) const
+		data_type* _Update(const key_type& target, const key_type& key)
 		{
+			data_type* ptr_target = nullptr;
 			for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-				if (&ptr->m_Pair.m_Key != &key)
-					if (ptr->m_Pair.m_Key == key)
-						return false;
+			{
+				if (nullptr == ptr_target)
+				{
+					if (&target == &ptr->m_Pair.m_Key || target == ptr->m_Pair.m_Key)
+					{
+						ptr_target = &ptr->m_Pair;
+						continue;
+					}
+				}
 
-			return true;
+				if (key == ptr->m_Pair.m_Key)
+					return false;
+			}
+
+			if (ptr_target)
+				ptr_target->m_Key = key;
+
+			return ptr_target;
 		}
 
-		bool SetKey(key_type& src, const key_type& dst)
+		bool Update(const key_type& target, const key_type& key)
 		{
-			for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-				if (&ptr->m_Pair.m_Key != &src)
-					if (ptr->m_Pair.m_Key == dst)
-						return false;
+			return (_Update(target, key));
+		}
 
-			src = dst;
-			return true;
+		bool Update(const key_type& target, const key_type& key, const value_type& value)
+		{
+			if (auto ptr = _Update(target, key))
+			{
+				ptr->m_Value = value;
+				return true;
+			}
+
+			return false;
 		}
 
 		data_type* Find(const key_type& key)
 		{
 			for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-				if (ptr->m_Pair.m_Key == key)
+				if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
+					return &ptr->m_Pair;
+
+			return nullptr;
+		}
+
+		const data_type* Find(const key_type& key) const
+		{
+			for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+				if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
 					return &ptr->m_Pair;
 
 			return nullptr;
@@ -225,9 +287,9 @@ namespace bnb
 		string_type m_strDisplay;
 	};
 
-	struct property_type : public credential_base
+	struct property_key : public credential_base
 	{
-		property_type(const string_type& name = string_type())
+		property_key(const string_type& name = string_type())
 			: credential_base(name)
 		{ }
 
@@ -235,33 +297,33 @@ namespace bnb
 
 	struct property_value
 	{
-		property_value(const string_type& value = string_type()) : m_strValue(value) { }
+		property_value(const string_type& value = string_type()) : m_strName(value) { }
 
-		string_type m_strValue;
+		string_type m_strName;
 	};
 
 	inline bool operator < (const platform_type& a, const platform_type& b) { return a.m_strName < b.m_strName; }
 	inline bool operator < (const account_type& a, const account_type& b) { return a.m_strName < b.m_strName; }
-	inline bool operator < (const property_type& a, const property_type& b) { return a.m_strName < b.m_strName; }
-	inline bool operator < (const property_value& a, const property_value& b) { return a.m_strValue < b.m_strValue; }
+	inline bool operator < (const property_key& a, const property_key& b) { return a.m_strName < b.m_strName; }
+	inline bool operator < (const property_value& a, const property_value& b) { return a.m_strName < b.m_strName; }
 	inline bool operator > (const platform_type& a, const platform_type& b) { return (b < a); }
 	inline bool operator > (const account_type& a, const account_type& b) { return (b < a); }
-	inline bool operator > (const property_type& a, const property_type& b) { return (b < a); }
+	inline bool operator > (const property_key& a, const property_key& b) { return (b < a); }
 	inline bool operator > (const property_value& a, const property_value& b) { return (b < a); }
 	inline bool operator == (const platform_type& a, const platform_type& b) { return a.m_strName == b.m_strName; }
 	inline bool operator == (const account_type& a, const account_type& b) { return a.m_strName == b.m_strName; }
-	inline bool operator == (const property_type& a, const property_type& b) { return a.m_strName == b.m_strName; }
-	inline bool operator == (const property_value& a, const property_value& b) { return a.m_strValue == b.m_strValue; }
+	inline bool operator == (const property_key& a, const property_key& b) { return a.m_strName == b.m_strName; }
+	inline bool operator == (const property_value& a, const property_value& b) { return a.m_strName == b.m_strName; }
 	inline bool operator != (const platform_type& a, const platform_type& b) { return !(a == b); }
 	inline bool operator != (const account_type& a, const account_type& b) { return !(a == b); }
-	inline bool operator != (const property_type& a, const property_type& b) { return !(a == b); }
+	inline bool operator != (const property_key& a, const property_key& b) { return !(a == b); }
 	inline bool operator != (const property_value& a, const property_value& b) { return !(a == b); }
 
-	using property_tree = tree_type<property_type, property_value>;
+	using property_tree = tree_type<property_key, property_value>;
 	using account_tree = tree_type<account_type, property_tree>;
 	using platform_tree = tree_type<platform_type, account_tree>;
 
-	inline property_tree::data_type* property_tree::Insert(const property_type& key)
+	inline property_tree::data_type* property_tree::Insert(const property_key& key)
 	{
 		node_type* last = nullptr;
 

@@ -10,6 +10,7 @@ public:
 	void InitCredential();
 	void ClearCredential();
 
+	bool UpdateCredential(unsigned int credential_id);
 	bool UpdatePlatform(unsigned int credential_id, unsigned int platform_id);
 	bool UpdateAccount(unsigned int platform_id, unsigned int account_id);
 	bool UpdateProperty(unsigned int account_id, unsigned int property_id);
