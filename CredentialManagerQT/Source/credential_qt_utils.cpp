@@ -28,7 +28,7 @@ namespace ui_utils
 
     QLabel* MakeStaticLabel(QWidget* parent, unsigned int w, unsigned int h, QColor c, unsigned int u)
     {
-		return MakeLabel(parent, w, h, Qt::AlignVCenter | Qt::AlignRight, c, "Courier New", u);
+		return MakeLabel(parent, w, h, Qt::AlignVCenter | Qt::AlignRight, c, u);
     }
 
 	QLabel * MakeDynamicLabel(QWidget * parent, QColor c, unsigned int u)
@@ -38,14 +38,13 @@ namespace ui_utils
 		lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
 
 		QFont font;
-		font.setFamily("Courier New");
 		if (0 < u) font.setPointSize(u);
 		lab->setFont(font);
 
 		return lab;
 	}
 
-    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, const QString& f, unsigned int u)
+    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, unsigned int u)
     {
         QLabel* lab = new QLabel(p);
         lab->setAlignment(a);
@@ -53,7 +52,6 @@ namespace ui_utils
         lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
 
         QFont font;
-        if (!f.isEmpty()) font.setFamily(f);
         if (0 < u) font.setPointSize(u);
         lab->setFont(font);
 

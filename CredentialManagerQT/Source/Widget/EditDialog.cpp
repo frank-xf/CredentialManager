@@ -10,15 +10,18 @@
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
 
-#include "Dialog/EditDialog.h"
+#include "Widget/EditDialog.h"
 
 //==============================================================================
-// Implementation of EditUserNameDialog
+// Implementation of EditCredentialDialog
 //==============================================================================
 EditCredentialDialog::EditCredentialDialog(bnb::Credential& pc, QWidget * parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 	, m_Credential(pc)
 {
+	setObjectName("EditCredentialDialog");
+	setFixedSize(ui_utils::dlg_credential_w, ui_utils::dlg_credential_h);
+
 	_ui.m_editText[0]->setMaxLength(64);
     _ui.m_editText[0]->setText(QString::fromStdString(m_Credential.GetUser()));
 	_ui.m_editText[1]->setText(QString::fromStdString(m_Credential.GetDisplay()));
@@ -60,6 +63,9 @@ EditPasswordDialog::EditPasswordDialog(bnb::Credential& pc, QWidget * parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 	, m_Credential(pc)
 {
+	setObjectName("EditPasswordDialog");
+	setFixedSize(ui_utils::dlg_default_w, ui_utils::dlg_default_h);
+
 	_ui.m_editText[0]->setMaxLength(64);
 	_ui.m_editText[0]->setEchoMode(QLineEdit::Password);
 	_ui.m_editText[1]->setMaxLength(64);
@@ -111,7 +117,6 @@ void EditPasswordDialog::base_type::ui_type::LayoutCentral(EditPasswordDialog::b
 		phLayout->setSpacing(2);
 		phLayout->addWidget(_labText[i]);
 		phLayout->addWidget(m_editText[i], 1);
-		phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
 
 		pMainLayout->addLayout(phLayout);
 	}
@@ -133,6 +138,9 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::
     , m_Credential(pc)
 	, m_Platform(pp)
 {
+	setObjectName("EditPlatformDialog");
+	setFixedSize(ui_utils::dlg_default_w, ui_utils::dlg_default_h);
+
 	_ui.m_editText[0]->setMaxLength(64);
 
 	if (m_Platform)
@@ -209,6 +217,9 @@ EditAccountDialog::EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::acc
 	, m_Platform(pp)
     , m_Account(pa)
 {
+	setObjectName("EditAccountDialog");
+	setFixedSize(ui_utils::dlg_default_w, ui_utils::dlg_default_h);
+
 	_ui.m_editText[0]->setReadOnly(true);
 	_ui.m_editText[1]->setMaxLength(64);
 
@@ -279,10 +290,7 @@ void EditAccountDialog::base_type::ui_type::LayoutCentral(EditAccountDialog::bas
 		phLayout->setSpacing(2);
 		phLayout->addWidget(_labText[i]);
 		phLayout->addWidget(m_editText[i], 1);
-
-		if(1 == i)
-			phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
-
+		
 		pMainLayout->addLayout(phLayout);
 	}
 }
@@ -303,6 +311,9 @@ EditPropertyDialog::EditPropertyDialog(bnb::account_tree::data_type & pa, bnb::p
 	, m_Account(pa)
 	, m_Property(pp)
 {
+	setObjectName("EditPropertyDialog");
+	setFixedSize(ui_utils::dlg_default_w, ui_utils::dlg_default_h);
+
 	_ui.m_editText[0]->setReadOnly(true);
 	_ui.m_editText[1]->setMaxLength(128);
 
@@ -374,9 +385,6 @@ void EditPropertyDialog::base_type::ui_type::LayoutCentral(EditPropertyDialog::b
 		phLayout->setSpacing(2);
 		phLayout->addWidget(_labText[i]);
 		phLayout->addWidget(m_editText[i], 1);
-
-		if (1 == i)
-			phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
 
 		pMainLayout->addLayout(phLayout);
 	}

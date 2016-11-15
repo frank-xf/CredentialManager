@@ -1,11 +1,11 @@
-﻿#ifndef _bnb_Content_View_H_
-#define _bnb_Content_View_H_
+﻿#ifndef _bnb_Stack_View_H_
+#define _bnb_Stack_View_H_
 
-class ContentView : public QStackedWidget
+class StackView : public QStackedWidget
 {
 public:
 
-	ContentView(QWidget * parent = nullptr);
+	StackView(QWidget * parent = nullptr);
 
 	void InitCredential();
 	void ClearCredential();
@@ -20,9 +20,9 @@ public:
 	bool RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids);
 	unsigned int RemoveView(const std::vector<unsigned int>& ids);
 
-	bool AddPlatform(unsigned int credential_id, bnb::platform_tree::data_type& platform);
-	bool AddAccount(unsigned int platform_id, bnb::account_tree::data_type& account);
-	bool AddProperty(unsigned int account_id, bnb::property_tree::data_type& property);
+	bool AddPlatform(unsigned int credential_id, const bnb::platform_tree::data_type& platform);
+	bool AddAccount(unsigned int platform_id, const bnb::account_tree::data_type& account);
+	bool AddProperty(unsigned int account_id, const bnb::property_tree::data_type& property);
 
 	bool SwitchToCredential(unsigned int id);
 	bool SwitchToPlatform(unsigned int id);
@@ -36,4 +36,4 @@ private:
 	QLabel* m_labHint;
 };
 
-#endif  // _bnb_Content_View_H_
+#endif  // _bnb_Stack_View_H_

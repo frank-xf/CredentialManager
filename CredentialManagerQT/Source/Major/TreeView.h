@@ -12,9 +12,9 @@ public:
 	void ClearCredential();
 	void UpdateHeader();
 
-	QTreeWidgetItem* AddPlatform(const bnb::platform_type* pp);
-	QTreeWidgetItem* AddAccount(QTreeWidgetItem* parent, const bnb::account_type* pa);
-	QTreeWidgetItem* AddProperty(QTreeWidgetItem* parent, const bnb::property_key* pp);
+	QTreeWidgetItem* AddPlatform(const bnb::platform_tree::data_type& pp);
+	QTreeWidgetItem* AddAccount(QTreeWidgetItem* parent, const bnb::account_tree::data_type& pa);
+	QTreeWidgetItem* AddProperty(QTreeWidgetItem* parent, const bnb::property_tree::data_type& pp);
 
 private:
 	

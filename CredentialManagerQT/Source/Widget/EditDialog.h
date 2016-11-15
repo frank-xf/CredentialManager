@@ -12,7 +12,7 @@ class QPushButton;
 template<typename _Ty, unsigned int n>
 class EditDialog : public QDialog
 {
-	static_assert(0 < n, "the template parameter n must be greater than 0 ");
+	static_assert(0 < n, R"(the template parameter 'n' must be greater than 0)");
 
 protected:
 
@@ -35,9 +35,6 @@ protected:
 
 		void SetupUI(EditDialog* pView)
 		{
-			pView->setObjectName(typeid(decltype(*pView)).name());
-			pView->setFixedSize(ui_utils::dlg_username_w, ui_utils::dlg_username_h);
-
 			m_labHint = new QLabel(pView);
 			m_labHint->setAlignment(Qt::AlignCenter);
 			m_labHint->setFixedHeight(20);
@@ -47,9 +44,9 @@ protected:
 
 			for (unsigned int i = 0; i < n; ++i)
 			{
-				_labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::dlg_username_w, ui_utils::dlg_username_h, Qt::black, 12);
+				_labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_default_w, ui_utils::lab_default_h, Qt::black, 10);
 				m_editText[i] = new QLineEdit(pView);
-				m_editText[i]->setFixedSize(ui_utils::edit_default_w, ui_utils::edit_default_h);
+				// m_editText[i]->setFixedSize(ui_utils::edit_default_w, ui_utils::edit_default_h);
 			}
 
 			QVBoxLayout* pMainLayout = new QVBoxLayout;
@@ -67,7 +64,7 @@ protected:
 			phLayout->addWidget(m_btnCancel);
 			phLayout->addStretch(1);
 
-			pMainLayout->addLayout(phLayout, 1);
+			pMainLayout->addLayout(phLayout);
 
 			pView->setLayout(pMainLayout);
 
@@ -91,8 +88,6 @@ protected:
 				phLayout->setSpacing(2);
 				phLayout->addWidget(_labText[i]);
 				phLayout->addWidget(m_editText[i], 1);
-				if (0 == i)
-					phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
 
 				pMainLayout->addLayout(phLayout);
 			}
@@ -138,7 +133,7 @@ private:
 
 	bnb::Credential& m_Credential;
 
-};  // class EditUserNameDialog
+};  // class EditCredentialDialog
 
 //------------------------------------------------------------------------------
 

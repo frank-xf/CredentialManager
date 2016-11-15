@@ -11,13 +11,13 @@
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
 
-#include "Dialog/HintDialog.h"
-#include "Dialog/PasswordInput.h"
-#include "Dialog/CreateDialog.h"
-#include "Dialog/EditDialog.h"
+#include "Widget/HintDialog.h"
+#include "Widget/PasswordInput.h"
+#include "Widget/CreateDialog.h"
+#include "Widget/EditDialog.h"
 
 #include "Major/ToolBar.h"
-#include "Major/ContentView.h"
+#include "Major/StackView.h"
 #include "Major/TreeView.h"
 #include "Major/MainView.h"
 
@@ -192,44 +192,43 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 
 void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
 {
-	if (0 == index)
+	if (0 == index && pItem)
 	{
 		switch (GetItemType(*pItem))
 		{
 		case bnb::credential_type::ct_credential:
 		{
-			Edi
+			OnEditCredential();
 
 			break;
 		}
 		case bnb::credential_type::ct_platform:
 		{
-			if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ cur->text(0).toStdString() }))
-				_ui.m_viewContent->SwitchToPlatform(ptr_platform->m_Key.m_ID);
+			if (EditPlatform(pItem))
+				return;
 
-			return;
+			break;
 		}
 		case bnb::credential_type::ct_property:
 		{
-			auto pAccount = cur->parent();
-			if (pAccount && bnb::credential_type::ct_account == GetItemType(*pAccount))
-				cur = pAccount;
-			else
+			if (EditProperty(pItem))
 				return;
+
+			break;
 		}
 		case bnb::credential_type::ct_account:
 		{
-			auto pPlatform = cur->parent();
-			if (pPlatform && bnb::credential_type::ct_platform == GetItemType(*pPlatform))
-				if (auto ptr_account = g_AppMgr.Model().FindAccount(pPlatform->text(0).toStdString(), cur->text(0).toStdString()))
-					_ui.m_viewContent->SwitchToAccount(ptr_account->m_Key.m_ID);
+			if (EditAccount(pItem))
+				return;
 
-			return;
+			break;
 		}
 		default:
 			break;
 		}
 	}
+
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnEditCredential()
@@ -257,84 +256,238 @@ void MainView::OnMotifyPassword()
 
 void MainView::OnAddPlatform()
 {
-	_ui.m_treeView->AddPlatform
+	if (!AddPlatform())
+		HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnAddAccount()
 {
-	QTreeWidgetItem* pPlatform = _ui.m_treeView->currentItem();
-	if (pPlatform && bnb::credential_type::ct_platform != GetItemType(*pPlatform))
-	{
-		auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() });
-		if (ptr_platform)
-		{
+	if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
+		if (bnb::credential_type::ct_platform == GetItemType(*item_platform))
+			if (AddAccount(item_platform))
+				return;
 
-
-			EditAccountDialog dlg(*ptr_platform, nullptr, this);
-			if (QDialog::Accepted == dlg.exec())
-			{
-				_ui.m_treeView->AddAccount(pPlatform, &dlg.GetAccount()->m_Key);
-
-
-				/*
-
-				...
-
-				*/
-			}
-		}
-	}
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnAddProperty()
 {
+	if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
+		if (bnb::credential_type::ct_account == GetItemType(*item_account))
+			if (AddProperty(item_account))
+				return;
+
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnEditPlatform()
 {
+	if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
+		if (bnb::credential_type::ct_platform == GetItemType(*item_platform))
+			if (EditPlatform(item_platform))
+				return;
+
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnEditAccount()
 {
-    QTreeWidgetItem* pAccount = _ui.m_treeView->currentItem();
-    if (pAccount && bnb::credential_type::ct_account == GetItemType(*pAccount))
-    {
-		QTreeWidgetItem* pPlatform = pAccount->parent();
-		if (pPlatform && bnb::credential_type::ct_platform == GetItemType(*pPlatform))
-		{
-			if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() }))
-			{
-				if (auto ptr_account = ptr_platform->m_Value.Find({ pAccount->text(0).toStdString() }))
-				{
-					EditAccountDialog dlg(*ptr_platform, ptr_account, this);
-					if (QDialog::Accepted == dlg.exec())
-					{
-						pAccount->setText(0, QString::fromStdString(ptr_account->m_Key.m_strName));
-						_ui.m_viewContent->UpdateAccount(ptr_platform->m_Key.m_ID, ptr_account->m_Key.m_ID);
-					}
-
-					return;
-				}
-			}
-		}
-    }
+	if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
+		if (bnb::credential_type::ct_account == GetItemType(*item_account))
+			if (EditAccount(item_account))
+				return;
 
 	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnEditProperty()
 {
+	if (QTreeWidgetItem* item_property = _ui.m_treeView->currentItem())
+		if (bnb::credential_type::ct_property == GetItemType(*item_property))
+			if (EditProperty(item_property))
+				return;
+
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnRemovePlatform()
 {
-	QTreeWidgetItem* pPlatform = _ui.m_treeView->currentItem();
-	if (nullptr == pPlatform || bnb::credential_type::ct_platform != GetItemType(*pPlatform))
+	if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
+		if (bnb::credential_type::ct_platform == GetItemType(*item_platform))
+			if (RemovePlatform(item_platform))
+				return;
+
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
+}
+
+void MainView::OnRemoveAccount()
+{
+	if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
+		if (bnb::credential_type::ct_account == GetItemType(*item_account))
+			if (RemoveAccount(item_account))
+				return;
+
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
+}
+
+void MainView::OnRemoveProperty()
+{
+	if (QTreeWidgetItem* item_property = _ui.m_treeView->currentItem())
+		if (bnb::credential_type::ct_property == GetItemType(*item_property))
+			if (RemoveProperty(item_property))
+				return;
+
+	HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
+}
+
+bool MainView::AddPlatform()
+{
+	EditPlatformDialog dlg(g_AppMgr.Model().Info(), nullptr, this);
+	if (QDialog::Accepted == dlg.exec())
 	{
-		return;
+		g_AppMgr.Model().SaveCredential();
+
+		_ui.m_treeView->AddPlatform(*dlg.GetPlatform());
+		_ui.m_viewContent->AddPlatform(g_AppMgr.Model().Info().GetID(), *dlg.GetPlatform());
+		_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
 	}
 
-	auto ptr_platform = g_AppMgr.Model().Info().Tree().Find({ pPlatform->text(0).toStdString() });
+	return true;
+}
+
+bool MainView::AddAccount(QTreeWidgetItem* item_platform)
+{
+	auto ptr_platform = g_AppMgr.Model().FindPlatform({ item_platform->text(0).toStdString() });
+	if (ptr_platform)
+	{
+		EditAccountDialog dlg(*ptr_platform, nullptr, this);
+		if (QDialog::Accepted == dlg.exec())
+		{
+			g_AppMgr.Model().SaveCredential();
+
+			_ui.m_treeView->AddAccount(item_platform, *dlg.GetAccount());
+			_ui.m_viewContent->AddAccount(ptr_platform->m_Key.m_ID, *dlg.GetAccount());
+			_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool MainView::AddProperty(QTreeWidgetItem * item_account)
+{
+	QTreeWidgetItem* pPlatform = item_account->parent();
+	if (pPlatform && bnb::credential_type::ct_platform == GetItemType(*pPlatform))
+	{
+		if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ pPlatform->text(0).toStdString() }))
+		{
+			if (auto ptr_account = ptr_platform->m_Value.Find({ item_account->text(0).toStdString() }))
+			{
+				EditPropertyDialog dlg(*ptr_account, nullptr, this);
+				if (QDialog::Accepted == dlg.exec())
+				{
+					g_AppMgr.Model().SaveCredential();
+
+					_ui.m_treeView->AddProperty(item_account, *dlg.GetProperty());
+					_ui.m_viewContent->AddProperty(ptr_account->m_Key.m_ID, *dlg.GetProperty());
+					_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+				}
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
+{
+	auto ptr_platform = g_AppMgr.Model().FindPlatform({ item_platform->text(0).toStdString() });
+	if (ptr_platform)
+	{
+		EditPlatformDialog dlg(g_AppMgr.Model().Info(), ptr_platform, this);
+		if (QDialog::Accepted == dlg.exec())
+		{
+			g_AppMgr.Model().SaveCredential();
+
+			item_platform->setText(0, QString::fromStdString(ptr_platform->m_Key.m_strName));
+			_ui.m_viewContent->UpdatePlatform(g_AppMgr.Model().Info().GetID(), ptr_platform->m_Key.m_ID);
+			_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+		}
+
+		return true;
+	}
+
+	return false;
+}
+
+bool MainView::EditAccount(QTreeWidgetItem * item_account)
+{
+	QTreeWidgetItem* item_platform = item_account->parent();
+	if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+	{
+		if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ item_platform->text(0).toStdString() }))
+		{
+			if (auto ptr_account = ptr_platform->m_Value.Find({ item_account->text(0).toStdString() }))
+			{
+				EditAccountDialog dlg(*ptr_platform, ptr_account, this);
+				if (QDialog::Accepted == dlg.exec())
+				{
+					g_AppMgr.Model().SaveCredential();
+
+					item_account->setText(0, QString::fromStdString(ptr_account->m_Key.m_strName));
+					_ui.m_viewContent->UpdateAccount(ptr_platform->m_Key.m_ID, ptr_account->m_Key.m_ID);
+					_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+				}
+
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+bool MainView::EditProperty(QTreeWidgetItem * item_property)
+{
+	QTreeWidgetItem* item_account = item_property->parent();
+	if (item_account && bnb::credential_type::ct_account == GetItemType(*item_account))
+	{
+		QTreeWidgetItem* item_platform = item_account->parent();
+		if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+		{
+			if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ item_platform->text(0).toStdString() }))
+			{
+				if (auto ptr_account = ptr_platform->m_Value.Find({ item_account->text(0).toStdString() }))
+				{
+					if (auto ptr_property = ptr_account->m_Value.Find({ item_property->text(0).toStdString() }))
+					{
+						EditPropertyDialog dlg(*ptr_account, ptr_property, this);
+						if (QDialog::Accepted == dlg.exec())
+						{
+							g_AppMgr.Model().SaveCredential();
+
+							item_property->setText(0, QString::fromStdString(ptr_property->m_Key.m_strName));
+							_ui.m_viewContent->UpdateProperty(ptr_account->m_Key.m_ID, ptr_property->m_Key.m_ID);
+							_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+						}
+
+						return true;
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
+{
+	auto ptr_platform = g_AppMgr.Model().Info().Tree().Find({ item_platform->text(0).toStdString() });
 	if (ptr_platform)
 	{
 		std::vector<unsigned int> vtrIds{ ptr_platform->m_Key.m_ID };
@@ -343,25 +496,89 @@ void MainView::OnRemovePlatform()
 
 		if (g_AppMgr.Model().Info().Tree().Remove(ptr_platform->m_Key))
 		{
-			auto ptr_parent = pPlatform->parent();
+			g_AppMgr.Model().SaveCredential();
+
+			auto ptr_parent = item_platform->parent();
 			if (ptr_parent)
-				ptr_parent->removeChild(pPlatform);
+				ptr_parent->removeChild(item_platform);
 			else
-				_ui.m_treeView->takeTopLevelItem(_ui.m_treeView->indexOfTopLevelItem(pPlatform));
+				_ui.m_treeView->takeTopLevelItem(_ui.m_treeView->indexOfTopLevelItem(item_platform));
 
-			delete pPlatform;
+			delete item_platform;
 
-			_ui.m_viewContent->RemovePlatform(ptr_platform->m_Key.m_ID, vtrIds);
+			_ui.m_viewContent->RemovePlatform(g_AppMgr.Model().Info().GetID(), vtrIds);
+			_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+
+			return true;
 		}
 	}
+
+	return false;
 }
 
-void MainView::OnRemoveAccount()
+bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
 {
+	QTreeWidgetItem* item_platform = item_account->parent();
+	if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+	{
+		if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ item_platform->text(0).toStdString() }))
+		{
+			if (auto ptr_account = ptr_platform->m_Value.Find({ item_account->text(0).toStdString() }))
+			{
+				std::vector<unsigned int> vtrIds{ ptr_account->m_Key.m_ID };
+				if (ptr_platform->m_Value.Remove(ptr_account->m_Key))
+				{
+					g_AppMgr.Model().SaveCredential();
+
+					item_platform->removeChild(item_account);
+					delete item_account;
+
+					_ui.m_viewContent->RemoveAccount(ptr_platform->m_Key.m_ID, vtrIds);
+					_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
-void MainView::OnRemoveProperty()
+bool MainView::RemoveProperty(QTreeWidgetItem* item_property)
 {
+	QTreeWidgetItem* item_account = item_property->parent();
+	if (item_account && bnb::credential_type::ct_account == GetItemType(*item_account))
+	{
+		QTreeWidgetItem* item_platform = item_account->parent();
+		if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+		{
+			if (auto ptr_platform = g_AppMgr.Model().FindPlatform({ item_platform->text(0).toStdString() }))
+			{
+				if (auto ptr_account = ptr_platform->m_Value.Find({ item_account->text(0).toStdString() }))
+				{
+					if (auto ptr_property = ptr_account->m_Value.Find({ item_property->text(0).toStdString() }))
+					{
+						std::vector<unsigned int> vtrIds{ ptr_property->m_Key.m_ID };
+						if (ptr_account->m_Value.Remove(ptr_property->m_Key))
+						{
+							g_AppMgr.Model().SaveCredential();
+
+							item_account->removeChild(item_property);
+							delete item_property;
+
+							_ui.m_viewContent->RemoveProperty(ptr_account->m_Key.m_ID, vtrIds);
+							_ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 void MainView::ui_type::SetupUI(MainView* pView)
@@ -378,7 +595,7 @@ void MainView::ui_type::SetupUI(MainView* pView)
 
     m_treeView = new TreeView(phSplitter);
 
-    m_viewContent = new ContentView(phSplitter);
+    m_viewContent = new StackView(phSplitter);
     
     m_viewToolBar = new ToolBar(pView);
 

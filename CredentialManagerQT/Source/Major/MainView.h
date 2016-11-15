@@ -7,7 +7,7 @@ class QPushButton;
 class QScrollArea;
 class QLabel;
 class ToolBar;
-class ContentView;
+class StackView;
 class TreeView;
 class QTreeWidgetItem;
 
@@ -28,7 +28,7 @@ class MainView : public QWidget
         QAction* m_actEditCredential;
         
         ToolBar* m_viewToolBar;
-        ContentView* m_viewContent;
+        StackView* m_viewContent;
         TreeView* m_treeView;
 
         void SetupUI(MainView* pView);
@@ -66,15 +66,15 @@ private:
 	void OnRemoveAccount();
 	void OnRemoveProperty();
 
-	void AddPlatform();
-	void AddAccount();
-	void AddProperty();
-	void EditPlatform();
-	void EditAccount();
-	void EditProperty();
-	void RemovePlatform();
-	void RemoveAccount();
-	void RemoveProperty();
+	bool AddPlatform();
+	bool AddAccount(QTreeWidgetItem* item_platform);
+	bool AddProperty(QTreeWidgetItem* item_account);
+	bool EditPlatform(QTreeWidgetItem* item_platform);
+	bool EditAccount(QTreeWidgetItem* item_account);
+	bool EditProperty(QTreeWidgetItem* item_property);
+	bool RemovePlatform(QTreeWidgetItem* item_platform);
+	bool RemoveAccount(QTreeWidgetItem* item_account);
+	bool RemoveProperty(QTreeWidgetItem* item_property);
 
 
 private:

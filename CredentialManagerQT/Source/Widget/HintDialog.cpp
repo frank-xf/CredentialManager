@@ -5,7 +5,7 @@
 
 #include "credential_qt_utils.h"
 
-#include "Dialog/HintDialog.h"
+#include "Widget/HintDialog.h"
 
 QT_BEGIN_NAMESPACE
 

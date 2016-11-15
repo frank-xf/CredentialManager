@@ -6,15 +6,11 @@
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
 
-#include "Major/ContentView.h"
-
-#include "View/ViewBase.h"
-#include "View/CredentialView.h"
-#include "View/PlatformView.h"
-#include "View/AccountView.h"
+#include "Major/StackView.h"
+#include "Widget/ContentView.h"
 
 
-ContentView::ContentView(QWidget * parent) : QStackedWidget(parent)
+StackView::StackView(QWidget * parent) : QStackedWidget(parent)
 {
     ui_utils::SetBackgroundColor(this, Qt::white);
 
@@ -28,7 +24,7 @@ ContentView::ContentView(QWidget * parent) : QStackedWidget(parent)
 	InitCredential();
 }
 
-void ContentView::InitCredential()
+void StackView::InitCredential()
 {
 	addWidget(new CredentialView(g_AppMgr.Model().Info(), this));
 
@@ -43,7 +39,7 @@ void ContentView::InitCredential()
 	}
 }
 
-void ContentView::ClearCredential()
+void StackView::ClearCredential()
 {
 	std::vector<QWidget*> vtrWidget;
 	for (int i = 0; i < count(); ++i)
@@ -64,7 +60,7 @@ void ContentView::ClearCredential()
 	setCurrentWidget(m_labHint);
 }
 
-bool ContentView::UpdateCredential(unsigned int credential_id)
+bool StackView::UpdateCredential(unsigned int credential_id)
 {
 	for (int i = 0; i < count(); ++i)
 	{
@@ -79,7 +75,7 @@ bool ContentView::UpdateCredential(unsigned int credential_id)
 	return false;
 }
 
-bool ContentView::UpdatePlatform(unsigned int credential_id, unsigned int platform_id)
+bool StackView::UpdatePlatform(unsigned int credential_id, unsigned int platform_id)
 {
 	bool bResult1 = false, bResult2 = false;
 
@@ -108,7 +104,7 @@ bool ContentView::UpdatePlatform(unsigned int credential_id, unsigned int platfo
 	return bResult1 && bResult2;
 }
 
-bool ContentView::UpdateAccount(unsigned int platform_id, unsigned int account_id)
+bool StackView::UpdateAccount(unsigned int platform_id, unsigned int account_id)
 {
 	bool bResult1 = false, bResult2 = false;
 
@@ -137,7 +133,7 @@ bool ContentView::UpdateAccount(unsigned int platform_id, unsigned int account_i
 	return bResult1 && bResult2;
 }
 
-bool ContentView::UpdateProperty(unsigned int account_id, unsigned int property_id)
+bool StackView::UpdateProperty(unsigned int account_id, unsigned int property_id)
 {
 	for (int i = 0; i < count(); ++i)
 	{
@@ -152,7 +148,7 @@ bool ContentView::UpdateProperty(unsigned int account_id, unsigned int property_
 	return false;
 }
 
-bool ContentView::RemovePlatform(unsigned int credential_id, const std::vector<unsigned int>& ids)
+bool StackView::RemovePlatform(unsigned int credential_id, const std::vector<unsigned int>& ids)
 {
 	RemoveView(ids);
 
@@ -169,7 +165,7 @@ bool ContentView::RemovePlatform(unsigned int credential_id, const std::vector<u
 	return false;
 }
 
-bool ContentView::RemoveAccount(unsigned int platform_id, const std::vector<unsigned int>& ids)
+bool StackView::RemoveAccount(unsigned int platform_id, const std::vector<unsigned int>& ids)
 {
 	RemoveView(ids);
 
@@ -186,7 +182,7 @@ bool ContentView::RemoveAccount(unsigned int platform_id, const std::vector<unsi
 	return false;
 }
 
-bool ContentView::RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids)
+bool StackView::RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids)
 {
 	RemoveView(ids);
 
@@ -203,14 +199,14 @@ bool ContentView::RemoveProperty(unsigned int account_id, const std::vector<unsi
 	return false;
 }
 
-unsigned int ContentView::RemoveView(const std::vector<unsigned int>& ids)
+unsigned int StackView::RemoveView(const std::vector<unsigned int>& ids)
 {
 	unsigned int nCount = 0;
 	for (auto& id : ids)
 	{
 		for (int i = 0; i < count(); ++i)
 		{
-			ViewBase* ptr = dynamic_cast<ViewBase*>(widget(i));
+			BaseView* ptr = dynamic_cast<BaseView*>(widget(i));
 			if (ptr && ptr->GetID() == id)
 			{
 				removeWidget(ptr);
@@ -224,7 +220,7 @@ unsigned int ContentView::RemoveView(const std::vector<unsigned int>& ids)
 	return nCount;
 }
 
-bool ContentView::AddPlatform(unsigned int credential_id, bnb::platform_tree::data_type & platform)
+bool StackView::AddPlatform(unsigned int credential_id, const bnb::platform_tree::data_type & platform)
 {
 	for (int i = 0; i < count(); ++i)
 	{
@@ -240,7 +236,7 @@ bool ContentView::AddPlatform(unsigned int credential_id, bnb::platform_tree::da
 	return false;
 }
 
-bool ContentView::AddAccount(unsigned int platform_id, bnb::account_tree::data_type & account)
+bool StackView::AddAccount(unsigned int platform_id, const bnb::account_tree::data_type & account)
 {
 	for (int i = 0; i < count(); ++i)
 	{
@@ -256,7 +252,7 @@ bool ContentView::AddAccount(unsigned int platform_id, bnb::account_tree::data_t
 	return false;
 }
 
-bool ContentView::AddProperty(unsigned int account_id, bnb::property_tree::data_type & property)
+bool StackView::AddProperty(unsigned int account_id, const bnb::property_tree::data_type & property)
 {
 	for (int i = 0; i < count(); ++i)
 	{
@@ -271,7 +267,7 @@ bool ContentView::AddProperty(unsigned int account_id, bnb::property_tree::data_
 	return false;
 }
 
-bool ContentView::SwitchToCredential(unsigned int id)
+bool StackView::SwitchToCredential(unsigned int id)
 {
 	for (int i = 0; i < count(); ++i)
 	{
@@ -286,7 +282,7 @@ bool ContentView::SwitchToCredential(unsigned int id)
 	return false;
 }
 
-bool ContentView::SwitchToPlatform(unsigned int id)
+bool StackView::SwitchToPlatform(unsigned int id)
 {
 	for (int i = 0; i < count(); ++i)
 	{
@@ -301,7 +297,7 @@ bool ContentView::SwitchToPlatform(unsigned int id)
 	return false;
 }
 
-bool ContentView::SwitchToAccount(unsigned int id)
+bool StackView::SwitchToAccount(unsigned int id)
 {
 	for (int i = 0; i < count(); ++i)
 	{
@@ -316,11 +312,11 @@ bool ContentView::SwitchToAccount(unsigned int id)
 	return false;
 }
 
-bool ContentView::SwitchToView(unsigned int id)
+bool StackView::SwitchToView(unsigned int id)
 {
 	for (int i = 0; i < count(); ++i)
 	{
-		ViewBase* ptr = dynamic_cast<ViewBase*>(widget(i));
+		BaseView* ptr = dynamic_cast<BaseView*>(widget(i));
 		if (ptr && ptr->GetID() == id)
 		{
 			setCurrentWidget(ptr);
@@ -331,14 +327,14 @@ bool ContentView::SwitchToView(unsigned int id)
 	return false;
 }
 
-bool ContentView::SwitchToHint()
+bool StackView::SwitchToHint()
 {
 	setCurrentWidget(m_labHint);
 
 	return true;
 }
 
-bool ContentView::SwitchToHint(const QString & strText)
+bool StackView::SwitchToHint(const QString & strText)
 {
 	m_labHint->setText(strText);
 

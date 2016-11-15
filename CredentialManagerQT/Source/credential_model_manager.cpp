@@ -4,8 +4,8 @@
 #include "credential_view_manager.h"
 #include "credential_model_manager.h"
 
-#include "Dialog/HintDialog.h"
-#include "Dialog/PasswordInput.h"
+#include "Widget/HintDialog.h"
+#include "Widget/PasswordInput.h"
 
 void CredentialModelManager::Initialize()
 {
@@ -41,6 +41,7 @@ bool CredentialModelManager::Load(const bnb::string_type & strFile)
 	}
 
 	m_Credential.SetWord(dlg.GetPassword().toStdString());
+	m_strFile = strFile;
 
 	return true;
 }

@@ -9,7 +9,7 @@
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
 
-#include "Dialog/CreateDialog.h"
+#include "Widget/CreateDialog.h"
 
 QT_BEGIN_NAMESPACE
 

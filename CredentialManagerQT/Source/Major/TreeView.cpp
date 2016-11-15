@@ -11,7 +11,6 @@ TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
 {
 	setStyle(QStyleFactory::create("Windows"));
 	setContextMenuPolicy(Qt::CustomContextMenu);
-	// m_treeView->setHeaderHidden(true);
 
 	QTreeWidgetItem* item_root = new QTreeWidgetItem;
 	item_root->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
@@ -23,18 +22,23 @@ void TreeView::InitCredential()
 {
 	UpdateHeader();
 
-	for (auto ptr_platform = g_AppMgr.Model().Info().Tree().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
-	{
-		QTreeWidgetItem* item_platform = AddPlatform(&ptr_platform->m_Pair.m_Key);
-		for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
-		{
-			QTreeWidgetItem* item_account = AddAccount(item_platform, &ptr_account->m_Pair.m_Key);
-			for (auto ptr_property = ptr_account->m_Pair.m_Value.Head(); ptr_property; ptr_property = ptr_property->m_Next)
-			{
-				QTreeWidgetItem* item_property = AddProperty(item_account, &ptr_property->m_Pair.m_Key);
-			}
-		}
-	}
+	g_AppMgr.Model().Info().Tree().Foreach([this](const bnb::platform_tree::data_type& platform) {
+		QTreeWidgetItem* item_platform = AddPlatform(platform);
+
+		platform.m_Value.Foreach([this, item_platform](const bnb::account_tree::data_type& account) {
+			QTreeWidgetItem* item_account = AddAccount(item_platform, account);
+
+			account.m_Value.Foreach([this, item_account](const bnb::property_tree::data_type& property) {
+				QTreeWidgetItem* item_property = AddProperty(item_account, property);
+			
+				return true;
+			});
+
+			return true;
+		});
+
+		return true;
+	});
 
 	expandAll();
 }
@@ -57,50 +61,35 @@ void TreeView::UpdateHeader()
 	}
 }
 
-QTreeWidgetItem * TreeView::AddPlatform(const bnb::platform_type * pp)
+QTreeWidgetItem * TreeView::AddPlatform(const bnb::platform_tree::data_type& pp)
 {
-	if (pp)
-	{
-		QTreeWidgetItem* item_platform = new QTreeWidgetItem(this, { QString::fromStdString(pp->m_strName) });
-		item_platform->setForeground(0, QBrush(QColor(216, 32, 32)));
-		item_platform->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-		item_platform->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_platform));
-		addTopLevelItem(item_platform);
+	QTreeWidgetItem* item_platform = new QTreeWidgetItem(this, { QString::fromStdString(pp.m_Key.m_strName) });
+	item_platform->setForeground(0, QBrush(QColor(216, 32, 32)));
+	item_platform->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+	item_platform->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_platform));
+	addTopLevelItem(item_platform);
 
-		return item_platform;
-	}
-
-	return nullptr;
+	return item_platform;
 }
 
-QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::account_type* pa)
+QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::account_tree::data_type& pa)
 {
-	if (pa)
-	{
-		QTreeWidgetItem* item_account = new QTreeWidgetItem(parent, { QString::fromStdString(pa->m_strName) });
-		item_account->setForeground(0, QBrush(QColor(64, 128, 255)));
-		item_account->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-		item_account->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_account));
-		parent->addChild(item_account);
+	QTreeWidgetItem* item_account = new QTreeWidgetItem(parent, { QString::fromStdString(pa.m_Key.m_strName) });
+	item_account->setForeground(0, QBrush(QColor(64, 128, 255)));
+	item_account->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+	item_account->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_account));
+	parent->addChild(item_account);
 
-		return item_account;
-	}
-
-	return nullptr;
+	return item_account;
 }
 
-QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_key * pp)
+QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_tree::data_type& pp)
 {
-	if (pp)
-	{
-		QTreeWidgetItem* item_property = new QTreeWidgetItem(parent, { QString::fromStdString(pp->m_strName) });
-		item_property->setForeground(0, QBrush(QColor(32, 192, 32)));
-		item_property->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
-		item_property->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_property));
-		parent->addChild(item_property);
+	QTreeWidgetItem* item_property = new QTreeWidgetItem(parent, { QString::fromStdString(pp.m_Key.m_strName) });
+	item_property->setForeground(0, QBrush(QColor(32, 192, 32)));
+	item_property->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+	item_property->setData(0, Qt::UserRole, static_cast<unsigned char>(bnb::credential_type::ct_property));
+	parent->addChild(item_property);
 
-		return item_property;
-	}
-
-	return nullptr;
+	return item_property;
 }

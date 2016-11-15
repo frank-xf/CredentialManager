@@ -37,14 +37,11 @@ namespace ui_utils
         item_platform_w = 400,
         item_platform_h = 28,
 
-        dlg_username_w = 256,
-        dlg_username_h = 108,
+        dlg_credential_w = 280,
+		dlg_credential_h = 160,
 
-        dlg_password_w = 300,
-        dlg_password_h = 152,
-
-        dlg_platform_w = 400,
-        dlg_platform_h = 152,
+        dlg_default_w = 320,
+		dlg_default_h = 180,
 
     };
 
@@ -56,11 +53,11 @@ namespace ui_utils
 
     void SetBackgroundColor(QWidget* pView, const QColor& color);
     QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = to_uint(lab_mark_w), unsigned int h = to_uint(lab_mark_h));
-    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = to_uint(lab_default_w), unsigned int h = to_uint(lab_default_h), QColor c = Qt::black, unsigned int u = 16);
-	QLabel* MakeDynamicLabel(QWidget* parent, QColor c = Qt::black, unsigned int u = 16);
+    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = to_uint(lab_default_w), unsigned int h = to_uint(lab_default_h), QColor c = Qt::black, unsigned int u = 12);
+	QLabel* MakeDynamicLabel(QWidget* parent, QColor c = Qt::black, unsigned int u = 12);
     QPushButton* MakeButton(QWidget* parent, unsigned int w = to_uint(btn_default_w), unsigned int h = to_uint(btn_default_h));
 
-    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, const QString& f, unsigned int u);
+    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, unsigned int u);
 }
 
 QT_END_NAMESPACE
