@@ -12,112 +12,112 @@ class QPushButton;
 template<typename _Ty, unsigned int n>
 class EditDialog : public QDialog
 {
-	static_assert(0 < n, R"(the template parameter 'n' must be greater than 0)");
+    static_assert(0 < n, R"(the template parameter 'n' must be greater than 0)");
 
 protected:
 
-	using base_type = EditDialog;
+    using base_type = EditDialog;
 
-	struct ui_type
-	{
-	private:
+    struct ui_type
+    {
+    private:
 
-		QLabel* _labText[n];
+        QLabel* _labText[n];
 
-	public:
+    public:
 
-		QLabel* m_labHint;
+        QLabel* m_labHint;
 
-		QPushButton* m_btnOK;
-		QPushButton* m_btnCancel;
+        QPushButton* m_btnOK;
+        QPushButton* m_btnCancel;
 
-		QLineEdit* m_editText[n];
+        QLineEdit* m_editText[n];
 
-		void SetupUI(EditDialog* pView)
-		{
-			m_labHint = new QLabel(pView);
-			m_labHint->setAlignment(Qt::AlignCenter);
-			m_labHint->setFixedHeight(20);
+        void SetupUI(EditDialog* pView)
+        {
+            m_labHint = new QLabel(pView);
+            m_labHint->setAlignment(Qt::AlignCenter);
+            m_labHint->setFixedHeight(20);
 
-			m_btnOK = new QPushButton(pView);
-			m_btnCancel = new QPushButton(pView);
+            m_btnOK = new QPushButton(pView);
+            m_btnCancel = new QPushButton(pView);
 
-			for (unsigned int i = 0; i < n; ++i)
-			{
-				_labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_default_w, ui_utils::lab_default_h, Qt::black, 10);
-				m_editText[i] = new QLineEdit(pView);
-				// m_editText[i]->setFixedSize(ui_utils::edit_default_w, ui_utils::edit_default_h);
-			}
+            for (unsigned int i = 0; i < n; ++i)
+            {
+                _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_default_w, ui_utils::lab_default_h, Qt::black, 10);
+                m_editText[i] = new QLineEdit(pView);
+                // m_editText[i]->setFixedSize(ui_utils::edit_default_w, ui_utils::edit_default_h);
+            }
 
-			QVBoxLayout* pMainLayout = new QVBoxLayout;
-			pMainLayout->setMargin(4);
-			pMainLayout->setSpacing(2);
-			pMainLayout->addWidget(m_labHint);
+            QVBoxLayout* pMainLayout = new QVBoxLayout;
+            pMainLayout->setMargin(4);
+            pMainLayout->setSpacing(2);
+            pMainLayout->addWidget(m_labHint);
 
-			LayoutCentral(pView, pMainLayout);
+            LayoutCentral(pView, pMainLayout);
 
-			QHBoxLayout* phLayout = new QHBoxLayout;
-			phLayout->setContentsMargins(8, 20, 8, 8);
-			phLayout->addStretch(1);
-			phLayout->addWidget(m_btnOK);
-			phLayout->addStretch(1);
-			phLayout->addWidget(m_btnCancel);
-			phLayout->addStretch(1);
+            QHBoxLayout* phLayout = new QHBoxLayout;
+            phLayout->setContentsMargins(8, 20, 8, 8);
+            phLayout->addStretch(1);
+            phLayout->addWidget(m_btnOK);
+            phLayout->addStretch(1);
+            phLayout->addWidget(m_btnCancel);
+            phLayout->addStretch(1);
 
-			pMainLayout->addLayout(phLayout);
+            pMainLayout->addLayout(phLayout);
 
-			pView->setLayout(pMainLayout);
+            pView->setLayout(pMainLayout);
 
-			RetranslateUI(pView);
-		}
+            RetranslateUI(pView);
+        }
 
-		void RetranslateUI(EditDialog* pView)
-		{
-			RetranslateLabel(pView);
+        void RetranslateUI(EditDialog* pView)
+        {
+            RetranslateLabel(pView);
 
-			m_btnOK->setText("OK");
-			m_btnCancel->setText("Cancel");
-		}
+            m_btnOK->setText("OK");
+            m_btnCancel->setText("Cancel");
+        }
 
-		void LayoutCentral(EditDialog* pView, QBoxLayout* pMainLayout)
-		{
-			for (unsigned int i = 0; i < n; ++i)
-			{
-				QHBoxLayout* phLayout = new QHBoxLayout;
-				phLayout->setMargin(0);
-				phLayout->setSpacing(2);
-				phLayout->addWidget(_labText[i]);
-				phLayout->addWidget(m_editText[i], 1);
+        void LayoutCentral(EditDialog* pView, QBoxLayout* pMainLayout)
+        {
+            for (unsigned int i = 0; i < n; ++i)
+            {
+                QHBoxLayout* phLayout = new QHBoxLayout;
+                phLayout->setMargin(0);
+                phLayout->setSpacing(2);
+                phLayout->addWidget(_labText[i]);
+                phLayout->addWidget(m_editText[i], 1);
 
-				pMainLayout->addLayout(phLayout);
-			}
-		}
+                pMainLayout->addLayout(phLayout);
+            }
+        }
 
-		void RetranslateLabel(EditDialog* pView)
-		{
-			for (unsigned int i = 0; i < n; ++i)
-				_labText[i]->setText("Label: ");
-		}
-	};
+        void RetranslateLabel(EditDialog* pView)
+        {
+            for (unsigned int i = 0; i < n; ++i)
+                _labText[i]->setText("Label: ");
+        }
+    };
 
-	EditDialog(QWidget * parent, Qt::WindowFlags flags) : QDialog(parent, flags)
-	{
-		_ui.SetupUI(this);
-		
-		QObject::connect(_ui.m_btnOK, &QPushButton::clicked, [this]() { OnClickedOK(); });
-		QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
-		for (unsigned int i = 0; i < n; ++i)
-			QObject::connect(_ui.m_editText[i], &QLineEdit::textEdited, [this](const QString strText) { OnChangedText(strText); });
-	}
+    EditDialog(QWidget * parent, Qt::WindowFlags flags) : QDialog(parent, flags)
+    {
+        _ui.SetupUI(this);
 
-	virtual void OnChangedText(const QString &) { _ui.m_labHint->clear(); }
-	virtual void OnClickedOK() { accept(); }
+        QObject::connect(_ui.m_btnOK, &QPushButton::clicked, [this]() { OnClickedOK(); });
+        QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
+        for (unsigned int i = 0; i < n; ++i)
+            QObject::connect(_ui.m_editText[i], &QLineEdit::textEdited, [this](const QString strText) { OnChangedText(strText); });
+    }
 
-	ui_type _ui;
+    virtual void OnChangedText(const QString &) { _ui.m_labHint->clear(); }
+    virtual void OnClickedOK() { accept(); }
+
+    ui_type _ui;
 
 };	// class EditDialog
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
 class EditCredentialDialog : public EditDialog<EditCredentialDialog, 2>
 {
@@ -128,14 +128,14 @@ public:
 private:
 
     void OnClickedOK() override;
-    
+
 private:
 
-	bnb::Credential& m_Credential;
+    bnb::Credential& m_Credential;
 
 };  // class EditCredentialDialog
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
 class EditPasswordDialog : public EditDialog<EditPasswordDialog, 3>
 {
@@ -145,22 +145,22 @@ public:
 
 private:
 
-	void OnClickedOK() override;
+    void OnClickedOK() override;
 
 private:
 
-	bnb::Credential& m_Credential;
+    bnb::Credential& m_Credential;
 
 };  // class EditPasswordDialog
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
 class EditPlatformDialog : public EditDialog<EditPlatformDialog, 3>
 {
 public:
 
-	EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::data_type* pp, QWidget* parent);
-	const bnb::platform_tree::data_type* GetPlatform() const;
+    EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::data_type* pp, QWidget* parent);
+    const bnb::platform_tree::data_type* GetPlatform() const;
 
 private:
 
@@ -168,19 +168,19 @@ private:
 
 private:
 
-	bnb::Credential& m_Credential;
+    bnb::Credential& m_Credential;
     bnb::platform_tree::data_type* m_Platform;
 
 };  // class EditPlatformDialog
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
 class EditAccountDialog : public EditDialog<EditAccountDialog, 3>
 {
 public:
 
     EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::account_tree::data_type* pa, QWidget * parent);
-	const bnb::account_tree::data_type* GetAccount() const;
+    const bnb::account_tree::data_type* GetAccount() const;
 
 private:
 
@@ -188,28 +188,28 @@ private:
 
 private:
 
-	bnb::platform_tree::data_type& m_Platform;
+    bnb::platform_tree::data_type& m_Platform;
     bnb::account_tree::data_type* m_Account;
 
 };  // class EditAccountDialog
 
-//------------------------------------------------------------------------------
+    //------------------------------------------------------------------------------
 
 class EditPropertyDialog : public EditDialog<EditPropertyDialog, 3>
 {
 public:
 
-	EditPropertyDialog(bnb::account_tree::data_type& pa, bnb::property_tree::data_type* pp, QWidget * parent);
-	const bnb::property_tree::data_type* GetProperty() const;
+    EditPropertyDialog(bnb::account_tree::data_type& pa, bnb::property_tree::data_type* pp, QWidget * parent);
+    const bnb::property_tree::data_type* GetProperty() const;
 
 private:
 
-	void OnClickedOK() override;
+    void OnClickedOK() override;
 
 private:
 
-	bnb::account_tree::data_type& m_Account;
-	bnb::property_tree::data_type* m_Property;
+    bnb::account_tree::data_type& m_Account;
+    bnb::property_tree::data_type* m_Property;
 
 };  // class EditPropertyDialog
 

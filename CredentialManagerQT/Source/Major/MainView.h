@@ -26,7 +26,7 @@ class MainView : public QWidget
         QAction* m_actEditProperty;
         QAction* m_actModifyPassword;
         QAction* m_actEditCredential;
-        
+
         ToolBar* m_viewToolBar;
         StackView* m_viewContent;
         TreeView* m_treeView;
@@ -39,16 +39,16 @@ public:
 
     MainView(QWidget *parent = nullptr);
 
-	ui_type& UI() { return (_ui); }
+    ui_type& UI() { return (_ui); }
 
 private:
 
     void InitCredential();
-	void ClearCredential();
+    void ClearCredential();
 
-	void OnTreeContextMenu(const QPoint& pos);
-	void OnItemChanged(QTreeWidgetItem *cur, QTreeWidgetItem *pre);
-	void OnDoubleClickedItem(QTreeWidgetItem *pItem, int index);
+    void OnTreeContextMenu(const QPoint& pos);
+    void OnItemChanged(QTreeWidgetItem *cur, QTreeWidgetItem *pre);
+    void OnDoubleClickedItem(QTreeWidgetItem *pItem, int index);
 
     void OnClickedNew();
     void OnClickedOpen();
@@ -56,25 +56,25 @@ private:
     void OnEditCredential();
     void OnMotifyPassword();
 
-	void OnAddPlatform();
-	void OnAddAccount();
-	void OnAddProperty();
-	void OnEditPlatform();
-	void OnEditAccount();
-	void OnEditProperty();
-	void OnRemovePlatform();
-	void OnRemoveAccount();
-	void OnRemoveProperty();
+    void OnAddPlatform();
+    void OnAddAccount();
+    void OnAddProperty();
+    void OnEditPlatform();
+    void OnEditAccount();
+    void OnEditProperty();
+    void OnRemovePlatform();
+    void OnRemoveAccount();
+    void OnRemoveProperty();
 
-	bool AddPlatform();
-	bool AddAccount(QTreeWidgetItem* item_platform);
-	bool AddProperty(QTreeWidgetItem* item_account);
-	bool EditPlatform(QTreeWidgetItem* item_platform);
-	bool EditAccount(QTreeWidgetItem* item_account);
-	bool EditProperty(QTreeWidgetItem* item_property);
-	bool RemovePlatform(QTreeWidgetItem* item_platform);
-	bool RemoveAccount(QTreeWidgetItem* item_account);
-	bool RemoveProperty(QTreeWidgetItem* item_property);
+    bool AddPlatform();
+    bool AddAccount(QTreeWidgetItem* item_platform);
+    bool AddProperty(QTreeWidgetItem* item_account);
+    bool EditPlatform(QTreeWidgetItem* item_platform);
+    bool EditAccount(QTreeWidgetItem* item_account);
+    bool EditProperty(QTreeWidgetItem* item_property);
+    bool RemovePlatform(QTreeWidgetItem* item_platform);
+    bool RemoveAccount(QTreeWidgetItem* item_account);
+    bool RemoveProperty(QTreeWidgetItem* item_property);
 
 
 private:

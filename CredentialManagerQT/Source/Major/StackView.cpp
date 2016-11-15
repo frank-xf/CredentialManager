@@ -16,327 +16,327 @@ StackView::StackView(QWidget * parent) : QStackedWidget(parent)
 
     setMinimumSize(400, 200);
 
-	m_labHint = new QLabel("Nothing !", this);
-	m_labHint->setAlignment(Qt::AlignCenter);
+    m_labHint = new QLabel("Nothing !", this);
+    m_labHint->setAlignment(Qt::AlignCenter);
 
-	addWidget(m_labHint);
+    addWidget(m_labHint);
 
-	InitCredential();
+    InitCredential();
 }
 
 void StackView::InitCredential()
 {
-	addWidget(new CredentialView(g_AppMgr.Model().Info(), this));
+    addWidget(new CredentialView(g_AppMgr.Model().Info(), this));
 
-	for (auto ptr_platform = g_AppMgr.Model().Info().Tree().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
-	{
-		addWidget(new PlatformView(ptr_platform->m_Pair, this));
+    for (auto ptr_platform = g_AppMgr.Model().Info().Tree().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
+    {
+        addWidget(new PlatformView(ptr_platform->m_Pair, this));
 
-		for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
-		{
-			addWidget(new AccountView(ptr_account->m_Pair, this));
-		}
-	}
+        for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
+        {
+            addWidget(new AccountView(ptr_account->m_Pair, this));
+        }
+    }
 }
 
 void StackView::ClearCredential()
 {
-	std::vector<QWidget*> vtrWidget;
-	for (int i = 0; i < count(); ++i)
-	{
-		QWidget* ptr = widget(i);
-		if (ptr && nullptr == dynamic_cast<QLabel*>(ptr))
-		{
-			vtrWidget.push_back(ptr);
-		}
-	}
+    std::vector<QWidget*> vtrWidget;
+    for (int i = 0; i < count(); ++i)
+    {
+        QWidget* ptr = widget(i);
+        if (ptr && nullptr == dynamic_cast<QLabel*>(ptr))
+        {
+            vtrWidget.push_back(ptr);
+        }
+    }
 
-	for (auto ptr : vtrWidget)
-	{
-		removeWidget(ptr);
-		delete ptr;
-	}
+    for (auto ptr : vtrWidget)
+    {
+        removeWidget(ptr);
+        delete ptr;
+    }
 
-	setCurrentWidget(m_labHint);
+    setCurrentWidget(m_labHint);
 }
 
 bool StackView::UpdateCredential(unsigned int credential_id)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-		if (ptr && ptr->GetID() == credential_id)
-		{
-			ptr->UpdateInfo();
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+        if (ptr && ptr->GetID() == credential_id)
+        {
+            ptr->UpdateInfo();
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::UpdatePlatform(unsigned int credential_id, unsigned int platform_id)
 {
-	bool bResult1 = false, bResult2 = false;
+    bool bResult1 = false, bResult2 = false;
 
-	for (int i = 0; i < count(); ++i)
-	{
-		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-		if (ptr && ptr->GetID() == credential_id)
-		{
-			ptr->UpdateTable(platform_id);
-			bResult1 = true;
-			break;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+        if (ptr && ptr->GetID() == credential_id)
+        {
+            ptr->UpdateTable(platform_id);
+            bResult1 = true;
+            break;
+        }
+    }
 
-	for (int i = 0; i < count(); ++i)
-	{
-		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
-		if (ptr && ptr->GetID() == platform_id)
-		{
-			ptr->UpdateInfo();
-			bResult2 = true;
-			break;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+        if (ptr && ptr->GetID() == platform_id)
+        {
+            ptr->UpdateInfo();
+            bResult2 = true;
+            break;
+        }
+    }
 
-	return bResult1 && bResult2;
+    return bResult1 && bResult2;
 }
 
 bool StackView::UpdateAccount(unsigned int platform_id, unsigned int account_id)
 {
-	bool bResult1 = false, bResult2 = false;
+    bool bResult1 = false, bResult2 = false;
 
-	for (int i = 0; i < count(); ++i)
-	{
-		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
-		if (ptr && ptr->GetID() == platform_id)
-		{
-			ptr->UpdateTable(account_id);
-			bResult1 = true;
-			break;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+        if (ptr && ptr->GetID() == platform_id)
+        {
+            ptr->UpdateTable(account_id);
+            bResult1 = true;
+            break;
+        }
+    }
 
-	for (int i = 0; i < count(); ++i)
-	{
-		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
-		if (ptr && ptr->GetID() == account_id)
-		{
-			ptr->UpdateInfo();
-			bResult2 = true;
-			break;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+        if (ptr && ptr->GetID() == account_id)
+        {
+            ptr->UpdateInfo();
+            bResult2 = true;
+            break;
+        }
+    }
 
-	return bResult1 && bResult2;
+    return bResult1 && bResult2;
 }
 
 bool StackView::UpdateProperty(unsigned int account_id, unsigned int property_id)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
-		if (ptr && ptr->GetID() == account_id)
-		{
-			ptr->UpdateTable(property_id);
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+        if (ptr && ptr->GetID() == account_id)
+        {
+            ptr->UpdateTable(property_id);
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::RemovePlatform(unsigned int credential_id, const std::vector<unsigned int>& ids)
 {
-	RemoveView(ids);
+    RemoveView(ids);
 
-	for (int i = 0; i < count(); ++i)
-	{
-		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-		if (ptr && ptr->GetID() == credential_id)
-		{
-			ptr->UpdateTable();
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+        if (ptr && ptr->GetID() == credential_id)
+        {
+            ptr->UpdateTable();
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::RemoveAccount(unsigned int platform_id, const std::vector<unsigned int>& ids)
 {
-	RemoveView(ids);
+    RemoveView(ids);
 
-	for (int i = 0; i < count(); ++i)
-	{
-		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
-		if (ptr && ptr->GetID() == platform_id)
-		{
-			ptr->UpdateTable();
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+        if (ptr && ptr->GetID() == platform_id)
+        {
+            ptr->UpdateTable();
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids)
 {
-	RemoveView(ids);
+    RemoveView(ids);
 
-	for (int i = 0; i < count(); ++i)
-	{
-		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
-		if (ptr && ptr->GetID() == account_id)
-		{
-			ptr->UpdateTable();
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+        if (ptr && ptr->GetID() == account_id)
+        {
+            ptr->UpdateTable();
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 unsigned int StackView::RemoveView(const std::vector<unsigned int>& ids)
 {
-	unsigned int nCount = 0;
-	for (auto& id : ids)
-	{
-		for (int i = 0; i < count(); ++i)
-		{
-			BaseView* ptr = dynamic_cast<BaseView*>(widget(i));
-			if (ptr && ptr->GetID() == id)
-			{
-				removeWidget(ptr);
-				delete ptr;
-				++nCount;
-				break;
-			}
-		}
-	}
+    unsigned int nCount = 0;
+    for (auto& id : ids)
+    {
+        for (int i = 0; i < count(); ++i)
+        {
+            BaseView* ptr = dynamic_cast<BaseView*>(widget(i));
+            if (ptr && ptr->GetID() == id)
+            {
+                removeWidget(ptr);
+                delete ptr;
+                ++nCount;
+                break;
+            }
+        }
+    }
 
-	return nCount;
+    return nCount;
 }
 
 bool StackView::AddPlatform(unsigned int credential_id, const bnb::platform_tree::data_type & platform)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-		if (ptr && ptr->GetID() == credential_id)
-		{
-			ptr->UpdateTable();
-			addWidget(new PlatformView(platform, this));
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+        if (ptr && ptr->GetID() == credential_id)
+        {
+            ptr->UpdateTable();
+            addWidget(new PlatformView(platform, this));
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::AddAccount(unsigned int platform_id, const bnb::account_tree::data_type & account)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
-		if (ptr && ptr->GetID() == platform_id)
-		{
-			ptr->UpdateTable();
-			addWidget(new AccountView(account, this));
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+        if (ptr && ptr->GetID() == platform_id)
+        {
+            ptr->UpdateTable();
+            addWidget(new AccountView(account, this));
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::AddProperty(unsigned int account_id, const bnb::property_tree::data_type & property)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
-		if (ptr && ptr->GetID() == account_id)
-		{
-			ptr->UpdateTable();
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+        if (ptr && ptr->GetID() == account_id)
+        {
+            ptr->UpdateTable();
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::SwitchToCredential(unsigned int id)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-		if (ptr && ptr->GetID() == id)
-		{
-			setCurrentWidget(ptr);
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
+        if (ptr && ptr->GetID() == id)
+        {
+            setCurrentWidget(ptr);
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::SwitchToPlatform(unsigned int id)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
-		if (ptr && ptr->GetID() == id)
-		{
-			setCurrentWidget(ptr);
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
+        if (ptr && ptr->GetID() == id)
+        {
+            setCurrentWidget(ptr);
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::SwitchToAccount(unsigned int id)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
-		if (ptr && ptr->GetID() == id)
-		{
-			setCurrentWidget(ptr);
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
+        if (ptr && ptr->GetID() == id)
+        {
+            setCurrentWidget(ptr);
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::SwitchToView(unsigned int id)
 {
-	for (int i = 0; i < count(); ++i)
-	{
-		BaseView* ptr = dynamic_cast<BaseView*>(widget(i));
-		if (ptr && ptr->GetID() == id)
-		{
-			setCurrentWidget(ptr);
-			return true;
-		}
-	}
+    for (int i = 0; i < count(); ++i)
+    {
+        BaseView* ptr = dynamic_cast<BaseView*>(widget(i));
+        if (ptr && ptr->GetID() == id)
+        {
+            setCurrentWidget(ptr);
+            return true;
+        }
+    }
 
-	return false;
+    return false;
 }
 
 bool StackView::SwitchToHint()
 {
-	setCurrentWidget(m_labHint);
+    setCurrentWidget(m_labHint);
 
-	return true;
+    return true;
 }
 
 bool StackView::SwitchToHint(const QString & strText)
 {
-	m_labHint->setText(strText);
+    m_labHint->setText(strText);
 
-	return SwitchToHint();
+    return SwitchToHint();
 }
