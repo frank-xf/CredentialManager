@@ -53,8 +53,6 @@ private:
     void OnClickedNew();
     void OnClickedOpen();
     void OnClickedAbout();
-    void OnEditCredential();
-    void OnMotifyPassword();
 
     void OnAddPlatform();
     void OnAddAccount();
@@ -62,20 +60,22 @@ private:
     void OnEditPlatform();
     void OnEditAccount();
     void OnEditProperty();
+    void OnEditCredential();
+    void OnMotifyPassword();
     void OnRemovePlatform();
     void OnRemoveAccount();
     void OnRemoveProperty();
 
-    bool AddPlatform();
+    bool AddPlatform(QTreeWidgetItem* item_credential);
     bool AddAccount(QTreeWidgetItem* item_platform);
     bool AddProperty(QTreeWidgetItem* item_account);
+    bool EditCredential(QTreeWidgetItem* item_credential);
     bool EditPlatform(QTreeWidgetItem* item_platform);
     bool EditAccount(QTreeWidgetItem* item_account);
     bool EditProperty(QTreeWidgetItem* item_property);
     bool RemovePlatform(QTreeWidgetItem* item_platform);
     bool RemoveAccount(QTreeWidgetItem* item_account);
     bool RemoveProperty(QTreeWidgetItem* item_property);
-
 
 private:
 

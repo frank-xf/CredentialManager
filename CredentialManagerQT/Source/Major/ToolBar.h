@@ -22,6 +22,8 @@ public:
 
     const ui_type& UI() const { return (_ui); }
 
+    void UpdatePath(const QString& strPath);
+
 private:
 	
     ui_type _ui;

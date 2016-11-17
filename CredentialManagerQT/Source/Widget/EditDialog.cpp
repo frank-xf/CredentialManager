@@ -20,7 +20,6 @@ EditCredentialDialog::EditCredentialDialog(bnb::Credential& pc, QWidget * parent
     , m_Credential(pc)
 {
     setObjectName("EditCredentialDialog");
-    setFixedSize(ui_utils::dlg_credential_w, ui_utils::dlg_credential_h);
 
     _ui.m_editText[0]->setMaxLength(64);
     _ui.m_editText[0]->setText(QString::fromStdString(m_Credential.GetUser()));
@@ -64,7 +63,6 @@ EditPasswordDialog::EditPasswordDialog(bnb::Credential& pc, QWidget * parent)
     , m_Credential(pc)
 {
     setObjectName("EditPasswordDialog");
-    setFixedSize(ui_utils::dlg_default_w, ui_utils::dlg_default_h);
 
     _ui.m_editText[0]->setMaxLength(64);
     _ui.m_editText[0]->setEchoMode(QLineEdit::Password);
@@ -114,7 +112,7 @@ void EditPasswordDialog::base_type::ui_type::LayoutCentral(EditPasswordDialog::b
     {
         QHBoxLayout* phLayout = new QHBoxLayout;
         phLayout->setMargin(0);
-        phLayout->setSpacing(2);
+        phLayout->setSpacing(0);
         phLayout->addWidget(_labText[i]);
         phLayout->addWidget(m_editText[i], 1);
 
@@ -139,7 +137,6 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::
     , m_Platform(pp)
 {
     setObjectName("EditPlatformDialog");
-    setFixedSize(ui_utils::dlg_default_w, ui_utils::dlg_default_h);
 
     _ui.m_editText[0]->setMaxLength(64);
 
@@ -218,7 +215,6 @@ EditAccountDialog::EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::acc
     , m_Account(pa)
 {
     setObjectName("EditAccountDialog");
-    setFixedSize(ui_utils::dlg_default_w, ui_utils::dlg_default_h);
 
     _ui.m_editText[0]->setReadOnly(true);
     _ui.m_editText[1]->setMaxLength(64);
@@ -287,7 +283,7 @@ void EditAccountDialog::base_type::ui_type::LayoutCentral(EditAccountDialog::bas
     {
         QHBoxLayout* phLayout = new QHBoxLayout;
         phLayout->setMargin(0);
-        phLayout->setSpacing(2);
+        phLayout->setSpacing(0);
         phLayout->addWidget(_labText[i]);
         phLayout->addWidget(m_editText[i], 1);
 
@@ -312,7 +308,6 @@ EditPropertyDialog::EditPropertyDialog(bnb::account_tree::data_type & pa, bnb::p
     , m_Property(pp)
 {
     setObjectName("EditPropertyDialog");
-    setFixedSize(ui_utils::dlg_default_w, ui_utils::dlg_default_h);
 
     _ui.m_editText[0]->setReadOnly(true);
     _ui.m_editText[1]->setMaxLength(128);
@@ -382,7 +377,7 @@ void EditPropertyDialog::base_type::ui_type::LayoutCentral(EditPropertyDialog::b
     {
         QHBoxLayout* phLayout = new QHBoxLayout;
         phLayout->setMargin(0);
-        phLayout->setSpacing(2);
+        phLayout->setSpacing(0);
         phLayout->addWidget(_labText[i]);
         phLayout->addWidget(m_editText[i], 1);
 

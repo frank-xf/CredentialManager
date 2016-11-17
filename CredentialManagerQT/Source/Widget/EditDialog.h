@@ -39,25 +39,25 @@ protected:
             m_labHint->setAlignment(Qt::AlignCenter);
             m_labHint->setFixedHeight(20);
 
-            m_btnOK = new QPushButton(pView);
-            m_btnCancel = new QPushButton(pView);
+            m_btnOK = ui_utils::MakeButton(pView);
+            m_btnCancel = ui_utils::MakeButton(pView);
 
             for (unsigned int i = 0; i < n; ++i)
             {
-                _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_default_w, ui_utils::lab_default_h, Qt::black, 10);
-                m_editText[i] = new QLineEdit(pView);
-                // m_editText[i]->setFixedSize(ui_utils::edit_default_w, ui_utils::edit_default_h);
+                _labText[i] = ui_utils::MakeStaticLabel(pView);
+                m_editText[i] = ui_utils::MakeLineEdit(pView);
             }
 
             QVBoxLayout* pMainLayout = new QVBoxLayout;
             pMainLayout->setMargin(4);
-            pMainLayout->setSpacing(2);
+            pMainLayout->setSpacing(4);
             pMainLayout->addWidget(m_labHint);
 
             LayoutCentral(pView, pMainLayout);
 
             QHBoxLayout* phLayout = new QHBoxLayout;
-            phLayout->setContentsMargins(8, 20, 8, 8);
+            phLayout->setContentsMargins(0, 12, 0, 12);
+            phLayout->setSpacing(0);
             phLayout->addStretch(1);
             phLayout->addWidget(m_btnOK);
             phLayout->addStretch(1);
@@ -67,6 +67,7 @@ protected:
             pMainLayout->addLayout(phLayout);
 
             pView->setLayout(pMainLayout);
+            pView->setFixedSize(pView->sizeHint());
 
             RetranslateUI(pView);
         }
@@ -85,7 +86,7 @@ protected:
             {
                 QHBoxLayout* phLayout = new QHBoxLayout;
                 phLayout->setMargin(0);
-                phLayout->setSpacing(2);
+                phLayout->setSpacing(0);
                 phLayout->addWidget(_labText[i]);
                 phLayout->addWidget(m_editText[i], 1);
 

@@ -20,23 +20,26 @@ StackView::StackView(QWidget * parent) : QStackedWidget(parent)
     m_labHint->setAlignment(Qt::AlignCenter);
 
     addWidget(m_labHint);
-
-    InitCredential();
 }
 
 void StackView::InitCredential()
 {
-    addWidget(new CredentialView(g_AppMgr.Model().Info(), this));
+    auto view_credential = new CredentialView(g_AppMgr.Model().Info(), this);
+    addWidget(view_credential);
 
-    for (auto ptr_platform = g_AppMgr.Model().Info().Tree().Head(); ptr_platform; ptr_platform = ptr_platform->m_Next)
-    {
-        addWidget(new PlatformView(ptr_platform->m_Pair, this));
+    g_AppMgr.Model().Info().Tree().Foreach([this](const bnb::platform_tree::data_type& platform) {
+        addWidget(new PlatformView(platform, this));
+    
+        platform.m_Value.Foreach([this](const bnb::account_tree::data_type& account) {
+            addWidget(new AccountView(account, this));
 
-        for (auto ptr_account = ptr_platform->m_Pair.m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
-        {
-            addWidget(new AccountView(ptr_account->m_Pair, this));
-        }
-    }
+            return true;
+        });
+
+        return true;
+    });
+
+    setCurrentWidget(view_credential);
 }
 
 void StackView::ClearCredential()

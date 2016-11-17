@@ -61,6 +61,7 @@ protected:
             }
 
             m_tabView = new QTableWidget(_viewCentral);
+            m_tabView->setItemDelegate(new NoFocusDelegate);
             m_tabView->setMinimumSize(240, 64);
             m_tabView->setShowGrid(true);
             m_tabView->setContextMenuPolicy(Qt::CustomContextMenu);

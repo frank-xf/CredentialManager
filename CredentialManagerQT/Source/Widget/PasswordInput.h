@@ -3,6 +3,7 @@
 
 QT_BEGIN_NAMESPACE
 
+class QLabel;
 class QLineEdit;
 class QPushButton;
 
@@ -10,6 +11,12 @@ class PasswordInput : public QDialog
 {
     struct ui_type
     {
+    private:
+
+        QLabel* _labPassword;
+
+    public:
+
         QLineEdit* m_editPassword;
         QPushButton* m_btnOK;
         QPushButton* m_btnCancel;

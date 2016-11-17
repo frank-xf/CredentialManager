@@ -1,5 +1,7 @@
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
+
 #include "credential_qt_utils.h"
 
 QT_BEGIN_NAMESPACE
@@ -58,14 +60,29 @@ namespace ui_utils
         return lab;
     }
 
-    QPushButton* MakeButton(QWidget* parent, unsigned int w, unsigned int h)
+    QLineEdit * MakeLineEdit(QWidget * p, unsigned int w, unsigned int h, unsigned int u)
+    {
+        QLineEdit* line = new QLineEdit(p);
+        line->setFixedSize(w, h);
+
+        QFont font;
+        if (0 < u) font.setPointSize(u);
+        line->setFont(font);
+
+        return line;
+    }
+
+    QPushButton* MakeButton(QWidget* parent, unsigned int w, unsigned int h, unsigned int u)
     {
         QPushButton* button = new QPushButton(parent);
         button->setFixedSize(w, h);
-        button->setStyleSheet("QPushButton{ border:1px solid #B0B0B0; background-color:white; color:#404040; }\n"
-            "QPushButton:hover{ border-color:#0080FF; background-color:#00E000; color:white; }\n"
-            "QPushButton:pressed{ border-color:#0060C0; background-color:#00A000; color:white; }\n"
-            "QPushButton:default{ border-color:navy }");
+        button->setStyleSheet("QPushButton{ border:none; background-color:#60e460; color:#2040ff; }\n"
+            "QPushButton:hover{ background-color:#C02060; color:white; }\n"
+            "QPushButton:pressed{ background-color:#b00020; color:white; }");
+
+        QFont font;
+        if (0 < u) font.setPointSize(u);
+        button->setFont(font);
 
         return button;
     }

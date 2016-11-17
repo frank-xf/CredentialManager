@@ -2,12 +2,21 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QLabel>
 
+#include "credential_qt_utils.h"
+
 #include "Major/ToolBar.h"
 
 ToolBar::ToolBar(QWidget * parent) : QWidget(parent)
 {
+    ui_utils::SetBackgroundColor(this, Qt::white);
+
     _ui.SetupUI(this);
 
+}
+
+void ToolBar::UpdatePath(const QString & strPath)
+{
+    _ui.m_editPath->setText(strPath);
 }
 
 void ToolBar::ui_type::SetupUI(QWidget * pView)
@@ -15,9 +24,10 @@ void ToolBar::ui_type::SetupUI(QWidget * pView)
     pView->setObjectName("ToolBar");
 
     m_editPath = new QLabel(pView);
-    m_btnOpen = new QPushButton(pView);
-    m_btnNew = new QPushButton(pView);
-    m_btnAbout = new QPushButton(pView);
+    m_btnOpen = ui_utils::MakeButton(pView);
+    m_btnNew = ui_utils::MakeButton(pView);
+    m_btnAbout = ui_utils::MakeButton(pView);
+    m_btnOpen->setDefault(true);
 
     QHBoxLayout* phLayout1 = new QHBoxLayout;
     phLayout1->setMargin(0);

@@ -10,6 +10,16 @@
 
 #include "Widget/ContentView.h"
 
+static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned int id, const QColor& c = Qt::black, Qt::Alignment a = Qt::AlignCenter)
+{
+    QTableWidgetItem* pItem = new QTableWidgetItem(strText);
+    pItem->setTextAlignment(a);
+    pItem->setTextColor(c);
+    pItem->setData(Qt::UserRole, id);
+
+    return pItem;
+}
+
 //==============================================================================
 // Implementation of CredentialView
 //==============================================================================
@@ -41,12 +51,9 @@ void CredentialView::UpdateTable()
         unsigned int nIndex = 0;
         for (auto ptr = m_Credential.Tree().Head(); ptr; ptr = ptr->m_Next)
         {
-            QTableWidgetItem* pName = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
-            pName->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
-            QTableWidgetItem* pUrl = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strUrl));
-            pUrl->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
-            QTableWidgetItem* pDisplay = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay));
-            pDisplay->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
+            auto pName = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, QColor(255, 64, 64));
+            auto pUrl = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strUrl), ptr->m_Pair.m_Key.m_ID, QColor(64, 64, 255));
+            auto pDisplay = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay), ptr->m_Pair.m_Key.m_ID, QColor(32, 160, 32));
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
             _ui.m_tabView->setItem(nIndex, 1, pUrl);
@@ -128,10 +135,8 @@ void PlatformView::UpdateTable()
         unsigned int nIndex = 0;
         for (auto ptr = m_Platform.m_Value.Head(); ptr; ptr = ptr->m_Next)
         {
-            QTableWidgetItem* pName = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
-            pName->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
-            QTableWidgetItem* pDisplay = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay));
-            pDisplay->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
+            auto pName = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, QColor(255, 64, 64));
+            auto pDisplay = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay), ptr->m_Pair.m_Key.m_ID, QColor(32, 160, 32));
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
             _ui.m_tabView->setItem(nIndex, 1, pDisplay);
@@ -172,7 +177,7 @@ void PlatformView::UpdateTable(unsigned int id)
 template<>
 void PlatformView::base_type::ui_type::RetranslateUI(QWidget* pView)
 {
-    m_tabView->setColumnCount(3);
+    m_tabView->setColumnCount(2);
     m_tabView->setHorizontalHeaderLabels({ "    Account    ", "    Display    " });
 
     _labText[0]->setText("Platform: ");
@@ -210,10 +215,8 @@ void AccountView::UpdateTable()
         unsigned int nIndex = 0;
         for (auto ptr = m_Account.m_Value.Head(); ptr; ptr = ptr->m_Next)
         {
-            QTableWidgetItem* pKey = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
-            pKey->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
-            QTableWidgetItem* pValue = new QTableWidgetItem(QString::fromStdString(ptr->m_Pair.m_Value.m_strName));
-            pValue->setData(Qt::UserRole, ptr->m_Pair.m_Key.m_ID);
+            auto pKey = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, QColor(64, 64, 255));
+            auto pValue = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Value.m_strName), ptr->m_Pair.m_Key.m_ID, QColor(32, 160, 32));
 
             _ui.m_tabView->setItem(nIndex, 0, pKey);
             _ui.m_tabView->setItem(nIndex, 1, pValue);

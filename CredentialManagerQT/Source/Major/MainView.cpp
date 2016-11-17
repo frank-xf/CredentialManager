@@ -29,11 +29,12 @@ inline static bnb::credential_type GetItemType(const QTreeWidgetItem& item)
 }
 
 MainView::MainView(QWidget *parent)
-    : QWidget(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowMinimizeButtonHint | Qt::WindowCloseButtonHint)
+    : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
+    setWindowOpacity(0.96);
 
-    ui_utils::SetBackgroundColor(this, ui_utils::g_clrManView);
+    ui_utils::SetBackgroundColor(this, QColor(92, 224, 92));
 
     _ui.SetupUI(this);
 
@@ -56,8 +57,6 @@ MainView::MainView(QWidget *parent)
     QObject::connect(_ui.m_actEditProperty, &QAction::triggered, this, &MainView::OnEditProperty);
     QObject::connect(_ui.m_actModifyPassword, &QAction::triggered, this, &MainView::OnMotifyPassword);
     QObject::connect(_ui.m_actEditCredential, &QAction::triggered, this, &MainView::OnEditCredential);
-
-    InitCredential();
 }
 
 void MainView::InitCredential()
@@ -85,18 +84,17 @@ void MainView::OnClickedNew()
 
 void MainView::OnClickedOpen()
 {
-    /*
     QString strFile = QFileDialog::getOpenFileName(
-    this, "Please select a credential file", ".", "credential file(*.credential)");
-    */
+        this, "Please select a credential file", ".", "credential file(*.credential)");
 
-    QString strFile("def.credential");
-    if (strFile.isEmpty()) return;
-
-    if (g_AppMgr.Model().Load(strFile.toStdString()))
+    if (!strFile.isEmpty())
     {
-        ClearCredential();
-        InitCredential();
+        if (g_AppMgr.Model().Load(strFile.toStdString()))
+        {
+            ClearCredential();
+            InitCredential();
+            _ui.m_viewToolBar->UpdatePath(strFile);
+        }
     }
 }
 
@@ -110,17 +108,16 @@ void MainView::OnTreeContextMenu(const QPoint & pos)
 
     QMenu treeMenu(_ui.m_treeView);
 
-    if (nullptr == pItem /*|| nullptr == pItem->parent()*/)
-    {
-        treeMenu.addAction(_ui.m_actEditCredential);
-        treeMenu.addAction(_ui.m_actModifyPassword);
-        treeMenu.addSeparator();
-        treeMenu.addAction(_ui.m_actAddPlatform);
-    }
-    else
+    if (pItem)
     {
         switch (static_cast<bnb::credential_type>(pItem->data(0, Qt::UserRole).toUInt()))
         {
+        case bnb::credential_type::ct_credential:
+            treeMenu.addAction(_ui.m_actEditCredential);
+            treeMenu.addAction(_ui.m_actModifyPassword);
+            treeMenu.addSeparator();
+            treeMenu.addAction(_ui.m_actAddPlatform);
+            break;
         case bnb::credential_type::ct_property:
             treeMenu.addAction(_ui.m_actEditProperty);
             treeMenu.addAction(_ui.m_actDelProperty);
@@ -198,7 +195,8 @@ void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
         {
         case bnb::credential_type::ct_credential:
         {
-            OnEditCredential();
+            if (EditCredential(pItem))
+                return;
 
             break;
         }
@@ -231,33 +229,14 @@ void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
     HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
-void MainView::OnEditCredential()
-{
-    EditCredentialDialog dlg(g_AppMgr.Model().Info(), this);
-
-    if (QDialog::Accepted == dlg.exec())
-    {
-        g_AppMgr.Model().SaveCredential();
-
-        _ui.m_treeView->UpdateHeader();
-        _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
-    }
-}
-
-void MainView::OnMotifyPassword()
-{
-    EditPasswordDialog dlg(g_AppMgr.Model().Info(), this);
-
-    if (QDialog::Accepted == dlg.exec())
-    {
-        g_AppMgr.Model().SaveCredential();
-    }
-}
-
 void MainView::OnAddPlatform()
 {
-    if (!AddPlatform())
-        HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
+    if (QTreeWidgetItem* item_credential = _ui.m_treeView->currentItem())
+        if (bnb::credential_type::ct_credential == GetItemType(*item_credential))
+            if (AddPlatform(item_credential))
+                return;
+
+    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
 void MainView::OnAddAccount()
@@ -275,6 +254,26 @@ void MainView::OnAddProperty()
     if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
         if (bnb::credential_type::ct_account == GetItemType(*item_account))
             if (AddProperty(item_account))
+                return;
+
+    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
+}
+
+void MainView::OnMotifyPassword()
+{
+    EditPasswordDialog dlg(g_AppMgr.Model().Info(), this);
+
+    if (QDialog::Accepted == dlg.exec())
+    {
+        g_AppMgr.Model().SaveCredential();
+    }
+}
+
+void MainView::OnEditCredential()
+{
+    if (QTreeWidgetItem* item_credential = _ui.m_treeView->currentItem())
+        if (bnb::credential_type::ct_credential == GetItemType(*item_credential))
+            if (EditCredential(item_credential))
                 return;
 
     HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
@@ -340,14 +339,14 @@ void MainView::OnRemoveProperty()
     HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
 }
 
-bool MainView::AddPlatform()
+bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
 {
     EditPlatformDialog dlg(g_AppMgr.Model().Info(), nullptr, this);
     if (QDialog::Accepted == dlg.exec())
     {
         g_AppMgr.Model().SaveCredential();
 
-        _ui.m_treeView->AddPlatform(*dlg.GetPlatform());
+        _ui.m_treeView->AddPlatform(item_credential, *dlg.GetPlatform());
         _ui.m_viewContent->AddPlatform(g_AppMgr.Model().Info().GetID(), *dlg.GetPlatform());
         _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
     }
@@ -401,6 +400,21 @@ bool MainView::AddProperty(QTreeWidgetItem * item_account)
     }
 
     return false;
+}
+
+bool MainView::EditCredential(QTreeWidgetItem * item_credential)
+{
+    EditCredentialDialog dlg(g_AppMgr.Model().Info(), this);
+
+    if (QDialog::Accepted == dlg.exec())
+    {
+        g_AppMgr.Model().SaveCredential();
+
+        _ui.m_treeView->UpdateHeader();
+        _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Info().GetID());
+    }
+
+    return true;
 }
 
 bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
@@ -600,8 +614,8 @@ void MainView::ui_type::SetupUI(MainView* pView)
     m_viewToolBar = new ToolBar(pView);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
-    pMainLayout->setMargin(2);
-    pMainLayout->setSpacing(2);
+    pMainLayout->setMargin(0);
+    pMainLayout->setSpacing(1);
     pMainLayout->addWidget(m_viewToolBar);
     pMainLayout->addWidget(phSplitter, 1);
 
