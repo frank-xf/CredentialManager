@@ -84,9 +84,10 @@ void MainView::OnClickedNew()
 
 void MainView::OnClickedOpen()
 {
-    QString strFile = QFileDialog::getOpenFileName(
-        this, "Please select a credential file", ".", "credential file(*.credential)");
+    /*QString strFile = QFileDialog::getOpenFileName(
+        this, "Please select a credential file", ".", "credential file(*.credential)");*/
 
+    QString strFile = "def.credential";
     if (!strFile.isEmpty())
     {
         if (g_AppMgr.Model().Load(strFile.toStdString()))
@@ -107,6 +108,10 @@ void MainView::OnTreeContextMenu(const QPoint & pos)
     QTreeWidgetItem* pItem = _ui.m_treeView->itemAt(pos);
 
     QMenu treeMenu(_ui.m_treeView);
+    treeMenu.setStyleSheet("QMenu{ border: 1px solid gray; background-color: white; }"
+        "QMenu::item{ padding: 4px 20px 4px 20px; }"
+        "QMenu::item:selected{ background: #C0F0C0;}"
+        "QMenu::separator{ height: 1px; background: gray; margin-left: 2px; margin-right: 2px;}");
 
     if (pItem)
     {

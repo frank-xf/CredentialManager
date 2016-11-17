@@ -1,6 +1,7 @@
 ﻿#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QStyleFactory>
+#include <QtGui/QGuiApplication>
 
 #include "credential_qt_utils.h"
 #include "credential_qt_manager.h"
@@ -14,8 +15,8 @@ static inline void SetTreeItem(QTreeWidgetItem* pItem, bnb::credential_type t, c
     pItem->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
     pItem->setData(0, Qt::UserRole, static_cast<unsigned char>(t));
 
-    QFont font;
-    font.setPointSize(10);
+    QFont font = QGuiApplication::font();
+    font.setPointSize(12);
     pItem->setFont(0, font);
 }
 
@@ -40,16 +41,16 @@ TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
     setStyleSheet(
         "QTreeView::item{ border: none; }\n"
         "QTreeView::item:hover{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #B0FFB0, stop:1 #F0FFF0); }\n"
-        "QTreeView::item:selected{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2080FF, stop:1 #F0FFF0); }\n"
-        "QTreeView::item:selected:active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2080FF, stop:1 #F0FFF0); color:white; }\n"
-        "QTreeView::item:selected:!active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #2080FF, stop:1 #F0FFF0); color:white; }");
+        "QTreeView::item:selected{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); }\n"
+        "QTreeView::item:selected:active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); color:white; }\n"
+        "QTreeView::item:selected:!active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); color:white; }");
 
 }
 
 void TreeView::InitCredential()
 {
     QTreeWidgetItem* item_root = new QTreeWidgetItem(this, { QString::fromStdString("Credential - " + g_AppMgr.Model().Info().GetUser()) });
-    SetTreeItem(item_root, bnb::credential_type::ct_credential, { 0, 128, 0 });
+    SetTreeItem(item_root, bnb::credential_type::ct_credential, { 16, 144, 16 });
     addTopLevelItem(item_root);
 
 	g_AppMgr.Model().Info().Tree().Foreach([this, item_root](const bnb::platform_tree::data_type& platform) {

@@ -28,25 +28,26 @@ namespace ui_utils
         return lab;
     }
 
-    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w, unsigned int h, QColor c, unsigned int u)
+    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w, unsigned int h, QColor c, bool b, unsigned int u)
     {
-		return MakeLabel(parent, w, h, Qt::AlignVCenter | Qt::AlignRight, c, u);
+		return MakeLabel(parent, w, h, Qt::AlignVCenter | Qt::AlignRight, c, b, u);
     }
 
-	QLabel * MakeDynamicLabel(QWidget * parent, QColor c, unsigned int u)
+	QLabel * MakeDynamicLabel(QWidget * parent, QColor c, bool b, unsigned int u)
 	{
 		QLabel* lab = new QLabel(parent);
 		lab->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
 		lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
 
 		QFont font;
+        font.setBold(b);
 		if (0 < u) font.setPointSize(u);
 		lab->setFont(font);
 
 		return lab;
 	}
 
-    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, unsigned int u)
+    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, bool b, unsigned int u)
     {
         QLabel* lab = new QLabel(p);
         lab->setAlignment(a);
@@ -54,6 +55,7 @@ namespace ui_utils
         lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
 
         QFont font;
+        font.setBold(b);
         if (0 < u) font.setPointSize(u);
         lab->setFont(font);
 

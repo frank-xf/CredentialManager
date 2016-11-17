@@ -54,11 +54,7 @@ protected:
             _viewCentral->setMinimumWidth(360);
             _viewCentral->setMaximumWidth(600);
 
-            for (unsigned int i = 0; i < n; ++i)
-            {
-                _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 80, 24);
-                m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral);
-            }
+            CreateLabel();
 
             m_tabView = new QTableWidget(_viewCentral);
             m_tabView->setItemDelegate(new NoFocusDelegate);
@@ -72,10 +68,17 @@ protected:
             m_tabView->verticalHeader()->setDefaultSectionSize(28);
             m_tabView->verticalHeader()->setVisible(false);
             m_tabView->horizontalHeader()->setFixedHeight(24);
+            m_tabView->horizontalHeader()->setSectionsClickable(false);
             m_tabView->horizontalHeader()->setHighlightSections(false);
             m_tabView->horizontalHeader()->setStretchLastSection(true);
             m_tabView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-
+            m_tabView->horizontalHeader()->setStyleSheet(R"(
+QHeaderView::section { /*background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #C0FFC0, stop:0.5 #D0FFD0, stop:1 #C0FFC0);*/
+    color: blue;
+font:14px;
+border: 2px solid transparent;
+})");
+            /*transparent*/
             QVBoxLayout* pvLayout = new QVBoxLayout;
             pvLayout->setMargin(0);
             pvLayout->setSpacing(4);
@@ -112,6 +115,15 @@ protected:
         }
 
         void RetranslateUI(QWidget* pView) { }
+
+        void CreateLabel()
+        {
+            for (unsigned int i = 0; i < n; ++i)
+            {
+                _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 80, 24, Qt::black, true);
+                m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, Qt::black, false);
+            }
+        }
     };
 
     ContentView(unsigned int id, QWidget * parent = nullptr)
@@ -123,6 +135,24 @@ protected:
     ui_type _ui;
 
 };	// class ContentView
+
+//------------------------------------------------------------------------------
+
+class CredentialView : public ContentView<CredentialView, 3>
+{
+public:
+
+    CredentialView(bnb::Credential& credential, QWidget * parent = nullptr);
+
+    void UpdateInfo();
+    void UpdateTable();
+    void UpdateTable(unsigned int id);
+
+private:
+
+    bnb::Credential& m_Credential;
+
+};	// class CredentialView
 
     //------------------------------------------------------------------------------
 
@@ -141,24 +171,6 @@ private:
     const bnb::platform_tree::data_type& m_Platform;
 
 };	// class PlatformView
-
-    //------------------------------------------------------------------------------
-
-class CredentialView : public ContentView<CredentialView, 3>
-{
-public:
-
-    CredentialView(bnb::Credential& credential, QWidget * parent = nullptr);
-
-    void UpdateInfo();
-    void UpdateTable();
-    void UpdateTable(unsigned int id);
-
-private:
-
-    bnb::Credential& m_Credential;
-
-};	// class CredentialView
 
     //------------------------------------------------------------------------------
 

@@ -20,15 +20,15 @@ bool CredentialModelManager::Load(const bnb::string_type & strFile)
 		HintDialog(hint_type::ht_error, "You selected file invalid !", g_AppMgr.View().Main()).exec();
 		return false;
 	}
-
+    /*
 	PasswordInput dlg(g_AppMgr.View().Main());
 	if (QDialog::Accepted != dlg.exec())
 	{
 		return false;
 	}
-
-	QString password = dlg.GetPassword();
-	if (!bnb::Credential::Decoding(dst, (const unsigned char*)password.toStdString().c_str(), password.size()))
+    */
+    bnb::string_type password = "123";//dlg.GetPassword();
+	if (!bnb::Credential::Decoding(dst, (const unsigned char*)password.c_str(), password.size()))
 	{
 		HintDialog(hint_type::ht_error, "You input password error !", g_AppMgr.View().Main()).exec();
 		return false;
@@ -40,7 +40,7 @@ bool CredentialModelManager::Load(const bnb::string_type & strFile)
 		return false;
 	}
 
-	m_Credential.SetWord(dlg.GetPassword().toStdString());
+	m_Credential.SetWord(password);
 	m_strFile = strFile;
 
 	return true;

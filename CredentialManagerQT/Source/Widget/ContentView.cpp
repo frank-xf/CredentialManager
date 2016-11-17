@@ -3,6 +3,7 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTableWidget>
 #include <QtCore/QDateTime>
+#include <QtGui/QGuiApplication>
 
 #include "credential_qt_utils.h"
 
@@ -16,6 +17,10 @@ static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned i
     pItem->setTextAlignment(a);
     pItem->setTextColor(c);
     pItem->setData(Qt::UserRole, id);
+
+    QFont font = QGuiApplication::font();
+    font.setPointSize(10);
+    pItem->setFont(font);
 
     return pItem;
 }
@@ -102,6 +107,16 @@ void CredentialView::base_type::ui_type::RetranslateUI(QWidget* pView)
     _labText[0]->setText("Update Time: ");
     _labText[1]->setText("User Name: ");
     _labText[2]->setText("Display: ");
+}
+
+template<>
+void CredentialView::base_type::ui_type::CreateLabel()
+{
+    for (unsigned int i = 0; i < 3; ++i)
+    {
+        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 108, 24, Qt::red, true);
+        m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, Qt::black, false);
+    }
 }
 
 //==============================================================================

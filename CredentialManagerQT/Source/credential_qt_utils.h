@@ -3,10 +3,6 @@
 
 #include <QtWidgets/QStyledItemDelegate>
 
-#define _DeclareNoCopy(_ClassName)      private:            \
-        _ClassName(const _ClassName&) = delete;             \
-        _ClassName& operator=(const _ClassName&) = delete;
-
 QT_BEGIN_NAMESPACE
 
 class QLabel;
@@ -62,11 +58,11 @@ namespace ui_utils
 
     void SetBackgroundColor(QWidget* pView, const QColor& color);
     QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = to_uint(lab_mark_w), unsigned int h = to_uint(lab_mark_h));
-    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = lab_default_w, unsigned int h = lab_default_h, QColor c = Qt::black, unsigned int u = def_size_text);
-	QLabel* MakeDynamicLabel(QWidget* parent, QColor c = Qt::black, unsigned int u = def_size_text);
+    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = lab_default_w, unsigned int h = lab_default_h, QColor c = Qt::black, bool b = false, unsigned int u = def_size_text);
+	QLabel* MakeDynamicLabel(QWidget* parent, QColor c = Qt::black, bool b = false, unsigned int u = def_size_text);
     QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w, unsigned int h = btn_default_h, unsigned int u = def_size_text);
 
-    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, unsigned int u);
+    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, bool b, unsigned int u);
     QLineEdit* MakeLineEdit(QWidget* p, unsigned int w = edit_default_w, unsigned int h = edit_default_h, unsigned int u = def_size_text);
 }
 
