@@ -98,26 +98,38 @@ namespace bnb
 		const node_type* Head() const { return m_Head; }
 
 		template<typename _Func>
-		size_t Foreach(_Func pFunc)
+		void Foreach(_Func pFunc)
 		{
-			size_t nCount = 0;
-			for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-				if (pFunc(ptr->m_Pair))
-					++nCount;
-
-			return nCount;
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+                pFunc(ptr->m_Pair);
 		}
 
 		template<typename _Func>
-		size_t Foreach(_Func pFunc) const
+		void Foreach(_Func pFunc) const
 		{
-			size_t nCount = 0;
-			for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-				if (pFunc(ptr->m_Pair))
-					++nCount;
-
-			return nCount;
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+                pFunc(ptr->m_Pair);
 		}
+
+        template<typename _Func>
+        bool Action(_Func pFunc)
+        {
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+                if (pFunc(ptr->m_Pair))
+                    return true;
+
+            return false;
+        }
+
+        template<typename _Func>
+        bool Action(_Func pFunc) const
+        {
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+                if (pFunc(ptr->m_Pair))
+                    return true;
+
+            return false;
+        }
 
 		data_type* Insert(const key_type& key)
 		{

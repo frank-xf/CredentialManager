@@ -74,9 +74,9 @@ protected:
             m_tabView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
             m_tabView->horizontalHeader()->setStyleSheet(R"(
 QHeaderView::section { /*background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #C0FFC0, stop:0.5 #D0FFD0, stop:1 #C0FFC0);*/
-    color: blue;
+background-color:#F0F0F0;
+    color: #4080FF;
 font:14px;
-border: 2px solid transparent;
 })");
             /*transparent*/
             QVBoxLayout* pvLayout = new QVBoxLayout;
@@ -120,7 +120,7 @@ border: 2px solid transparent;
         {
             for (unsigned int i = 0; i < n; ++i)
             {
-                _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 80, 24, Qt::black, true);
+                _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 80, 24, Qt::black, false);
                 m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, Qt::black, false);
             }
         }

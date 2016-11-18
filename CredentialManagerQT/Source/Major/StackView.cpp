@@ -32,11 +32,7 @@ void StackView::InitCredential()
     
         platform.m_Value.Foreach([this](const bnb::account_tree::data_type& account) {
             addWidget(new AccountView(account, this));
-
-            return true;
         });
-
-        return true;
     });
 
     setCurrentWidget(view_credential);

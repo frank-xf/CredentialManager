@@ -1,3 +1,4 @@
+#include <QtGui/QGuiApplication>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
@@ -39,7 +40,7 @@ namespace ui_utils
 		lab->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
 		lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
 
-		QFont font;
+		QFont font = QGuiApplication::font();
         font.setBold(b);
 		if (0 < u) font.setPointSize(u);
 		lab->setFont(font);
@@ -54,7 +55,7 @@ namespace ui_utils
         lab->setFixedSize(w, h);
         lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
 
-        QFont font;
+        QFont font = QGuiApplication::font();
         font.setBold(b);
         if (0 < u) font.setPointSize(u);
         lab->setFont(font);
@@ -67,7 +68,7 @@ namespace ui_utils
         QLineEdit* line = new QLineEdit(p);
         line->setFixedSize(w, h);
 
-        QFont font;
+        QFont font = QGuiApplication::font();
         if (0 < u) font.setPointSize(u);
         line->setFont(font);
 
@@ -78,11 +79,11 @@ namespace ui_utils
     {
         QPushButton* button = new QPushButton(parent);
         button->setFixedSize(w, h);
-        button->setStyleSheet("QPushButton{ border:none; background-color:#60e460; color:#2040ff; }\n"
-            "QPushButton:hover{ background-color:#C02060; color:white; }\n"
-            "QPushButton:pressed{ background-color:#b00020; color:white; }");
+        button->setStyleSheet("QPushButton{ border:none; background-color:#4040FF; color:white; }\n"
+            "QPushButton:hover{ background-color:#20C020; color:white; }\n"
+            "QPushButton:pressed{ background-color:#C02020; color:white; }");
 
-        QFont font;
+        QFont font = QGuiApplication::font();
         if (0 < u) font.setPointSize(u);
         button->setFont(font);
 

@@ -155,14 +155,8 @@ namespace bnb
 					auto node_property = node_account.append_child("property");
 					node_property.append_attribute("name").set_value(property.m_Key.m_strName.c_str());
 					node_property.append_child(pugi::node_cdata).set_value(property.m_Value.m_strName.c_str());
-
-					return true;
 				});
-
-				return true;
 			});
-
-			return true;
 		});
 
 		/*

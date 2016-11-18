@@ -51,6 +51,11 @@ namespace ui_utils
     };
 
     const QColor g_clrManView{ 168, 240, 255 };
+    const QColor g_clrCredential{ 16,128,16 };
+    const QColor g_clrPlatform{ 224, 32, 32 };
+    const QColor g_clrAccount{ 64, 64, 255 };
+    const QColor g_clrProperty{ 32, 160, 32 };
+    const QColor g_clrLabel{ 128, 128, 0 };
 
 
     template<typename _Ty>

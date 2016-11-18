@@ -56,9 +56,9 @@ void CredentialView::UpdateTable()
         unsigned int nIndex = 0;
         for (auto ptr = m_Credential.Tree().Head(); ptr; ptr = ptr->m_Next)
         {
-            auto pName = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, QColor(255, 64, 64));
-            auto pUrl = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strUrl), ptr->m_Pair.m_Key.m_ID, QColor(64, 64, 255));
-            auto pDisplay = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay), ptr->m_Pair.m_Key.m_ID, QColor(32, 160, 32));
+            auto pName = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, { 224, 32, 32 });
+            auto pUrl = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strUrl), ptr->m_Pair.m_Key.m_ID, { 64, 64, 255 });
+            auto pDisplay = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay), ptr->m_Pair.m_Key.m_ID, { 32, 160, 32 });
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
             _ui.m_tabView->setItem(nIndex, 1, pUrl);
@@ -114,8 +114,8 @@ void CredentialView::base_type::ui_type::CreateLabel()
 {
     for (unsigned int i = 0; i < 3; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 108, 24, Qt::red, true);
-        m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, Qt::black, false);
+        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 96, 24, ui_utils::g_clrLabel, false);
+        m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, ui_utils::g_clrCredential, false);
     }
 }
 
@@ -150,8 +150,8 @@ void PlatformView::UpdateTable()
         unsigned int nIndex = 0;
         for (auto ptr = m_Platform.m_Value.Head(); ptr; ptr = ptr->m_Next)
         {
-            auto pName = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, QColor(255, 64, 64));
-            auto pDisplay = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay), ptr->m_Pair.m_Key.m_ID, QColor(32, 160, 32));
+            auto pName = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, { 64, 64, 255 });
+            auto pDisplay = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay), ptr->m_Pair.m_Key.m_ID, { 32, 160, 32 });
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
             _ui.m_tabView->setItem(nIndex, 1, pDisplay);
@@ -200,6 +200,16 @@ void PlatformView::base_type::ui_type::RetranslateUI(QWidget* pView)
     _labText[2]->setText("Display: ");
 }
 
+template<>
+void PlatformView::base_type::ui_type::CreateLabel()
+{
+    for (unsigned int i = 0; i < 3; ++i)
+    {
+        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, ui_utils::lab_default_w, ui_utils::lab_default_h, ui_utils::g_clrLabel, false);
+        m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, ui_utils::g_clrPlatform, false);
+    }
+}
+
 //==============================================================================
 // Implementation of AccountView
 //==============================================================================
@@ -228,16 +238,15 @@ void AccountView::UpdateTable()
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        for (auto ptr = m_Account.m_Value.Head(); ptr; ptr = ptr->m_Next)
-        {
-            auto pKey = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, QColor(64, 64, 255));
-            auto pValue = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Value.m_strName), ptr->m_Pair.m_Key.m_ID, QColor(32, 160, 32));
+        m_Account.m_Value.Foreach([this, &nIndex](const bnb::property_tree::data_type& property) {
+            auto pKey = MakeTableItem(QString::fromStdString(property.m_Key.m_strName), property.m_Key.m_ID, { 32, 160, 32 });
+            auto pValue = MakeTableItem(QString::fromStdString(property.m_Value.m_strName), property.m_Key.m_ID, { 32, 160, 32 });
 
             _ui.m_tabView->setItem(nIndex, 0, pKey);
             _ui.m_tabView->setItem(nIndex, 1, pValue);
 
             ++nIndex;
-        }
+        });
 
         _ui.m_tabView->resizeColumnsToContents();
     }
@@ -251,15 +260,16 @@ void AccountView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                for (auto ptr = m_Account.m_Value.Head(); ptr; ptr = ptr->m_Next)
-                {
-                    if (ptr->m_Pair.m_Key.m_ID == id)
+                m_Account.m_Value.Action([this, pItem, id, i](const bnb::property_tree::data_type& property) {
+                    if (property.m_Key.m_ID == id)
                     {
-                        pItem->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
-                        _ui.m_tabView->item(i, 1)->setText(QString::fromStdString(ptr->m_Pair.m_Value.m_strName));
-                        break;
+                        pItem->setText(QString::fromStdString(property.m_Key.m_strName));
+                        _ui.m_tabView->item(i, 1)->setText(QString::fromStdString(property.m_Value.m_strName));
+                        return true;
                     }
-                }
+
+                    return false;
+                });
 
                 break;
             }
@@ -277,4 +287,14 @@ void AccountView::base_type::ui_type::RetranslateUI(QWidget* pView)
 
     _labText[0]->setText("Account: ");
     _labText[1]->setText("Display: ");
+}
+
+template<>
+void AccountView::base_type::ui_type::CreateLabel()
+{
+    for (unsigned int i = 0; i < 2; ++i)
+    {
+        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, ui_utils::lab_default_w, ui_utils::lab_default_h, ui_utils::g_clrLabel, false);
+        m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, ui_utils::g_clrAccount, false);
+    }
 }
