@@ -16,7 +16,7 @@ static inline void SetTreeItem(QTreeWidgetItem* pItem, bnb::credential_type t, c
     pItem->setData(0, Qt::UserRole, static_cast<unsigned char>(t));
 
     QFont font = QGuiApplication::font();
-    font.setPointSize(12);
+    font.setPointSize(ui_utils::def_text_size);
     pItem->setFont(0, font);
 }
 

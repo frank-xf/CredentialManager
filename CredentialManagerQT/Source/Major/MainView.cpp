@@ -510,8 +510,9 @@ bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
     if (ptr_platform)
     {
         std::vector<unsigned int> vtrIds{ ptr_platform->m_Key.m_ID };
-        for (auto ptr_account = ptr_platform->m_Value.Head(); ptr_account; ptr_account = ptr_account->m_Next)
-            vtrIds.push_back(ptr_account->m_Pair.m_Key.m_ID);
+        ptr_platform->m_Value.Foreach([&vtrIds](const bnb::account_tree::data_type& account) mutable {
+            vtrIds.push_back(account.m_Key.m_ID);
+        });
 
         if (g_AppMgr.Model().Info().Tree().Remove(ptr_platform->m_Key))
         {

@@ -13,7 +13,9 @@ namespace ui_utils
 {
     enum ui_size
     {
-        def_size_text = 10,
+        def_text_size = 10,
+        btn_text_size = 10,
+        lab_text_size = 12,
 
         lab_default_w = 72,
         lab_default_h = 20,
@@ -43,10 +45,10 @@ namespace ui_utils
         item_platform_h = 28,
 
         dlg_credential_w = 280,
-		dlg_credential_h = 160,
+        dlg_credential_h = 160,
 
         dlg_default_w = 320,
-		dlg_default_h = 180,
+        dlg_default_h = 180,
 
     };
 
@@ -63,17 +65,18 @@ namespace ui_utils
 
     void SetBackgroundColor(QWidget* pView, const QColor& color);
     QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = to_uint(lab_mark_w), unsigned int h = to_uint(lab_mark_h));
-    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = lab_default_w, unsigned int h = lab_default_h, QColor c = Qt::black, bool b = false, unsigned int u = def_size_text);
-	QLabel* MakeDynamicLabel(QWidget* parent, QColor c = Qt::black, bool b = false, unsigned int u = def_size_text);
-    QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w, unsigned int h = btn_default_h, unsigned int u = def_size_text);
 
+    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = lab_default_w, unsigned int h = lab_default_h, QColor c = Qt::black, bool b = false, unsigned int u = lab_text_size);
+    QLabel* MakeDynamicLabel(QWidget* parent, QColor c = Qt::black, bool b = false, unsigned int u = lab_text_size);
     QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, bool b, unsigned int u);
-    QLineEdit* MakeLineEdit(QWidget* p, unsigned int w = edit_default_w, unsigned int h = edit_default_h, unsigned int u = def_size_text);
+
+    QLineEdit* MakeLineEdit(QWidget* p, unsigned int w = edit_default_w, unsigned int h = edit_default_h, unsigned int u = lab_text_size);
+    QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w, unsigned int h = btn_default_h, unsigned int u = btn_text_size);
 }
 
 class NoFocusDelegate : public QStyledItemDelegate
 {
-    void NoFocusDelegate::paint(QPainter* painter, const QStyleOptionViewItem & option, const QModelIndex &index) const
+    void NoFocusDelegate::paint(QPainter* painter, const QStyleOptionViewItem & option, const QModelIndex &index) const override
     {
         QStyleOptionViewItem itemOption(option);
         if (itemOption.state & QStyle::State_HasFocus)

@@ -67,18 +67,13 @@ protected:
             m_tabView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
             m_tabView->verticalHeader()->setDefaultSectionSize(28);
             m_tabView->verticalHeader()->setVisible(false);
-            m_tabView->horizontalHeader()->setFixedHeight(24);
+            m_tabView->horizontalHeader()->setFixedHeight(28);
             m_tabView->horizontalHeader()->setSectionsClickable(false);
             m_tabView->horizontalHeader()->setHighlightSections(false);
             m_tabView->horizontalHeader()->setStretchLastSection(true);
             m_tabView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-            m_tabView->horizontalHeader()->setStyleSheet(R"(
-QHeaderView::section { /*background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1, stop:0 #C0FFC0, stop:0.5 #D0FFD0, stop:1 #C0FFC0);*/
-background-color:#F0F0F0;
-    color: #4080FF;
-font:14px;
-})");
-            /*transparent*/
+            m_tabView->horizontalHeader()->setStyleSheet("QHeaderView::section{ background-color:#F0F0F0; color: #FF4080; font:14px; }");
+
             QVBoxLayout* pvLayout = new QVBoxLayout;
             pvLayout->setMargin(0);
             pvLayout->setSpacing(4);
@@ -120,7 +115,7 @@ font:14px;
         {
             for (unsigned int i = 0; i < n; ++i)
             {
-                _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 80, 24, Qt::black, false);
+                _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, ui_utils::lab_default_w, ui_utils::lab_default_h, Qt::black, false);
                 m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, Qt::black, false);
             }
         }

@@ -1,9 +1,9 @@
-﻿#include <QtWidgets/QBoxLayout>
+﻿#include <QtGui/QGuiApplication>
+#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTableWidget>
 #include <QtCore/QDateTime>
-#include <QtGui/QGuiApplication>
 
 #include "credential_qt_utils.h"
 
@@ -19,7 +19,7 @@ static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned i
     pItem->setData(Qt::UserRole, id);
 
     QFont font = QGuiApplication::font();
-    font.setPointSize(10);
+    font.setPointSize(ui_utils::def_text_size);
     pItem->setFont(font);
 
     return pItem;
@@ -54,18 +54,17 @@ void CredentialView::UpdateTable()
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        for (auto ptr = m_Credential.Tree().Head(); ptr; ptr = ptr->m_Next)
-        {
-            auto pName = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, { 224, 32, 32 });
-            auto pUrl = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strUrl), ptr->m_Pair.m_Key.m_ID, { 64, 64, 255 });
-            auto pDisplay = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay), ptr->m_Pair.m_Key.m_ID, { 32, 160, 32 });
+        m_Credential.Tree().Foreach([this, &nIndex](const bnb::platform_tree::data_type& platform) mutable {
+            auto pName = MakeTableItem(QString::fromStdString(platform.m_Key.m_strName), platform.m_Key.m_ID, { 224, 32, 32 });
+            auto pUrl = MakeTableItem(QString::fromStdString(platform.m_Key.m_strUrl), platform.m_Key.m_ID, { 64, 64, 255 });
+            auto pDisplay = MakeTableItem(QString::fromStdString(platform.m_Key.m_strDisplay), platform.m_Key.m_ID, { 32, 160, 32 });
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
             _ui.m_tabView->setItem(nIndex, 1, pUrl);
             _ui.m_tabView->setItem(nIndex, 2, pDisplay);
 
             ++nIndex;
-        }
+        });
 
         _ui.m_tabView->resizeColumnsToContents();
     }
@@ -79,16 +78,17 @@ void CredentialView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                for (auto ptr = m_Credential.Tree().Head(); ptr; ptr = ptr->m_Next)
-                {
-                    if (ptr->m_Pair.m_Key.m_ID == id)
+                m_Credential.Tree().Action([this, pItem, id, i](const bnb::platform_tree::data_type& platform) {
+                    if (platform.m_Key.m_ID == id)
                     {
-                        pItem->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
-                        _ui.m_tabView->item(i, 1)->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strUrl));
-                        _ui.m_tabView->item(i, 2)->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay));
-                        break;
+                        pItem->setText(QString::fromStdString(platform.m_Key.m_strName));
+                        _ui.m_tabView->item(i, 1)->setText(QString::fromStdString(platform.m_Key.m_strUrl));
+                        _ui.m_tabView->item(i, 2)->setText(QString::fromStdString(platform.m_Key.m_strDisplay));
+                        return true;
                     }
-                }
+
+                    return false;
+                });
 
                 break;
             }
@@ -114,7 +114,7 @@ void CredentialView::base_type::ui_type::CreateLabel()
 {
     for (unsigned int i = 0; i < 3; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 96, 24, ui_utils::g_clrLabel, false);
+        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 108, 28, ui_utils::g_clrLabel, false);
         m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, ui_utils::g_clrCredential, false);
     }
 }
@@ -148,16 +148,15 @@ void PlatformView::UpdateTable()
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        for (auto ptr = m_Platform.m_Value.Head(); ptr; ptr = ptr->m_Next)
-        {
-            auto pName = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strName), ptr->m_Pair.m_Key.m_ID, { 64, 64, 255 });
-            auto pDisplay = MakeTableItem(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay), ptr->m_Pair.m_Key.m_ID, { 32, 160, 32 });
+        m_Platform.m_Value.Foreach([this, &nIndex](const bnb::account_tree::data_type& account) mutable {
+            auto pName = MakeTableItem(QString::fromStdString(account.m_Key.m_strName), account.m_Key.m_ID, { 64, 64, 255 });
+            auto pDisplay = MakeTableItem(QString::fromStdString(account.m_Key.m_strDisplay), account.m_Key.m_ID, { 32, 160, 32 });
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
             _ui.m_tabView->setItem(nIndex, 1, pDisplay);
 
             ++nIndex;
-        }
+        });
 
         _ui.m_tabView->resizeColumnsToContents();
     }
@@ -171,15 +170,16 @@ void PlatformView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                for (auto ptr = m_Platform.m_Value.Head(); ptr; ptr = ptr->m_Next)
-                {
-                    if (ptr->m_Pair.m_Key.m_ID == id)
+                m_Platform.m_Value.Action([this, pItem, id, i](const bnb::account_tree::data_type& account) {
+                    if (account.m_Key.m_ID == id)
                     {
-                        pItem->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strName));
-                        _ui.m_tabView->item(i, 1)->setText(QString::fromStdString(ptr->m_Pair.m_Key.m_strDisplay));
-                        break;
+                        pItem->setText(QString::fromStdString(account.m_Key.m_strName));
+                        _ui.m_tabView->item(i, 1)->setText(QString::fromStdString(account.m_Key.m_strDisplay));
+                        return true;
                     }
-                }
+
+                    return false;
+                });
 
                 break;
             }
@@ -238,7 +238,7 @@ void AccountView::UpdateTable()
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        m_Account.m_Value.Foreach([this, &nIndex](const bnb::property_tree::data_type& property) {
+        m_Account.m_Value.Foreach([this, &nIndex](const bnb::property_tree::data_type& property) mutable {
             auto pKey = MakeTableItem(QString::fromStdString(property.m_Key.m_strName), property.m_Key.m_ID, { 32, 160, 32 });
             auto pValue = MakeTableItem(QString::fromStdString(property.m_Value.m_strName), property.m_Key.m_ID, { 32, 160, 32 });
 
