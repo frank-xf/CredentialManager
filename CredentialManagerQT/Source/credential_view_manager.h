@@ -19,11 +19,9 @@ public:
 
     void Initialize();
 
-    QT_PREPEND_NAMESPACE(QWidget)* Main();
-
 private:
 
-    CredentialViewManager() { }
+    CredentialViewManager() = default;
     CredentialViewManager(const CredentialViewManager&) = delete;
     CredentialViewManager& operator=(const CredentialViewManager&) = delete;
 

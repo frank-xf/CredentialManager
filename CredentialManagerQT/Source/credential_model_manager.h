@@ -23,7 +23,7 @@ public:
 
 private:
 
-    CredentialModelManager() { }
+    CredentialModelManager() = default;
     CredentialModelManager(const CredentialModelManager&) = delete;
     CredentialModelManager& operator=(const CredentialModelManager&) = delete;
 

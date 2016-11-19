@@ -9,8 +9,3 @@ void CredentialViewManager::Initialize()
 	m_viewMain = new MainView;
 	m_viewMain->show();
 }
-
-QT_PREPEND_NAMESPACE(QWidget) * CredentialViewManager::Main()
-{
-	return m_viewMain;
-}

@@ -21,7 +21,7 @@ public:
 
 private:
 
-    CredentialManagerQT() { };
+    CredentialManagerQT() = default;
     CredentialManagerQT(const CredentialManagerQT&) = delete;
     CredentialManagerQT& operator=(const CredentialManagerQT&) = delete;
 
