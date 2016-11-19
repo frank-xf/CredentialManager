@@ -1,6 +1,8 @@
 ﻿#ifndef _bnb_Stack_View_H_
 #define _bnb_Stack_View_H_
 
+QT_BEGIN_NAMESPACE
+
 class StackView : public QStackedWidget
 {
 public:
@@ -28,12 +30,14 @@ public:
     bool SwitchToPlatform(unsigned int id);
     bool SwitchToAccount(unsigned int id);
     bool SwitchToView(unsigned int id);
-    bool SwitchToHint();
     bool SwitchToHint(const QString& strText);
 
 private:
 
     QLabel* m_labHint;
+
 };
+
+QT_END_NAMESPACE
 
 #endif  // _bnb_Stack_View_H_

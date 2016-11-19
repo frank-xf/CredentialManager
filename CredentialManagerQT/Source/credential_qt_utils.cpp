@@ -10,6 +10,18 @@ QT_BEGIN_NAMESPACE
 namespace ui_utils
 {
 
+    static inline void SetLabel(QLabel* lab, unsigned int w, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size)
+    {
+        lab->setAlignment(align);
+        lab->setFixedSize(w, h);
+        lab->setStyleSheet("QLabel{ background:transparent; color:" + clr.name() + "; }");
+
+        QFont font = QGuiApplication::font();
+        font.setBold(bold);
+        font.setPointSize(size);
+        lab->setFont(font);
+    }
+
     void SetBackgroundColor(QWidget * pView, const QColor & color)
     {
         pView->setAutoFillBackground(true);
@@ -19,72 +31,93 @@ namespace ui_utils
         pView->setPalette(palette);
     }
 
-    QLabel * MakeMarkLabel(QWidget * parent, unsigned int w, unsigned int h)
+    QLabel* MakeLabel(QWidget* parent, unsigned int w, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size)
     {
-        QLabel* lab = new QLabel("*", parent);
-        lab->setAlignment(Qt::AlignCenter);
-        lab->setFixedSize(w, h);
-        lab->setStyleSheet("QLabel{ background:transparent; color:red; }");
+        QLabel* lab = new QLabel(parent);
+        SetLabel(lab, w, h, align, clr, bold, size);
 
         return lab;
     }
 
-    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w, unsigned int h, QColor c, bool b, unsigned int u)
+    QLabel * MakeMarkLabel(QWidget * parent, unsigned int w)
     {
-		return MakeLabel(parent, w, h, Qt::AlignVCenter | Qt::AlignRight, c, b, u);
+        QLabel* lab = new QLabel("*", parent);
+        SetLabel(lab, w, def_widget_h, Qt::AlignCenter, Qt::red, false, def_text_size);
+
+        return lab;
     }
 
-	QLabel * MakeDynamicLabel(QWidget * parent, QColor c, bool b, unsigned int u)
-	{
-		QLabel* lab = new QLabel(parent);
-		lab->setAlignment(Qt::AlignVCenter | Qt::AlignLeft);
-		lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
-
-		QFont font = QGuiApplication::font();
-        font.setBold(b);
-		if (0 < u) font.setPointSize(u);
-		lab->setFont(font);
-
-		return lab;
-	}
-
-    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, bool b, unsigned int u)
+    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w, const QColor& clr)
     {
-        QLabel* lab = new QLabel(p);
-        lab->setAlignment(a);
-        lab->setFixedSize(w, h);
-        lab->setStyleSheet("QLabel{ background:transparent; color:" + c.name() + "; }");
+        return MakeLabel(parent, w, def_widget_h, Qt::AlignVCenter | Qt::AlignRight, clr, false, def_text_size);
+    }
+
+    QLabel * MakeDynamicLabel(QWidget * parent, const QColor& clr, Qt::Alignment align)
+    {
+        QLabel* lab = new QLabel(parent);
+        lab->setAlignment(align);
+        lab->setFixedHeight(def_widget_h);
+        lab->setStyleSheet("QLabel{ background:transparent; color:" + clr.name() + "; }");
 
         QFont font = QGuiApplication::font();
-        font.setBold(b);
-        if (0 < u) font.setPointSize(u);
+        font.setBold(false);
+        font.setPointSize(def_text_size);
         lab->setFont(font);
 
         return lab;
     }
 
-    QLineEdit * MakeLineEdit(QWidget * p, unsigned int w, unsigned int h, unsigned int u)
+    QLineEdit * MakeLineEdit(QWidget * parent, unsigned int w, const QColor& clr)
     {
-        QLineEdit* line = new QLineEdit(p);
-        line->setFixedSize(w, h);
+        QLineEdit* line = new QLineEdit(parent);
+        line->setFixedSize(w, def_widget_h);
+        line->setStyleSheet("QLineEdit{ color:" + clr.name() + "; }");
 
         QFont font = QGuiApplication::font();
-        if (0 < u) font.setPointSize(u);
+        font.setPointSize(def_text_size);
         line->setFont(font);
 
         return line;
     }
 
-    QPushButton* MakeButton(QWidget* parent, unsigned int w, unsigned int h, unsigned int u)
+    QLineEdit * MakePasswordLine(QWidget * parent, unsigned int w)
     {
-        QPushButton* button = new QPushButton(parent);
-        button->setFixedSize(w, h);
-        button->setStyleSheet("QPushButton{ border:none; background-color:#4040FF; color:white; }\n"
-            "QPushButton:hover{ background-color:#20C020; color:white; }\n"
-            "QPushButton:pressed{ background-color:#C02020; color:white; }");
+        QLineEdit* line = new QLineEdit(parent);
+        line->setFixedSize(w, def_widget_h);
+        line->setEchoMode(QLineEdit::Password);
+        line->setStyleSheet("QLineEdit{ lineedit-password-character:42; }");
 
         QFont font = QGuiApplication::font();
-        if (0 < u) font.setPointSize(u);
+        font.setPointSize(def_text_size);
+        line->setFont(font);
+
+        return line;
+    }
+
+    QLineEdit * MakeShowLine(QWidget * parent, const QColor & clr)
+    {
+        QLineEdit* line = new QLineEdit(parent);
+        line->setReadOnly(true);
+        line->setFixedHeight(def_widget_h);
+        line->setStyleSheet("QLineEdit{ border:none; background:transparent; color:" + clr.name() + "; }");
+
+        QFont font = QGuiApplication::font();
+        font.setPointSize(def_text_size);
+        line->setFont(font);
+
+        return line;
+    }
+
+    QPushButton* MakeButton(QWidget* parent, unsigned int w)
+    {
+        QPushButton* button = new QPushButton(parent);
+        button->setFixedSize(w, def_widget_h);
+        button->setStyleSheet("QPushButton{ border:none; background-color:#4040FF; color:white; }\n"
+            "QPushButton:hover{ background-color:#40B040; color:white; }\n"
+            "QPushButton:pressed{ background-color:#FF4000; color:white; }");
+
+        QFont font = QGuiApplication::font();
+        font.setPointSize(def_text_size);
         button->setFont(font);
 
         return button;

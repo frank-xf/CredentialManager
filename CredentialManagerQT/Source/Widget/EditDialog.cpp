@@ -7,10 +7,13 @@
 #include "Credential/Credential.h"
 
 #include "credential_qt_utils.h"
-#include "credential_qt_manager.h"
-#include "credential_model_manager.h"
 
 #include "Widget/EditDialog.h"
+
+static inline bool IsEqual(const bnb::string_type& left, const bnb::string_type& right)
+{
+    return 0 == strcmp(left.c_str(), right.c_str());
+}
 
 //==============================================================================
 // Implementation of EditCredentialDialog
@@ -21,7 +24,7 @@ EditCredentialDialog::EditCredentialDialog(bnb::Credential& pc, QWidget * parent
 {
     setObjectName("EditCredentialDialog");
 
-    _ui.m_editText[0]->setMaxLength(64);
+    _ui.m_editText[0]->setMaxLength(ui_utils::def_text_length);
     _ui.m_editText[0]->setText(QString::fromStdString(m_Credential.GetUser()));
     _ui.m_editText[1]->setText(QString::fromStdString(m_Credential.GetDisplay()));
 }
@@ -40,8 +43,16 @@ void EditCredentialDialog::OnClickedOK()
         return;
     }
 
-    m_Credential.SetUser(_ui.m_editText[0]->text().toStdString());
-    m_Credential.SetDisplay(_ui.m_editText[1]->text().toStdString());
+    auto strUserName(_ui.m_editText[0]->text().toStdString());
+    auto strDisplay(_ui.m_editText[1]->text().toStdString());
+    if (IsEqual(m_Credential.GetUser(), strUserName) && IsEqual(m_Credential.GetDisplay(), strDisplay))
+    {
+        reject();
+        return;
+    }
+
+    m_Credential.SetUser(strUserName);
+    m_Credential.SetDisplay(strDisplay);
 
     accept();
 }
@@ -49,10 +60,42 @@ void EditCredentialDialog::OnClickedOK()
 //------------------------------------------------------------------------------
 
 template<>
+void EditCredentialDialog::base_type::ui_type::CreateLabel(EditCredentialDialog::base_type * pView)
+{
+    for (unsigned int i = 0; i < 2; ++i)
+    {
+        _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_username_w);
+        m_editText[i] = ui_utils::MakeLineEdit(pView);
+    }
+}
+
+void EditCredentialDialog::base_type::ui_type::LayoutCentral(EditCredentialDialog::base_type* pView, QBoxLayout* pMainLayout)
+{
+    for (unsigned int i = 0; i < 2; ++i)
+    {
+        QHBoxLayout* phLayout = new QHBoxLayout;
+        phLayout->setMargin(0);
+        phLayout->setSpacing(0);
+        phLayout->addWidget(_labText[i]);
+        phLayout->addWidget(m_editText[i]);
+
+        if (0 == i)
+            phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+        else
+            phLayout->addStretch(1);
+
+        pMainLayout->addLayout(phLayout);
+    }
+}
+
+template<>
 void EditCredentialDialog::base_type::ui_type::RetranslateLabel(EditCredentialDialog::base_type * pView)
 {
     _labText[0]->setText("User Name: ");
     _labText[1]->setText("Display: ");
+
+    m_editText[0]->setPlaceholderText("input your name");
+    m_editText[1]->setPlaceholderText("input a description");
 }
 
 //==============================================================================
@@ -64,12 +107,10 @@ EditPasswordDialog::EditPasswordDialog(bnb::Credential& pc, QWidget * parent)
 {
     setObjectName("EditPasswordDialog");
 
-    _ui.m_editText[0]->setMaxLength(64);
-    _ui.m_editText[0]->setEchoMode(QLineEdit::Password);
-    _ui.m_editText[1]->setMaxLength(64);
-    _ui.m_editText[1]->setEchoMode(QLineEdit::Password);
-    _ui.m_editText[2]->setMaxLength(64);
-    _ui.m_editText[2]->setEchoMode(QLineEdit::Password);
+    for (unsigned int i = 0; i < 3; i++)
+    {
+        _ui.m_editText[i]->setMaxLength(ui_utils::def_text_length);
+    }
 }
 
 void EditPasswordDialog::OnClickedOK()
@@ -106,6 +147,16 @@ void EditPasswordDialog::OnClickedOK()
 //------------------------------------------------------------------------------
 
 template<>
+void EditPasswordDialog::base_type::ui_type::CreateLabel(EditPasswordDialog::base_type * pView)
+{
+    for (unsigned int i = 0; i < 3; ++i)
+    {
+        _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_password_w);
+        m_editText[i] = ui_utils::MakePasswordLine(pView, ui_utils::edit_password_w);
+    }
+}
+
+template<>
 void EditPasswordDialog::base_type::ui_type::LayoutCentral(EditPasswordDialog::base_type* pView, QBoxLayout * pMainLayout)
 {
     for (unsigned int i = 0; i < 3; ++i)
@@ -114,7 +165,8 @@ void EditPasswordDialog::base_type::ui_type::LayoutCentral(EditPasswordDialog::b
         phLayout->setMargin(0);
         phLayout->setSpacing(0);
         phLayout->addWidget(_labText[i]);
-        phLayout->addWidget(m_editText[i], 1);
+        phLayout->addWidget(m_editText[i]);
+        phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
 
         pMainLayout->addLayout(phLayout);
     }
@@ -126,6 +178,10 @@ void EditPasswordDialog::base_type::ui_type::RetranslateLabel(EditPasswordDialog
     _labText[0]->setText("Old Password: ");
     _labText[1]->setText("New Password: ");
     _labText[2]->setText("Validate: ");
+
+    m_editText[0]->setPlaceholderText("input the old password");
+    m_editText[1]->setPlaceholderText("input the new password");
+    m_editText[2]->setPlaceholderText("input the new password again");
 }
 
 //==============================================================================
@@ -138,7 +194,7 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::
 {
     setObjectName("EditPlatformDialog");
 
-    _ui.m_editText[0]->setMaxLength(64);
+    _ui.m_editText[0]->setMaxLength(ui_utils::def_text_length);
 
     if (m_Platform)
     {
@@ -170,13 +226,22 @@ void EditPlatformDialog::OnClickedOK()
         return;
     }
 
-    bnb::platform_type platform(
-        _ui.m_editText[0]->text().toStdString(),
-        _ui.m_editText[1]->text().toStdString(),
-        _ui.m_editText[2]->text().toStdString());
+    auto strPlatform(_ui.m_editText[0]->text().toStdString());
+    auto strUrl(_ui.m_editText[1]->text().toStdString());
+    auto strDisplay(_ui.m_editText[2]->text().toStdString());
+
+    bnb::platform_type platform(strPlatform, strUrl, strDisplay);
 
     if (m_Platform)
     {
+        if (IsEqual(m_Platform->m_Key.m_strName, strPlatform)
+            && IsEqual(m_Platform->m_Key.m_strUrl, strUrl)
+            && IsEqual(m_Platform->m_Key.m_strDisplay, strDisplay))
+        {
+            reject();
+            return;
+        }
+
         if (!m_Credential.Tree().Update(m_Platform->m_Key, platform))
         {
             _ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
@@ -198,26 +263,49 @@ void EditPlatformDialog::OnClickedOK()
 
 //------------------------------------------------------------------------------
 
+void EditPlatformDialog::base_type::ui_type::LayoutCentral(EditPlatformDialog::base_type* pView, QBoxLayout* pMainLayout)
+{
+    for (unsigned int i = 0; i < 3; ++i)
+    {
+        QHBoxLayout* phLayout = new QHBoxLayout;
+        phLayout->setMargin(0);
+        phLayout->setSpacing(0);
+        phLayout->addWidget(_labText[i]);
+        phLayout->addWidget(m_editText[i]);
+
+        if (0 == i)
+            phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+        else
+            phLayout->addStretch(1);
+
+        pMainLayout->addLayout(phLayout);
+    }
+}
+
 template<>
 void EditPlatformDialog::base_type::ui_type::RetranslateLabel(EditPlatformDialog::base_type * pView)
 {
     _labText[0]->setText("Platform: ");
     _labText[1]->setText("Url: ");
     _labText[2]->setText("Display: ");
+
+    m_editText[0]->setPlaceholderText("input a platform");
+    m_editText[1]->setPlaceholderText("input a url of the platform");
+    m_editText[2]->setPlaceholderText("input a description of the platform");
 }
 
 //==============================================================================
 // Implementation of EditAccountDialog
 //==============================================================================
 EditAccountDialog::EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::account_tree::data_type* pa, QWidget * parent)
-    : base_type(parent, 0)
+    : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Platform(pp)
     , m_Account(pa)
 {
     setObjectName("EditAccountDialog");
 
     _ui.m_editText[0]->setReadOnly(true);
-    _ui.m_editText[1]->setMaxLength(64);
+    _ui.m_editText[1]->setMaxLength(ui_utils::def_text_length);
 
     if (!m_Platform.m_Key.m_strName.empty())
         _ui.m_editText[0]->setText(QString::fromStdString(m_Platform.m_Key.m_strName));
@@ -251,10 +339,19 @@ void EditAccountDialog::OnClickedOK()
         return;
     }
 
-    bnb::account_type account(_ui.m_editText[1]->text().toStdString(), _ui.m_editText[2]->text().toStdString());
+    auto strAccount(_ui.m_editText[1]->text().toStdString());
+    auto strDisplay(_ui.m_editText[2]->text().toStdString());
+
+    bnb::account_type account(strAccount, strDisplay);
 
     if (m_Account)
     {
+        if (IsEqual(m_Account->m_Key.m_strName, strAccount) && IsEqual(m_Account->m_Key.m_strDisplay, strDisplay))
+        {
+            reject();
+            return;
+        }
+
         if (!m_Platform.m_Value.Update(m_Account->m_Key, account))
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
@@ -285,7 +382,12 @@ void EditAccountDialog::base_type::ui_type::LayoutCentral(EditAccountDialog::bas
         phLayout->setMargin(0);
         phLayout->setSpacing(0);
         phLayout->addWidget(_labText[i]);
-        phLayout->addWidget(m_editText[i], 1);
+        phLayout->addWidget(m_editText[i]);
+
+        if (1 == i)
+            phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+        else
+            phLayout->addStretch(1);
 
         pMainLayout->addLayout(phLayout);
     }
@@ -297,20 +399,23 @@ void EditAccountDialog::base_type::ui_type::RetranslateLabel(EditAccountDialog::
     _labText[0]->setText("Platform: ");
     _labText[1]->setText("Account: ");
     _labText[2]->setText("Display: ");
+
+    m_editText[1]->setPlaceholderText("input a account");
+    m_editText[2]->setPlaceholderText("input a description of the account");
 }
 
 //==============================================================================
 // Implementation of EditPropertyDialog
 //==============================================================================
 EditPropertyDialog::EditPropertyDialog(bnb::account_tree::data_type & pa, bnb::property_tree::data_type * pp, QWidget * parent)
-    : base_type(parent, 0)
+    : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Account(pa)
     , m_Property(pp)
 {
     setObjectName("EditPropertyDialog");
 
     _ui.m_editText[0]->setReadOnly(true);
-    _ui.m_editText[1]->setMaxLength(128);
+    _ui.m_editText[1]->setMaxLength(ui_utils::def_text_length << 1);
 
     if (!m_Account.m_Key.m_strName.empty())
         _ui.m_editText[0]->setText(QString::fromStdString(m_Account.m_Key.m_strName));
@@ -349,6 +454,12 @@ void EditPropertyDialog::OnClickedOK()
 
     if (m_Property)
     {
+        if (IsEqual(m_Property->m_Key.m_strName, key.m_strName) && IsEqual(m_Property->m_Value.m_strName, key.m_strName))
+        {
+            reject();
+            return;
+        }
+
         if (!m_Account.m_Value.Update(m_Property->m_Key, key, value))
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
@@ -371,6 +482,16 @@ void EditPropertyDialog::OnClickedOK()
 //------------------------------------------------------------------------------
 
 template<>
+void EditPropertyDialog::base_type::ui_type::CreateLabel(EditPropertyDialog::base_type * pView)
+{
+    for (unsigned int i = 0; i < 3; ++i)
+    {
+        _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_account_w);
+        m_editText[i] = ui_utils::MakeLineEdit(pView);
+    }
+}
+
+template<>
 void EditPropertyDialog::base_type::ui_type::LayoutCentral(EditPropertyDialog::base_type* pView, QBoxLayout * pMainLayout)
 {
     for (unsigned int i = 0; i < 3; ++i)
@@ -379,7 +500,12 @@ void EditPropertyDialog::base_type::ui_type::LayoutCentral(EditPropertyDialog::b
         phLayout->setMargin(0);
         phLayout->setSpacing(0);
         phLayout->addWidget(_labText[i]);
-        phLayout->addWidget(m_editText[i], 1);
+        phLayout->addWidget(m_editText[i]);
+
+        if (1 == i)
+            phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+        else
+            phLayout->addStretch(1);
 
         pMainLayout->addLayout(phLayout);
     }
@@ -391,4 +517,7 @@ void EditPropertyDialog::base_type::ui_type::RetranslateLabel(EditPropertyDialog
     _labText[0]->setText("Account: ");
     _labText[1]->setText("Key: ");
     _labText[2]->setText("Value: ");
+
+    m_editText[1]->setPlaceholderText("input a key");
+    m_editText[2]->setPlaceholderText("input a value");
 }

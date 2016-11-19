@@ -35,18 +35,14 @@ protected:
 
         void SetupUI(EditDialog* pView)
         {
-            m_labHint = new QLabel(pView);
-            m_labHint->setAlignment(Qt::AlignCenter);
-            m_labHint->setFixedHeight(20);
+            ui_utils::SetBackgroundColor(pView, Qt::white);
+
+            m_labHint = ui_utils::MakeDynamicLabel(pView, Qt::red, Qt::AlignCenter);
 
             m_btnOK = ui_utils::MakeButton(pView);
             m_btnCancel = ui_utils::MakeButton(pView);
 
-            for (unsigned int i = 0; i < n; ++i)
-            {
-                _labText[i] = ui_utils::MakeStaticLabel(pView);
-                m_editText[i] = ui_utils::MakeLineEdit(pView);
-            }
+            CreateLabel(pView);
 
             QVBoxLayout* pMainLayout = new QVBoxLayout;
             pMainLayout->setMargin(4);
@@ -80,6 +76,15 @@ protected:
             m_btnCancel->setText("Cancel");
         }
 
+        void CreateLabel(EditDialog* pView)
+        {
+            for (unsigned int i = 0; i < n; ++i)
+            {
+                _labText[i] = ui_utils::MakeStaticLabel(pView);
+                m_editText[i] = ui_utils::MakeLineEdit(pView);
+            }
+        }
+
         void LayoutCentral(EditDialog* pView, QBoxLayout* pMainLayout)
         {
             for (unsigned int i = 0; i < n; ++i)
@@ -88,7 +93,7 @@ protected:
                 phLayout->setMargin(0);
                 phLayout->setSpacing(0);
                 phLayout->addWidget(_labText[i]);
-                phLayout->addWidget(m_editText[i], 1);
+                phLayout->addWidget(m_editText[i]);
 
                 pMainLayout->addLayout(phLayout);
             }

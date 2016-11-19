@@ -23,11 +23,30 @@ public:
 
     HintDialog(hint_type hType, const QString& strText, QWidget * parent);
 
-    void SetText(hint_type hType, const QString& strText);
-    QString GetText() const;
-
 private:
 	
+    ui_type _ui;
+
+};
+
+class ConfirmDialog : public QDialog
+{
+    struct ui_type
+    {
+        QLabel* m_labText;
+        QPushButton* m_btnOK;
+        QPushButton* m_btnCancel;
+
+        void SetupUI(ConfirmDialog* pDlg);
+        void RetranslateUI(ConfirmDialog* pDlg);
+    };
+
+public:
+
+    ConfirmDialog(const QString& strText, QWidget * parent);
+
+private:
+
     ui_type _ui;
 
 };

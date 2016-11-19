@@ -1,18 +1,24 @@
-﻿#include <QtWidgets/QHeaderView>
+﻿#include <QtGui/QGuiApplication>
+#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QStyleFactory>
-#include <QtGui/QGuiApplication>
+#include <QtWidgets/QStyledItemDelegate>
+
+#include "Credential/Credential.h"
 
 #include "credential_qt_utils.h"
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
 
+#include "Widget/NoFocusDelegate.h"
 #include "Major/TreeView.h"
+
+QT_BEGIN_NAMESPACE
 
 static inline void SetTreeItem(QTreeWidgetItem* pItem, bnb::credential_type t, const QColor& c)
 {
     pItem->setTextColor(0, c);
-    pItem->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::tree_item_h });
+    pItem->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::def_widget_h });
     pItem->setData(0, Qt::UserRole, static_cast<unsigned char>(t));
 
     QFont font = QGuiApplication::font();
@@ -46,16 +52,15 @@ TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
         "QTreeView::item:selected{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); }\n"
         "QTreeView::item:selected:active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); color:white; }\n"
         "QTreeView::item:selected:!active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); color:white; }");
-
 }
 
 void TreeView::InitCredential()
 {
-    QTreeWidgetItem* item_root = new QTreeWidgetItem(this, { QString::fromStdString("Credential - " + g_AppMgr.Model().Info().GetUser()) });
+    QTreeWidgetItem* item_root = new QTreeWidgetItem(this, { QString::fromStdString("Credential - " + g_AppMgr.Model().Data().GetUser()) });
     SetTreeItem(item_root, bnb::credential_type::ct_credential, ui_utils::g_clrCredential);
     addTopLevelItem(item_root);
 
-	g_AppMgr.Model().Info().Tree().Foreach([this, item_root](const bnb::platform_tree::data_type& platform) {
+	g_AppMgr.Model().Data().Tree().Foreach([this, item_root](const bnb::platform_tree::data_type& platform) {
 		QTreeWidgetItem* item_platform = AddPlatform(item_root, platform);
 
 		platform.m_Value.Foreach([this, item_platform](const bnb::account_tree::data_type& account) {
@@ -81,8 +86,8 @@ void TreeView::UpdateHeader()
 
 	if (pItem)
 	{
-		if (g_AppMgr.Model().Info().IsValid())
-			pItem->setText(0, QString::fromStdString("Credential - " + g_AppMgr.Model().Info().GetUser()));
+		if (g_AppMgr.Model().Data().IsValid())
+			pItem->setText(0, QString::fromStdString("Credential - " + g_AppMgr.Model().Data().GetUser()));
 		else
 			pItem->setText(0, "Credential");
 	}
@@ -114,3 +119,5 @@ QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::pro
 
 	return item_property;
 }
+
+QT_END_NAMESPACE

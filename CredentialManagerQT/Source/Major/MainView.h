@@ -3,9 +3,6 @@
 
 QT_BEGIN_NAMESPACE
 
-class QPushButton;
-class QScrollArea;
-class QLabel;
 class ToolBar;
 class StackView;
 class TreeView;
@@ -38,8 +35,6 @@ class MainView : public QWidget
 public:
 
     MainView(QWidget *parent = nullptr);
-
-    ui_type& UI() { return (_ui); }
 
 private:
 

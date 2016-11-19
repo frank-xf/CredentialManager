@@ -1,17 +1,22 @@
-﻿#include <QtGui/QGuiApplication>
+﻿#include <QtCore/QDateTime>
+#include <QtGui/QGuiApplication>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTableWidget>
-#include <QtCore/QDateTime>
+#include <QtWidgets/QStyledItemDelegate>
 
 #include "credential_qt_utils.h"
 
 #include "Credential/Credential.h"
 
+#include "Widget/NoFocusDelegate.h"
 #include "Widget/ContentView.h"
 
-static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned int id, const QColor& c = Qt::black, Qt::Alignment a = Qt::AlignCenter)
+QT_BEGIN_NAMESPACE
+
+static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned int id, const QColor& c = Qt::black, Qt::Alignment a = Qt::AlignVCenter | Qt::AlignLeft)
 {
     QTableWidgetItem* pItem = new QTableWidgetItem(strText);
     pItem->setTextAlignment(a);
@@ -38,9 +43,9 @@ CredentialView::CredentialView(bnb::Credential& credential, QWidget * parent)
 
 void CredentialView::UpdateInfo()
 {
-    _ui.m_labText[0]->setText(QDateTime::fromTime_t(m_Credential.GetTime()).toString("yyyy-MM-dd HH:mm:ss"));
-    _ui.m_labText[1]->setText(QString::fromStdString(m_Credential.GetUser()));
-    _ui.m_labText[2]->setText("-");
+    _ui.m_editText[0]->setText(QDateTime::fromTime_t(m_Credential.GetTime()).toString("yyyy-MM-dd HH:mm:ss"));
+    _ui.m_editText[1]->setText(QString::fromStdString(m_Credential.GetUser()));
+    _ui.m_editText[2]->setText("-");
 }
 
 void CredentialView::UpdateTable()
@@ -55,7 +60,7 @@ void CredentialView::UpdateTable()
     {
         unsigned int nIndex = 0;
         m_Credential.Tree().Foreach([this, &nIndex](const bnb::platform_tree::data_type& platform) mutable {
-            auto pName = MakeTableItem(QString::fromStdString(platform.m_Key.m_strName), platform.m_Key.m_ID, { 224, 32, 32 });
+            auto pName = MakeTableItem(QString::fromStdString(platform.m_Key.m_strName), platform.m_Key.m_ID, { 255, 64, 0 }, Qt::AlignCenter);
             auto pUrl = MakeTableItem(QString::fromStdString(platform.m_Key.m_strUrl), platform.m_Key.m_ID, { 64, 64, 255 });
             auto pDisplay = MakeTableItem(QString::fromStdString(platform.m_Key.m_strDisplay), platform.m_Key.m_ID, { 32, 160, 32 });
 
@@ -102,7 +107,7 @@ template<>
 void CredentialView::base_type::ui_type::RetranslateUI(QWidget* pView)
 {
     m_tabView->setColumnCount(3);
-    m_tabView->setHorizontalHeaderLabels({ "    Platform    ", "    Url    ", "    Display    " });
+    m_tabView->setHorizontalHeaderLabels({ "    Platform    ", "        Url        ", "        Display        " });
 
     _labText[0]->setText("Update Time: ");
     _labText[1]->setText("User Name: ");
@@ -114,8 +119,8 @@ void CredentialView::base_type::ui_type::CreateLabel()
 {
     for (unsigned int i = 0; i < 3; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, 108, 28, ui_utils::g_clrLabel, false);
-        m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, ui_utils::g_clrCredential, false);
+        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, ui_utils::lab_credential_w, ui_utils::g_clrLabel);
+        m_editText[i] = ui_utils::MakeShowLine(_viewCentral, ui_utils::g_clrCredential);
     }
 }
 
@@ -132,9 +137,9 @@ PlatformView::PlatformView(const bnb::platform_tree::data_type& tp, QWidget * pa
 
 void PlatformView::UpdateInfo()
 {
-    _ui.m_labText[0]->setText(QString::fromStdString(m_Platform.m_Key.m_strName));
-    _ui.m_labText[1]->setText(QString::fromStdString(m_Platform.m_Key.m_strUrl));
-    _ui.m_labText[2]->setText(QString::fromStdString(m_Platform.m_Key.m_strDisplay));
+    _ui.m_editText[0]->setText(QString::fromStdString(m_Platform.m_Key.m_strName));
+    _ui.m_editText[1]->setText(QString::fromStdString(m_Platform.m_Key.m_strUrl));
+    _ui.m_editText[2]->setText(QString::fromStdString(m_Platform.m_Key.m_strDisplay));
 }
 
 void PlatformView::UpdateTable()
@@ -149,7 +154,7 @@ void PlatformView::UpdateTable()
     {
         unsigned int nIndex = 0;
         m_Platform.m_Value.Foreach([this, &nIndex](const bnb::account_tree::data_type& account) mutable {
-            auto pName = MakeTableItem(QString::fromStdString(account.m_Key.m_strName), account.m_Key.m_ID, { 64, 64, 255 });
+            auto pName = MakeTableItem(QString::fromStdString(account.m_Key.m_strName), account.m_Key.m_ID, { 64, 64, 255 }, Qt::AlignCenter);
             auto pDisplay = MakeTableItem(QString::fromStdString(account.m_Key.m_strDisplay), account.m_Key.m_ID, { 32, 160, 32 });
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
@@ -193,7 +198,7 @@ template<>
 void PlatformView::base_type::ui_type::RetranslateUI(QWidget* pView)
 {
     m_tabView->setColumnCount(2);
-    m_tabView->setHorizontalHeaderLabels({ "    Account    ", "    Display    " });
+    m_tabView->setHorizontalHeaderLabels({ "        Account        ", "        Display        " });
 
     _labText[0]->setText("Platform: ");
     _labText[1]->setText("Url: ");
@@ -205,8 +210,8 @@ void PlatformView::base_type::ui_type::CreateLabel()
 {
     for (unsigned int i = 0; i < 3; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, ui_utils::lab_default_w, ui_utils::lab_default_h, ui_utils::g_clrLabel, false);
-        m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, ui_utils::g_clrPlatform, false);
+        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral);
+        m_editText[i] = ui_utils::MakeShowLine(_viewCentral, ui_utils::g_clrPlatform);
     }
 }
 
@@ -223,8 +228,8 @@ AccountView::AccountView(const bnb::account_tree::data_type & tp, QWidget * pare
 
 void AccountView::UpdateInfo()
 {
-    _ui.m_labText[0]->setText(QString::fromStdString(m_Account.m_Key.m_strName));
-    _ui.m_labText[1]->setText(QString::fromStdString(m_Account.m_Key.m_strDisplay));
+    _ui.m_editText[0]->setText(QString::fromStdString(m_Account.m_Key.m_strName));
+    _ui.m_editText[1]->setText(QString::fromStdString(m_Account.m_Key.m_strDisplay));
 }
 
 void AccountView::UpdateTable()
@@ -239,8 +244,8 @@ void AccountView::UpdateTable()
     {
         unsigned int nIndex = 0;
         m_Account.m_Value.Foreach([this, &nIndex](const bnb::property_tree::data_type& property) mutable {
-            auto pKey = MakeTableItem(QString::fromStdString(property.m_Key.m_strName), property.m_Key.m_ID, { 32, 160, 32 });
-            auto pValue = MakeTableItem(QString::fromStdString(property.m_Value.m_strName), property.m_Key.m_ID, { 32, 160, 32 });
+            auto pKey = MakeTableItem(QString::fromStdString(property.m_Key.m_strName), property.m_Key.m_ID, { 32, 160, 32 }, Qt::AlignCenter);
+            auto pValue = MakeTableItem(QString::fromStdString(property.m_Value.m_strName), property.m_Key.m_ID, { 32, 160, 32 }, Qt::AlignCenter);
 
             _ui.m_tabView->setItem(nIndex, 0, pKey);
             _ui.m_tabView->setItem(nIndex, 1, pValue);
@@ -283,7 +288,7 @@ template<>
 void AccountView::base_type::ui_type::RetranslateUI(QWidget* pView)
 {
     m_tabView->setColumnCount(2);
-    m_tabView->setHorizontalHeaderLabels({ "    Key    ", "    Value    " });
+    m_tabView->setHorizontalHeaderLabels({ "        Key        ", "        Value        " });
 
     _labText[0]->setText("Account: ");
     _labText[1]->setText("Display: ");
@@ -294,7 +299,9 @@ void AccountView::base_type::ui_type::CreateLabel()
 {
     for (unsigned int i = 0; i < 2; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, ui_utils::lab_default_w, ui_utils::lab_default_h, ui_utils::g_clrLabel, false);
-        m_labText[i] = ui_utils::MakeDynamicLabel(_viewCentral, ui_utils::g_clrAccount, false);
+        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, ui_utils::lab_account_w);
+        m_editText[i] = ui_utils::MakeShowLine(_viewCentral, ui_utils::g_clrAccount);
     }
 }
+
+QT_END_NAMESPACE

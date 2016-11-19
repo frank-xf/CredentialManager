@@ -72,6 +72,30 @@ namespace bnb
         tree_type(const tree_type&) = delete;
         tree_type& operator=(const tree_type&) = delete;
 
+        data_type* _Update(const key_type& target, const key_type& key)
+        {
+            data_type* ptr_target = nullptr;
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            {
+                if (nullptr == ptr_target)
+                {
+                    if (&target == &ptr->m_Pair.m_Key || target == ptr->m_Pair.m_Key)
+                    {
+                        ptr_target = &ptr->m_Pair;
+                        continue;
+                    }
+                }
+
+                if (key == ptr->m_Pair.m_Key)
+                    return false;
+            }
+
+            if (ptr_target)
+                ptr_target->m_Key = key;
+
+            return ptr_target;
+        }
+
     public:
 
         tree_type() = default;
@@ -128,6 +152,24 @@ namespace bnb
             return false;
         }
 
+        data_type* Find(const key_type& key)
+        {
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
+                    return &ptr->m_Pair;
+
+            return nullptr;
+        }
+
+        const data_type* Find(const key_type& key) const
+        {
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
+                    return &ptr->m_Pair;
+
+            return nullptr;
+        }
+
         data_type* Insert(const key_type& key)
         {
             node_type* prev = nullptr;
@@ -171,6 +213,22 @@ namespace bnb
             return nullptr;
         }
 
+        bool Update(const key_type& target, const key_type& key)
+        {
+            return (_Update(target, key));
+        }
+
+        bool Update(const key_type& target, const key_type& key, const value_type& value)
+        {
+            if (auto ptr = _Update(target, key))
+            {
+                ptr->m_Value = value;
+                return true;
+            }
+
+            return false;
+        }
+
         bool Remove(const key_type& key)
         {
             for (node_type *prev = nullptr, *curr = m_Head; curr; curr = curr->m_Next)
@@ -192,64 +250,6 @@ namespace bnb
             }
 
             return false;
-        }
-
-        data_type* _Update(const key_type& target, const key_type& key)
-        {
-            data_type* ptr_target = nullptr;
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-            {
-                if (nullptr == ptr_target)
-                {
-                    if (&target == &ptr->m_Pair.m_Key || target == ptr->m_Pair.m_Key)
-                    {
-                        ptr_target = &ptr->m_Pair;
-                        continue;
-                    }
-                }
-
-                if (key == ptr->m_Pair.m_Key)
-                    return false;
-            }
-
-            if (ptr_target)
-                ptr_target->m_Key = key;
-
-            return ptr_target;
-        }
-
-        bool Update(const key_type& target, const key_type& key)
-        {
-            return (_Update(target, key));
-        }
-
-        bool Update(const key_type& target, const key_type& key, const value_type& value)
-        {
-            if (auto ptr = _Update(target, key))
-            {
-                ptr->m_Value = value;
-                return true;
-            }
-
-            return false;
-        }
-
-        data_type* Find(const key_type& key)
-        {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
-                    return &ptr->m_Pair;
-
-            return nullptr;
-        }
-
-        const data_type* Find(const key_type& key) const
-        {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
-                    return &ptr->m_Pair;
-
-            return nullptr;
         }
 
     };
@@ -333,6 +333,7 @@ namespace bnb
     using account_tree = tree_type<account_type, property_tree>;
     using platform_tree = tree_type<platform_type, account_tree>;
 
+    template<>
     inline property_tree::data_type* property_tree::Insert(const property_key& key)
     {
         node_type* last = nullptr;

@@ -6,12 +6,11 @@
 
 #include "Major/ToolBar.h"
 
+QT_BEGIN_NAMESPACE
+
 ToolBar::ToolBar(QWidget * parent) : QWidget(parent)
 {
-    ui_utils::SetBackgroundColor(this, Qt::white);
-
     _ui.SetupUI(this);
-
 }
 
 void ToolBar::UpdatePath(const QString & strPath)
@@ -22,24 +21,26 @@ void ToolBar::UpdatePath(const QString & strPath)
 void ToolBar::ui_type::SetupUI(QWidget * pView)
 {
     pView->setObjectName("ToolBar");
+    ui_utils::SetBackgroundColor(pView, Qt::white);
 
-    m_editPath = new QLabel(pView);
+    m_editPath = ui_utils::MakeDynamicLabel(pView, ui_utils::g_clrLabel, Qt::AlignVCenter | Qt::AlignLeft);
+
     m_btnOpen = ui_utils::MakeButton(pView);
     m_btnNew = ui_utils::MakeButton(pView);
     m_btnAbout = ui_utils::MakeButton(pView);
     m_btnOpen->setDefault(true);
 
-    QHBoxLayout* phLayout1 = new QHBoxLayout;
-    phLayout1->setMargin(0);
-    phLayout1->setSpacing(8);
-    phLayout1->addWidget(m_editPath, 1);
-    phLayout1->addWidget(m_btnOpen);
-    phLayout1->addWidget(m_btnNew);
+    QHBoxLayout* phLayout = new QHBoxLayout;
+    phLayout->setMargin(0);
+    phLayout->setSpacing(8);
+    phLayout->addWidget(m_editPath, 1);
+    phLayout->addWidget(m_btnOpen);
+    phLayout->addWidget(m_btnNew);
 
     QHBoxLayout* phMainLayout = new QHBoxLayout;
     phMainLayout->setMargin(4);
-    phMainLayout->setSpacing(16);
-    phMainLayout->addLayout(phLayout1, 1);
+    phMainLayout->setSpacing(20);
+    phMainLayout->addLayout(phLayout, 1);
     phMainLayout->addWidget(m_btnAbout);
 
     pView->setLayout(phMainLayout);
@@ -53,3 +54,5 @@ void ToolBar::ui_type::RetranslateUI(QWidget * pView)
     m_btnNew->setText("New");
     m_btnAbout->setText("About");
 }
+
+QT_END_NAMESPACE

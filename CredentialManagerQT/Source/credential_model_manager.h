@@ -1,8 +1,6 @@
 #ifndef _bnb_Credential_Model_Manager_H_
 #define _bnb_Credential_Model_Manager_H_
 
-#include "Credential/Credential.h"
-
 class CredentialModelManager
 {
 public:
@@ -18,13 +16,10 @@ public:
 	const bnb::string_type& GetFile() const { return m_strFile; }
 	void SetFile(const bnb::string_type& strFile) { m_strFile = strFile; }
 
-	bnb::Credential& Info() { return m_Credential; }
+	bnb::Credential& Data() { return m_Credential; }
 
-	bool Load(const bnb::string_type& strFile);
-	bool SaveCredential() const;
-
-	bnb::platform_tree::data_type* FindPlatform(const bnb::platform_type& platform);
-	bnb::account_tree::data_type* FindAccount(const bnb::platform_type& platform, const bnb::account_type& account);
+	bool Load(const bnb::memory_type & source, const bnb::string_type& password);
+	bool SaveCredential();
 
 private:
 

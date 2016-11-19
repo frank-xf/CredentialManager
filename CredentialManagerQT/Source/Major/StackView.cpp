@@ -1,35 +1,44 @@
-﻿#include <QtWidgets/QBoxLayout>
+﻿#include <QtGui/QGuiApplication>
+#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QStackedWidget>
+
+#include "Credential/Credential.h"
 
 #include "credential_qt_utils.h"
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
 
-#include "Major/StackView.h"
 #include "Widget/ContentView.h"
+#include "Major/StackView.h"
 
+QT_BEGIN_NAMESPACE
 
 StackView::StackView(QWidget * parent) : QStackedWidget(parent)
 {
+    setObjectName("StackView");
     ui_utils::SetBackgroundColor(this, Qt::white);
 
-    setMinimumSize(400, 200);
-
-    m_labHint = new QLabel("Nothing !", this);
+    m_labHint = new QLabel(this);
     m_labHint->setAlignment(Qt::AlignCenter);
+    m_labHint->setMinimumSize(512, 256);
+    m_labHint->setStyleSheet("QLabel{ background:transparent; color:#20A020; }");
+
+    QFont font = QGuiApplication::font();
+    font.setPointSize(10);
+    m_labHint->setFont(font);
 
     addWidget(m_labHint);
 }
 
 void StackView::InitCredential()
 {
-    auto view_credential = new CredentialView(g_AppMgr.Model().Info(), this);
+    auto view_credential = new CredentialView(g_AppMgr.Model().Data(), this);
     addWidget(view_credential);
 
-    g_AppMgr.Model().Info().Tree().Foreach([this](const bnb::platform_tree::data_type& platform) {
+    g_AppMgr.Model().Data().Tree().Foreach([this](const bnb::platform_tree::data_type& platform) {
         addWidget(new PlatformView(platform, this));
-    
+
         platform.m_Value.Foreach([this](const bnb::account_tree::data_type& account) {
             addWidget(new AccountView(account, this));
         });
@@ -326,16 +335,12 @@ bool StackView::SwitchToView(unsigned int id)
     return false;
 }
 
-bool StackView::SwitchToHint()
+bool StackView::SwitchToHint(const QString & strText)
 {
+    m_labHint->setText(strText);
     setCurrentWidget(m_labHint);
 
     return true;
 }
 
-bool StackView::SwitchToHint(const QString & strText)
-{
-    m_labHint->setText(strText);
-
-    return SwitchToHint();
-}
+QT_END_NAMESPACE

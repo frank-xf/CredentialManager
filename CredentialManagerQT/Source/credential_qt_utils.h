@@ -1,8 +1,6 @@
 #ifndef _bnb_Credential_QT_Utils_H_
 #define _bnb_Credential_QT_Utils_H_
 
-#include <QtWidgets/QStyledItemDelegate>
-
 QT_BEGIN_NAMESPACE
 
 class QLabel;
@@ -13,78 +11,46 @@ namespace ui_utils
 {
     enum ui_size
     {
+        def_text_length = 64,
         def_text_size = 10,
-        btn_text_size = 10,
-        lab_text_size = 12,
+        def_widget_h = 24,
 
-        lab_default_w = 72,
-        lab_default_h = 20,
-
+        lab_text_w = 72,
         lab_mark_w = 16,
-        lab_mark_h = 20,
-
-        tree_view_min_w = 200,
-        tree_view_max_w = tree_view_min_w << 1,
-
-        tree_item_w = 160,
-        tree_item_h = 24,
-
-        edit_default_w = 200,
-        edit_default_h = 24,
-
-        edit_password_w = edit_default_w,
-        edit_password_h = 20,
-
+        lab_credential_w = 92,
+        lab_password_w = 100,
+        lab_username_w = 80,
+        lab_account_w = 64,
         btn_default_w = 64,
-        btn_default_h = 24,
+        tree_item_w = 160,
+        edit_default_w = 280,
+        edit_password_w = 240,
 
-        item_account_w = 240,
-        item_account_h = 28,
-
-        item_platform_w = 400,
-        item_platform_h = 28,
-
-        dlg_credential_w = 280,
-        dlg_credential_h = 160,
-
-        dlg_default_w = 320,
-        dlg_default_h = 180,
-
+        tree_view_min_w = 160,
+        tree_view_max_w = tree_view_min_w << 1
     };
 
-    const QColor g_clrManView{ 168, 240, 255 };
-    const QColor g_clrCredential{ 16,128,16 };
-    const QColor g_clrPlatform{ 224, 32, 32 };
-    const QColor g_clrAccount{ 64, 64, 255 };
+    const QColor g_clrManView{ 80, 216, 80 };
+    const QColor g_clrCredential{ 128, 128, 0 };
+    const QColor g_clrPlatform{ 255, 64, 0 };
+    const QColor g_clrAccount{ 160, 128, 255 };
     const QColor g_clrProperty{ 32, 160, 32 };
-    const QColor g_clrLabel{ 128, 128, 0 };
-
-
-    template<typename _Ty>
-    constexpr unsigned int to_uint(_Ty value) { return static_cast<unsigned int>(value); }
+    const QColor g_clrLabel{ 0, 64, 255 };
 
     void SetBackgroundColor(QWidget* pView, const QColor& color);
-    QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = to_uint(lab_mark_w), unsigned int h = to_uint(lab_mark_h));
 
-    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = lab_default_w, unsigned int h = lab_default_h, QColor c = Qt::black, bool b = false, unsigned int u = lab_text_size);
-    QLabel* MakeDynamicLabel(QWidget* parent, QColor c = Qt::black, bool b = false, unsigned int u = lab_text_size);
-    QLabel* MakeLabel(QWidget* p, unsigned int w, unsigned int h, Qt::Alignment a, QColor c, bool b, unsigned int u);
+    QLabel* MakeLabel(QWidget* parent, unsigned int w, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size);
+    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = lab_text_w, const QColor& clr = g_clrLabel);
+    QLabel* MakeDynamicLabel(QWidget * parent, const QColor& clr, Qt::Alignment align);
+    QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = lab_mark_w);
 
-    QLineEdit* MakeLineEdit(QWidget* p, unsigned int w = edit_default_w, unsigned int h = edit_default_h, unsigned int u = lab_text_size);
-    QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w, unsigned int h = btn_default_h, unsigned int u = btn_text_size);
+    QLineEdit* MakeLineEdit(QWidget* parent, unsigned int w = edit_default_w, const QColor& clr = Qt::black);
+    QLineEdit* MakePasswordLine(QWidget* parent, unsigned int w = edit_password_w);
+    QLineEdit* MakeShowLine(QWidget* parent, const QColor& clr = Qt::black);
+
+    QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w);
+
 }
-
-class NoFocusDelegate : public QStyledItemDelegate
-{
-    void NoFocusDelegate::paint(QPainter* painter, const QStyleOptionViewItem & option, const QModelIndex &index) const override
-    {
-        QStyleOptionViewItem itemOption(option);
-        if (itemOption.state & QStyle::State_HasFocus)
-            itemOption.state ^= QStyle::State_HasFocus;
-
-        QStyledItemDelegate::paint(painter, itemOption, index);
-    }
-};
 
 QT_END_NAMESPACE
 

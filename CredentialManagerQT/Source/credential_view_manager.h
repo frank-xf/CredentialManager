@@ -1,7 +1,11 @@
 #ifndef _bnb_Credential_View_Manager_H_
 #define _bnb_Credential_View_Manager_H_
 
+QT_BEGIN_NAMESPACE
+
 class QWidget;
+
+QT_END_NAMESPACE
 
 class CredentialViewManager
 {
@@ -15,7 +19,7 @@ public:
 
     void Initialize();
 
-	QWidget* Main();
+    QT_PREPEND_NAMESPACE(QWidget)* Main();
 
 private:
 
@@ -23,7 +27,7 @@ private:
     CredentialViewManager(const CredentialViewManager&) = delete;
     CredentialViewManager& operator=(const CredentialViewManager&) = delete;
 
-	QWidget* m_viewMain;
+    QT_PREPEND_NAMESPACE(QWidget)* m_viewMain;
 };
 
 #endif  // _bnb_Credential_View_Manager_H_

@@ -1,4 +1,7 @@
 #include <string>
+#include <QtCore/qglobal.h>
+
+#include "Credential/Credential.h"
 
 #include "credential_qt_manager.h"
 #include "credential_view_manager.h"

@@ -1,9 +1,10 @@
 ﻿#ifndef _bnb_Tree_View_H_
 #define _bnb_Tree_View_H_
 
-class TreeView : public QTreeWidget {
-	
+QT_BEGIN_NAMESPACE
 
+class TreeView : public QTreeWidget
+{
 public:
 
 	TreeView(QWidget * parent = nullptr);
@@ -16,8 +17,8 @@ public:
 	QTreeWidgetItem* AddAccount(QTreeWidgetItem* parent, const bnb::account_tree::data_type& pa);
 	QTreeWidgetItem* AddProperty(QTreeWidgetItem* parent, const bnb::property_tree::data_type& pp);
 
-private:
-	
 };
+
+QT_END_NAMESPACE
 
 #endif	// _bnb_Tree_View_H_

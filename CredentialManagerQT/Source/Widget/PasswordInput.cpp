@@ -26,13 +26,12 @@ QString PasswordInput::GetPassword() const
 
 void PasswordInput::ui_type::SetupUI(PasswordInput * pDlg)
 {
+    pDlg->setObjectName("PasswordInput");
     ui_utils::SetBackgroundColor(pDlg, Qt::white);
 
-    _labPassword = ui_utils::MakeStaticLabel(pDlg, ui_utils::lab_default_w, ui_utils::lab_default_h, QColor(96, 96, 255));
+    _labPassword = ui_utils::MakeStaticLabel(pDlg);
 
-    m_editPassword = new QLineEdit(pDlg);
-    m_editPassword->setEchoMode(QLineEdit::Password);
-    m_editPassword->setFixedSize(ui_utils::edit_password_w, ui_utils::edit_password_h);
+    m_editPassword = ui_utils::MakePasswordLine(pDlg);
 
     m_btnOK = ui_utils::MakeButton(pDlg);
     m_btnCancel = ui_utils::MakeButton(pDlg);

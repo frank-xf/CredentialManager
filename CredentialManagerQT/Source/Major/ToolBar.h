@@ -1,6 +1,7 @@
-﻿
-#ifndef _bnb_Navigation_View_H_
-#define _bnb_Navigation_View_H_
+﻿#ifndef _bnb_Tool_Bar_H_
+#define _bnb_Tool_Bar_H_
+
+QT_BEGIN_NAMESPACE
 
 class ToolBar : public QWidget
 {
@@ -14,19 +15,21 @@ class ToolBar : public QWidget
         void SetupUI(QWidget* pView);
         void RetranslateUI(QWidget* pView);
     };
-	
 
 public:
 
-	ToolBar(QWidget * parent = nullptr);
+    ToolBar(QWidget * parent = nullptr);
 
     const ui_type& UI() const { return (_ui); }
 
     void UpdatePath(const QString& strPath);
 
 private:
-	
+
     ui_type _ui;
+
 };
 
-#endif // !_bnb_Navigation_View_H_
+QT_END_NAMESPACE
+
+#endif // !_bnb_Tool_Bar_H_

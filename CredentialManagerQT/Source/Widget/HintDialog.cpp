@@ -1,4 +1,5 @@
-﻿#include <QtWidgets/QBoxLayout>
+﻿#include <QtGui/QGuiApplication>
+#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLabel>
@@ -9,15 +10,18 @@
 
 QT_BEGIN_NAMESPACE
 
-static const QColor _g_clrText[ui_utils::to_uint(hint_type::ht_max)]{
-    QColor(0xFF, 0x00, 0x00), QColor(0xC0, 0xC0, 0x00), QColor(0x00, 0x80, 0x00)
+template<typename _Ty>
+inline constexpr unsigned int _to_uint(_Ty value) { return static_cast<unsigned int>(value); }
+
+static const QColor _g_clrText[_to_uint(hint_type::ht_max)]{
+    { 0xFF, 0x00, 0x00 }, { 0xC0, 0xC0, 0x00 }, { 0x00, 0x80, 0x00 }
 };
 
-static const QString _g_strTitle[ui_utils::to_uint(hint_type::ht_max)]{
+static const QString _g_strTitle[_to_uint(hint_type::ht_max)]{
     "error", "warning", "info"
 };
 
-static const QString _g_qrcIcon[ui_utils::to_uint(hint_type::ht_max)]{
+static const QString _g_qrcIcon[_to_uint(hint_type::ht_max)]{
     ":/CredentialManager/Resources/image/error.png",
     ":/CredentialManager/Resources/image/warning.png",
     ":/CredentialManager/Resources/image/info.png"
@@ -26,45 +30,35 @@ static const QString _g_qrcIcon[ui_utils::to_uint(hint_type::ht_max)]{
 HintDialog::HintDialog(hint_type hType, const QString& strText, QWidget * parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 {
-    ui_utils::SetBackgroundColor(this, Qt::white);
-
     _ui.SetupUI(this);
+
+    _ui.m_labText->setText(strText);
+    _ui.m_labText->setStyleSheet(
+        "QLabel{ background:transparent; color:" + _g_clrText[static_cast<unsigned int>(hType)].name() + "; }");
 
     setWindowTitle(_g_strTitle[static_cast<unsigned int>(hType)]);
     setWindowIcon(QIcon(_g_qrcIcon[static_cast<unsigned int>(hType)]));
-
-    SetText(hType, strText);
+    setFixedSize(sizeHint());
 
     QObject::connect(_ui.m_btnClose, &QPushButton::clicked, this, &QDialog::accept);
-}
-
-void HintDialog::SetText(hint_type hType, const QString & strText)
-{
-    _ui.m_labText->setText(strText);
-
-    QPalette palette;
-    palette.setColor(QPalette::WindowText, _g_clrText[static_cast<unsigned int>(hType)]);
-    _ui.m_labText->setPalette(palette);
-
-    setFixedSize(sizeHint());
-}
-
-QString HintDialog::GetText() const
-{
-    return _ui.m_labText->text();
 }
 
 void HintDialog::ui_type::SetupUI(HintDialog * pDlg)
 {
     pDlg->setObjectName("HintDialog");
 
+    ui_utils::SetBackgroundColor(pDlg, Qt::white);
+
     m_labText = new QLabel(pDlg);
     m_labText->setWordWrap(true);
     m_labText->setAlignment(Qt::AlignCenter);
-    m_labText->setFixedWidth(320);
-    m_labText->setStyleSheet("QLabel{ background:transparent; }");
+    m_labText->setMinimumWidth(ui_utils::edit_default_w);
 
-    m_btnClose = new QPushButton(pDlg);
+    QFont font = QGuiApplication::font();
+    font.setPointSize(10);
+    m_labText->setFont(font);
+
+    m_btnClose = ui_utils::MakeButton(pDlg);
 
     QHBoxLayout* phLayout = new QHBoxLayout;
     phLayout->setMargin(0);
@@ -87,6 +81,59 @@ void HintDialog::ui_type::SetupUI(HintDialog * pDlg)
 void HintDialog::ui_type::RetranslateUI(HintDialog * pDlg)
 {
     m_btnClose->setText("Close");
+}
+
+ConfirmDialog::ConfirmDialog(const QString & strText, QWidget * parent)
+    : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
+{
+    _ui.SetupUI(this);
+
+    _ui.m_labText->setText(strText);
+
+    setFixedSize(sizeHint());
+
+    QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &QDialog::accept);
+    QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
+}
+
+void ConfirmDialog::ui_type::SetupUI(ConfirmDialog * pDlg)
+{
+    pDlg->setObjectName("ConfirmDialog");
+    pDlg->setWindowTitle("Confirm");
+    pDlg->setWindowIcon(QIcon(_g_qrcIcon[_to_uint(hint_type::ht_info)]));
+
+    ui_utils::SetBackgroundColor(pDlg, Qt::white);
+
+    m_labText = ui_utils::MakeDynamicLabel(pDlg, _g_clrText[_to_uint(hint_type::ht_info)], Qt::AlignCenter);
+    m_labText->setMinimumWidth(ui_utils::edit_default_w);
+
+    m_btnOK = ui_utils::MakeButton(pDlg);
+    m_btnCancel = ui_utils::MakeButton(pDlg);
+
+    QHBoxLayout* phLayout = new QHBoxLayout;
+    phLayout->setContentsMargins(0, 12, 0, 12);
+    phLayout->setSpacing(0);
+    phLayout->addStretch(1);
+    phLayout->addWidget(m_btnOK);
+    phLayout->addStretch(1);
+    phLayout->addWidget(m_btnCancel);
+    phLayout->addStretch(1);
+
+    QVBoxLayout* pMainLayout = new QVBoxLayout;
+    pMainLayout->setMargin(4);
+    pMainLayout->setSpacing(4);
+    pMainLayout->addWidget(m_labText, 1);
+    pMainLayout->addLayout(phLayout);
+
+    pDlg->setLayout(pMainLayout);
+
+    RetranslateUI(pDlg);
+}
+
+void ConfirmDialog::ui_type::RetranslateUI(ConfirmDialog * pDlg)
+{
+    m_btnOK->setText("OK");
+    m_btnCancel->setText("Cancel");
 }
 
 QT_END_NAMESPACE
