@@ -85,6 +85,7 @@ namespace ui_utils
         QLineEdit* line = new QLineEdit(parent);
         line->setFixedSize(w, def_widget_h);
         line->setEchoMode(QLineEdit::Password);
+        line->setContextMenuPolicy(Qt::NoContextMenu);
         line->setStyleSheet("QLineEdit{ lineedit-password-character:42; }");
 
         QFont font = QGuiApplication::font();
@@ -112,15 +113,57 @@ namespace ui_utils
     {
         QPushButton* button = new QPushButton(parent);
         button->setFixedSize(w, def_widget_h);
-        button->setStyleSheet("QPushButton{ border:none; background-color:#4040FF; color:white; }\n"
-            "QPushButton:hover{ background-color:#40B040; color:white; }\n"
-            "QPushButton:pressed{ background-color:#FF4000; color:white; }");
+        button->setStyleSheet("QPushButton{ border:none; background-color:#40B040; color:white; }\n"
+            "QPushButton:hover{ background-color:#FF4000; color:white; }\n"
+            "QPushButton:pressed{ background-color:#4080FF; color:white; }");
 
         QFont font = QGuiApplication::font();
         font.setPointSize(def_text_size);
         button->setFont(font);
 
         return button;
+    }
+
+    bool ValidateName(const QString & strName)
+    {
+        if (strName.isEmpty()) return false;
+
+        if (def_text_length < strName.size()) return false;
+
+        for (auto character : strName)
+        {
+            if ('~' == character) return false;
+            if ('!' == character) return false;
+            if ('@' == character) return false;
+            if ('#' == character) return false;
+            if ('$' == character) return false;
+            if ('%' == character) return false;
+            if ('^' == character) return false;
+            if ('&' == character) return false;
+            if ('*' == character) return false;
+            if ('(' == character) return false;
+            if (')' == character) return false;
+            if ('[' == character) return false;
+            if (']' == character) return false;
+            if ('{' == character) return false;
+            if ('}' == character) return false;
+            if ('<' == character) return false;
+            if ('>' == character) return false;
+            if ('+' == character) return false;
+            if ('|' == character) return false;
+            if (':' == character) return false;
+            if (';' == character) return false;
+            if (',' == character) return false;
+            if ('?' == character) return false;
+            if ('/' == character) return false;
+            if ('\\' == character) return false;
+            if ('\'' == character) return false;
+            if ('\"' == character) return false;
+            if ('\n' == character) return false;
+            if ('\t' == character) return false;
+        }
+
+        return true;
     }
 }
 

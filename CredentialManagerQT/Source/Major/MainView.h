@@ -25,7 +25,7 @@ class MainView : public QWidget
         QAction* m_actEditCredential;
 
         ToolBar* m_viewToolBar;
-        StackView* m_viewContent;
+        StackView* m_viewStack;
         TreeView* m_treeView;
 
         void SetupUI(MainView* pView);

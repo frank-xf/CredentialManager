@@ -8,4 +8,4 @@ namespace bnb
 
 }
 
-#endif
+#endif  // _bnb_RC4_H_

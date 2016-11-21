@@ -23,7 +23,7 @@ namespace bnb
     inline bool operator == (const string_type& a, const string_type& b) { return (0 == _stricmp(a.c_str(), b.c_str())); }
     inline bool operator != (const string_type& a, const string_type& b) { return !(a == b); }
 
-    extern size_t _g_id;
+    extern size_t _credential_id;
     enum class credential_type : unsigned char { ct_credential, ct_platform, ct_account, ct_property };
 
     template<typename _Ty1, typename _Ty2>
@@ -258,14 +258,15 @@ namespace bnb
     {
     public:
 
+        const credential_type m_Type;
         const size_t m_ID;
         string_type m_strName;
 
     protected:
 
-        credential_base(const string_type& name) : m_ID(_g_id++), m_strName(name) { }
+        credential_base(credential_type type, const string_type& name) : m_Type(type), m_ID(_credential_id++), m_strName(name) { }
 
-        credential_base(const credential_base& other) : m_ID(_g_id++), m_strName(other.m_strName) { }
+        credential_base(const credential_base& other) : m_Type(other.m_Type), m_ID(_credential_id++), m_strName(other.m_strName) { }
         credential_base& operator=(const credential_base& other)
         {
             if (&other != this)
@@ -277,30 +278,30 @@ namespace bnb
 
     struct platform_type : public credential_base
     {
-        platform_type(const string_type& name = string_type(), const string_type& url = string_type(), const string_type& display = string_type())
-            : credential_base(name)
+        platform_type(const string_type& name = string_type(), const string_type& url = string_type(), const string_type& comment = string_type())
+            : credential_base(credential_type::ct_platform, name)
             , m_strUrl(url)
-            , m_strDisplay(display)
+            , m_strComment(comment)
         { }
 
         string_type m_strUrl;
-        string_type m_strDisplay;
+        string_type m_strComment;
     };
 
     struct account_type : public credential_base
     {
-        account_type(const string_type& name = string_type(), const string_type& display = string_type())
-            : credential_base(name)
-            , m_strDisplay(display)
+        account_type(const string_type& name = string_type(), const string_type& comment = string_type())
+            : credential_base(credential_type::ct_account, name)
+            , m_strComment(comment)
         { }
 
-        string_type m_strDisplay;
+        string_type m_strComment;
     };
 
     struct property_key : public credential_base
     {
         property_key(const string_type& name = string_type())
-            : credential_base(name)
+            : credential_base(credential_type::ct_property, name)
         { }
 
     };
@@ -361,7 +362,7 @@ namespace bnb
     {
         string_type m_strWord;
         string_type m_strUser;
-        string_type m_strDisplay;
+        string_type m_strComment;
         unsigned long long m_ullTime;
         const size_t m_uID;
 
@@ -372,8 +373,8 @@ namespace bnb
 
     public:
 
-        Credential() : m_uID(_g_id++) { }
-        explicit Credential(const string_type& strWord) : m_uID(_g_id++), m_strWord(strWord) { }
+        Credential() : m_uID(_credential_id++) { }
+        explicit Credential(const string_type& strWord) : m_uID(_credential_id++), m_strWord(strWord) { }
 
         void Clear();
 
@@ -385,11 +386,11 @@ namespace bnb
         size_t GetID() const { return m_uID; }
         const string_type& GetWord() const { return m_strWord; }
         const string_type& GetUser() const { return m_strUser; }
-        const string_type& GetDisplay() const { return m_strDisplay; }
+        const string_type& GetComment() const { return m_strComment; }
         unsigned long long GetTime() const { return m_ullTime; }
         void SetWord(const string_type& strWord) { m_strWord = strWord; }
         void SetUser(const string_type& strUser) { m_strUser = strUser; }
-        void SetDisplay(const string_type& strDisplay) { m_strDisplay = strDisplay; }
+        void SetComment(const string_type& strDisplay) { m_strComment = strDisplay; }
         void UpdateTime();
         bool ValidateWord(const string_type& strWord) const;
 

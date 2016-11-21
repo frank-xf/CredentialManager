@@ -15,9 +15,8 @@ namespace ui_utils
         def_text_size = 10,
         def_widget_h = 24,
 
-        lab_text_w = 72,
+        lab_text_w = 92,
         lab_mark_w = 16,
-        lab_credential_w = 92,
         lab_password_w = 100,
         lab_username_w = 80,
         lab_account_w = 64,
@@ -25,6 +24,7 @@ namespace ui_utils
         tree_item_w = 160,
         edit_default_w = 280,
         edit_password_w = 240,
+        edit_path_w = 320,
 
         tree_view_min_w = 160,
         tree_view_max_w = tree_view_min_w << 1
@@ -50,6 +50,7 @@ namespace ui_utils
 
     QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w);
 
+    bool ValidateName(const QString& strName);
 }
 
 QT_END_NAMESPACE

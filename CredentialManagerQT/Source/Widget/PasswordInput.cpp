@@ -29,7 +29,7 @@ void PasswordInput::ui_type::SetupUI(PasswordInput * pDlg)
     pDlg->setObjectName("PasswordInput");
     ui_utils::SetBackgroundColor(pDlg, Qt::white);
 
-    _labPassword = ui_utils::MakeStaticLabel(pDlg);
+    _labPassword = ui_utils::MakeStaticLabel(pDlg, ui_utils::lab_username_w);
 
     m_editPassword = ui_utils::MakePasswordLine(pDlg);
 
@@ -41,6 +41,7 @@ void PasswordInput::ui_type::SetupUI(PasswordInput * pDlg)
     phLayout1->setSpacing(0);
     phLayout1->addWidget(_labPassword);
     phLayout1->addWidget(m_editPassword);
+    phLayout1->addWidget(ui_utils::MakeMarkLabel(pDlg));
 
     QHBoxLayout* phLayout2 = new QHBoxLayout;
     phLayout2->setContentsMargins(0, 12, 0, 12);

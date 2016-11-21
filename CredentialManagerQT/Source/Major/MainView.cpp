@@ -63,13 +63,15 @@ MainView::MainView(QWidget *parent)
 void MainView::InitCredential()
 {
     _ui.m_treeView->InitCredential();
-    _ui.m_viewContent->InitCredential();
+    _ui.m_viewStack->InitCredential();
+
+    _ui.m_viewToolBar->UpdatePath(QString::fromStdString(g_AppMgr.Model().GetFile()));
 }
 
 void MainView::ClearCredential()
 {
     _ui.m_treeView->ClearCredential();
-    _ui.m_viewContent->ClearCredential();
+    _ui.m_viewStack->ClearCredential();
 }
 
 void MainView::OnClickedNew()
@@ -119,8 +121,6 @@ void MainView::OnClickedOpen()
 
             ClearCredential();
             InitCredential();
-
-            _ui.m_viewToolBar->UpdatePath(strFile);
         }
     }
 }
@@ -183,16 +183,16 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         case bnb::credential_type::ct_credential:
         {
             if (g_AppMgr.Model().Data().IsValid())
-                _ui.m_viewContent->SwitchToCredential(g_AppMgr.Model().Data().GetID());
+                _ui.m_viewStack->SwitchToCredential(g_AppMgr.Model().Data().GetID());
             else
-                _ui.m_viewContent->SwitchToHint("You haven\'t opened any credential !");
+                _ui.m_viewStack->SwitchToHint("You haven\'t opened any credential !");
 
             return;
         }
         case bnb::credential_type::ct_platform:
         {
             if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ cur->text(0).toStdString() }))
-                _ui.m_viewContent->SwitchToPlatform(ptr_platform->m_Key.m_ID);
+                _ui.m_viewStack->SwitchToPlatform(ptr_platform->m_Key.m_ID);
 
             return;
         }
@@ -210,7 +210,7 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
             if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
                 if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ item_platform->text(0).toStdString() }))
                     if (auto ptr_account = ptr_platform->m_Value.Find({ cur->text(0).toStdString() }))
-                        _ui.m_viewContent->SwitchToAccount(ptr_account->m_Key.m_ID);
+                        _ui.m_viewStack->SwitchToAccount(ptr_account->m_Key.m_ID);
 
             return;
         }
@@ -404,8 +404,8 @@ bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
         g_AppMgr.Model().SaveCredential();
 
         _ui.m_treeView->AddPlatform(item_credential, *dlg.GetPlatform());
-        _ui.m_viewContent->AddPlatform(g_AppMgr.Model().Data().GetID(), *dlg.GetPlatform());
-        _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+        _ui.m_viewStack->AddPlatform(g_AppMgr.Model().Data().GetID(), *dlg.GetPlatform());
+        _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
     }
 
     return true;
@@ -422,8 +422,8 @@ bool MainView::AddAccount(QTreeWidgetItem* item_platform)
             g_AppMgr.Model().SaveCredential();
 
             _ui.m_treeView->AddAccount(item_platform, *dlg.GetAccount());
-            _ui.m_viewContent->AddAccount(ptr_platform->m_Key.m_ID, *dlg.GetAccount());
-            _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+            _ui.m_viewStack->AddAccount(ptr_platform->m_Key.m_ID, *dlg.GetAccount());
+            _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
         }
 
         return true;
@@ -447,8 +447,8 @@ bool MainView::AddProperty(QTreeWidgetItem * item_account)
                     g_AppMgr.Model().SaveCredential();
 
                     _ui.m_treeView->AddProperty(item_account, *dlg.GetProperty());
-                    _ui.m_viewContent->AddProperty(ptr_account->m_Key.m_ID, *dlg.GetProperty());
-                    _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+                    _ui.m_viewStack->AddProperty(ptr_account->m_Key.m_ID, *dlg.GetProperty());
+                    _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
                 }
 
                 return true;
@@ -468,7 +468,7 @@ bool MainView::EditCredential(QTreeWidgetItem * item_credential)
         g_AppMgr.Model().SaveCredential();
 
         _ui.m_treeView->UpdateHeader();
-        _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+        _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
     }
 
     return true;
@@ -485,8 +485,8 @@ bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
             g_AppMgr.Model().SaveCredential();
 
             item_platform->setText(0, QString::fromStdString(ptr_platform->m_Key.m_strName));
-            _ui.m_viewContent->UpdatePlatform(g_AppMgr.Model().Data().GetID(), ptr_platform->m_Key.m_ID);
-            _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+            _ui.m_viewStack->UpdatePlatform(g_AppMgr.Model().Data().GetID(), ptr_platform->m_Key.m_ID);
+            _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
         }
 
         return true;
@@ -510,8 +510,8 @@ bool MainView::EditAccount(QTreeWidgetItem * item_account)
                     g_AppMgr.Model().SaveCredential();
 
                     item_account->setText(0, QString::fromStdString(ptr_account->m_Key.m_strName));
-                    _ui.m_viewContent->UpdateAccount(ptr_platform->m_Key.m_ID, ptr_account->m_Key.m_ID);
-                    _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+                    _ui.m_viewStack->UpdateAccount(ptr_platform->m_Key.m_ID, ptr_account->m_Key.m_ID);
+                    _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
                 }
 
                 return true;
@@ -542,8 +542,8 @@ bool MainView::EditProperty(QTreeWidgetItem * item_property)
                             g_AppMgr.Model().SaveCredential();
 
                             item_property->setText(0, QString::fromStdString(ptr_property->m_Key.m_strName));
-                            _ui.m_viewContent->UpdateProperty(ptr_account->m_Key.m_ID, ptr_property->m_Key.m_ID);
-                            _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+                            _ui.m_viewStack->UpdateProperty(ptr_account->m_Key.m_ID, ptr_property->m_Key.m_ID);
+                            _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
                         }
 
                         return true;
@@ -578,8 +578,8 @@ bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
 
             delete item_platform;
 
-            _ui.m_viewContent->RemovePlatform(g_AppMgr.Model().Data().GetID(), vtrIds);
-            _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+            _ui.m_viewStack->RemovePlatform(g_AppMgr.Model().Data().GetID(), vtrIds);
+            _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
 
             return true;
         }
@@ -605,8 +605,8 @@ bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
                     item_platform->removeChild(item_account);
                     delete item_account;
 
-                    _ui.m_viewContent->RemoveAccount(ptr_platform->m_Key.m_ID, vtrIds);
-                    _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+                    _ui.m_viewStack->RemoveAccount(ptr_platform->m_Key.m_ID, vtrIds);
+                    _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
 
                     return true;
                 }
@@ -639,8 +639,8 @@ bool MainView::RemoveProperty(QTreeWidgetItem* item_property)
                             item_account->removeChild(item_property);
                             delete item_property;
 
-                            _ui.m_viewContent->RemoveProperty(ptr_account->m_Key.m_ID, vtrIds);
-                            _ui.m_viewContent->UpdateCredential(g_AppMgr.Model().Data().GetID());
+                            _ui.m_viewStack->RemoveProperty(ptr_account->m_Key.m_ID, vtrIds);
+                            _ui.m_viewStack->UpdateCredential(g_AppMgr.Model().Data().GetID());
 
                             return true;
                         }
@@ -667,7 +667,7 @@ void MainView::ui_type::SetupUI(MainView* pView)
 
     m_treeView = new TreeView(phSplitter);
 
-    m_viewContent = new StackView(phSplitter);
+    m_viewStack = new StackView(phSplitter);
 
     m_viewToolBar = new ToolBar(pView);
 

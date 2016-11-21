@@ -47,6 +47,7 @@ TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
     header()->setSortIndicator(0, Qt::AscendingOrder);
 
     setStyleSheet(
+        "QToolTip{ background:white; border:1px solid #C0C0C0; opacity:192; color:black; }\n"
         "QTreeView::item{ border: none; }\n"
         "QTreeView::item:hover{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #B0FFB0, stop:1 #F0FFF0); }\n"
         "QTreeView::item:selected{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); }\n"
@@ -95,7 +96,7 @@ void TreeView::UpdateHeader()
 
 QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::platform_tree::data_type& pp)
 {
-    auto item_platform = MakeTreeItem(parent, QString::fromStdString(pp.m_Key.m_strName), bnb::credential_type::ct_platform, ui_utils::g_clrPlatform);
+    auto item_platform = MakeTreeItem(parent, QString::fromStdString(pp.m_Key.m_strName), pp.m_Key.m_Type, ui_utils::g_clrPlatform);
     parent->addChild(item_platform);
     expandItem(parent);
 
@@ -104,7 +105,7 @@ QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::plat
 
 QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::account_tree::data_type& pa)
 {
-    auto item_account = MakeTreeItem(parent, QString::fromStdString(pa.m_Key.m_strName), bnb::credential_type::ct_account, ui_utils::g_clrAccount);
+    auto item_account = MakeTreeItem(parent, QString::fromStdString(pa.m_Key.m_strName), pa.m_Key.m_Type, ui_utils::g_clrAccount);
 	parent->addChild(item_account);
     expandItem(parent);
 
@@ -113,7 +114,7 @@ QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::accoun
 
 QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_tree::data_type& pp)
 {
-    auto item_property = MakeTreeItem(parent, QString::fromStdString(pp.m_Key.m_strName), bnb::credential_type::ct_property, ui_utils::g_clrProperty);
+    auto item_property = MakeTreeItem(parent, QString::fromStdString(pp.m_Key.m_strName), pp.m_Key.m_Type, ui_utils::g_clrProperty);
 	parent->addChild(item_property);
     expandItem(parent);
 

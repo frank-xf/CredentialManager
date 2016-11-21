@@ -22,5 +22,6 @@ bool CredentialModelManager::Load(const bnb::memory_type & source, const bnb::st
 bool CredentialModelManager::SaveCredential()
 {
     m_Credential.UpdateTime();
+
 	return m_Credential.Save(m_strFile.c_str());
 }

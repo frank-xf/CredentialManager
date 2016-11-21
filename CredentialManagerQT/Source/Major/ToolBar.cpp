@@ -1,6 +1,6 @@
 ﻿#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QLabel>
+#include <QtWidgets/QLineEdit>
 
 #include "credential_qt_utils.h"
 
@@ -23,7 +23,7 @@ void ToolBar::ui_type::SetupUI(QWidget * pView)
     pView->setObjectName("ToolBar");
     ui_utils::SetBackgroundColor(pView, Qt::white);
 
-    m_editPath = ui_utils::MakeDynamicLabel(pView, ui_utils::g_clrLabel, Qt::AlignVCenter | Qt::AlignLeft);
+    m_editPath = ui_utils::MakeShowLine(pView, ui_utils::g_clrLabel);
 
     m_btnOpen = ui_utils::MakeButton(pView);
     m_btnNew = ui_utils::MakeButton(pView);
@@ -44,6 +44,7 @@ void ToolBar::ui_type::SetupUI(QWidget * pView)
     phMainLayout->addWidget(m_btnAbout);
 
     pView->setLayout(phMainLayout);
+    pView->setFixedHeight(pView->sizeHint().height());
 
     RetranslateUI(pView);
 }

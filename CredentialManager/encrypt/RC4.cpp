@@ -1,5 +1,3 @@
-#include "RC4.h"
-
 namespace bnb {
 
 /*

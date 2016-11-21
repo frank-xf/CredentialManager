@@ -16,6 +16,7 @@ class CreateDialog : public QDialog
         QLabel* _labUserName;
         QLabel* _labPassword;
         QLabel* _labValidate;
+        QLabel* _labComment;
 
     public:
 
@@ -29,6 +30,7 @@ class CreateDialog : public QDialog
         QLineEdit* m_editPassword;
         QLineEdit* m_editValidate;
         QLineEdit* m_editFilePath;
+        QLineEdit* m_editComment;
 
         void SetupUI(CreateDialog* pView);
         void RetranslateUI(CreateDialog* pView);
@@ -37,12 +39,6 @@ class CreateDialog : public QDialog
 public:
 
 	CreateDialog(QWidget * parent = nullptr);
-
-public:
-
-    QString GetUserName() const;
-    QString GetPassword() const;
-    QString GetFilePath() const;
 
 private:
 

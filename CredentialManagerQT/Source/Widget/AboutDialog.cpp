@@ -16,7 +16,7 @@ AboutDialog::AboutDialog(QWidget * parent)
 {
     _ui.SetupUI(this);
 
-    QFile file(":/CredentialManager/Resources/text/display.txt");
+    QFile file(":/CredentialManager/Resources/text/description.txt");
     file.open(QIODevice::ReadOnly);
     _ui.m_editText->setText(file.readAll());
     file.close();
@@ -65,7 +65,7 @@ void AboutDialog::ui_type::SetupUI(AboutDialog * pDlg)
     phLayout->addStretch(1);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
-    pMainLayout->setMargin(10);
+    pMainLayout->setContentsMargins(4, 16, 4, 4);
     pMainLayout->setSpacing(0);
     pMainLayout->addWidget(m_editText, 1);
     pMainLayout->addLayout(phLayout);

@@ -7,7 +7,7 @@ class ToolBar : public QWidget
 {
     struct ui_type
     {
-        QLabel* m_editPath;
+        QLineEdit* m_editPath;
         QPushButton* m_btnNew;
         QPushButton* m_btnOpen;
         QPushButton* m_btnAbout;

@@ -26,7 +26,7 @@ EditCredentialDialog::EditCredentialDialog(bnb::Credential& pc, QWidget * parent
 
     _ui.m_editText[0]->setMaxLength(ui_utils::def_text_length);
     _ui.m_editText[0]->setText(QString::fromStdString(m_Credential.GetUser()));
-    _ui.m_editText[1]->setText(QString::fromStdString(m_Credential.GetDisplay()));
+    _ui.m_editText[1]->setText(QString::fromStdString(m_Credential.GetComment()));
 }
 
 void EditCredentialDialog::OnClickedOK()
@@ -37,7 +37,7 @@ void EditCredentialDialog::OnClickedOK()
         return;
     }
 
-    if (!true)
+    if (!ui_utils::ValidateName(_ui.m_editText[0]->text()))
     {
         _ui.m_labHint->setText("The user name you entered is invalid !");
         return;
@@ -45,29 +45,19 @@ void EditCredentialDialog::OnClickedOK()
 
     auto strUserName(_ui.m_editText[0]->text().toStdString());
     auto strDisplay(_ui.m_editText[1]->text().toStdString());
-    if (IsEqual(m_Credential.GetUser(), strUserName) && IsEqual(m_Credential.GetDisplay(), strDisplay))
+    if (IsEqual(m_Credential.GetUser(), strUserName) && IsEqual(m_Credential.GetComment(), strDisplay))
     {
         reject();
         return;
     }
 
     m_Credential.SetUser(strUserName);
-    m_Credential.SetDisplay(strDisplay);
+    m_Credential.SetComment(strDisplay);
 
     accept();
 }
 
 //------------------------------------------------------------------------------
-
-template<>
-void EditCredentialDialog::base_type::ui_type::CreateLabel(EditCredentialDialog::base_type * pView)
-{
-    for (unsigned int i = 0; i < 2; ++i)
-    {
-        _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_username_w);
-        m_editText[i] = ui_utils::MakeLineEdit(pView);
-    }
-}
 
 void EditCredentialDialog::base_type::ui_type::LayoutCentral(EditCredentialDialog::base_type* pView, QBoxLayout* pMainLayout)
 {
@@ -92,7 +82,7 @@ template<>
 void EditCredentialDialog::base_type::ui_type::RetranslateLabel(EditCredentialDialog::base_type * pView)
 {
     _labText[0]->setText("User Name: ");
-    _labText[1]->setText("Display: ");
+    _labText[1]->setText("Description: ");
 
     m_editText[0]->setPlaceholderText("input your name");
     m_editText[1]->setPlaceholderText("input a description");
@@ -202,8 +192,8 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::
             _ui.m_editText[0]->setText(QString::fromStdString(m_Platform->m_Key.m_strName));
         if (!m_Platform->m_Key.m_strUrl.empty())
             _ui.m_editText[1]->setText(QString::fromStdString(m_Platform->m_Key.m_strUrl));
-        if (!m_Platform->m_Key.m_strDisplay.empty())
-            _ui.m_editText[2]->setText(QString::fromStdString(m_Platform->m_Key.m_strDisplay));
+        if (!m_Platform->m_Key.m_strComment.empty())
+            _ui.m_editText[2]->setText(QString::fromStdString(m_Platform->m_Key.m_strComment));
 
         setWindowTitle("Edit Platform");
     }
@@ -226,6 +216,12 @@ void EditPlatformDialog::OnClickedOK()
         return;
     }
 
+    if (!ui_utils::ValidateName(_ui.m_editText[0]->text()))
+    {
+        _ui.m_labHint->setText("The platform you entered is invalid !");
+        return;
+    }
+
     auto strPlatform(_ui.m_editText[0]->text().toStdString());
     auto strUrl(_ui.m_editText[1]->text().toStdString());
     auto strDisplay(_ui.m_editText[2]->text().toStdString());
@@ -236,7 +232,7 @@ void EditPlatformDialog::OnClickedOK()
     {
         if (IsEqual(m_Platform->m_Key.m_strName, strPlatform)
             && IsEqual(m_Platform->m_Key.m_strUrl, strUrl)
-            && IsEqual(m_Platform->m_Key.m_strDisplay, strDisplay))
+            && IsEqual(m_Platform->m_Key.m_strComment, strDisplay))
         {
             reject();
             return;
@@ -287,7 +283,7 @@ void EditPlatformDialog::base_type::ui_type::RetranslateLabel(EditPlatformDialog
 {
     _labText[0]->setText("Platform: ");
     _labText[1]->setText("Url: ");
-    _labText[2]->setText("Display: ");
+    _labText[2]->setText("Description: ");
 
     m_editText[0]->setPlaceholderText("input a platform");
     m_editText[1]->setPlaceholderText("input a url of the platform");
@@ -315,8 +311,8 @@ EditAccountDialog::EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::acc
         if (!m_Account->m_Key.m_strName.empty())
             _ui.m_editText[1]->setText(QString::fromStdString(m_Account->m_Key.m_strName));
 
-        if (!m_Account->m_Key.m_strDisplay.empty())
-            _ui.m_editText[2]->setText(QString::fromStdString(m_Account->m_Key.m_strDisplay));
+        if (!m_Account->m_Key.m_strComment.empty())
+            _ui.m_editText[2]->setText(QString::fromStdString(m_Account->m_Key.m_strComment));
 
         setWindowTitle("Edit Account");
     }
@@ -339,14 +335,19 @@ void EditAccountDialog::OnClickedOK()
         return;
     }
 
+    if (!ui_utils::ValidateName(_ui.m_editText[1]->text()))
+    {
+        _ui.m_labHint->setText("The account you entered is invalid !");
+        return;
+    }
+
     auto strAccount(_ui.m_editText[1]->text().toStdString());
     auto strDisplay(_ui.m_editText[2]->text().toStdString());
-
     bnb::account_type account(strAccount, strDisplay);
 
     if (m_Account)
     {
-        if (IsEqual(m_Account->m_Key.m_strName, strAccount) && IsEqual(m_Account->m_Key.m_strDisplay, strDisplay))
+        if (IsEqual(m_Account->m_Key.m_strName, strAccount) && IsEqual(m_Account->m_Key.m_strComment, strDisplay))
         {
             reject();
             return;
@@ -398,7 +399,7 @@ void EditAccountDialog::base_type::ui_type::RetranslateLabel(EditAccountDialog::
 {
     _labText[0]->setText("Platform: ");
     _labText[1]->setText("Account: ");
-    _labText[2]->setText("Display: ");
+    _labText[2]->setText("Description: ");
 
     m_editText[1]->setPlaceholderText("input a account");
     m_editText[2]->setPlaceholderText("input a description of the account");
@@ -446,6 +447,12 @@ void EditPropertyDialog::OnClickedOK()
     if (_ui.m_editText[1]->text().isEmpty())
     {
         _ui.m_labHint->setText("Property key mustn\'t be null !");
+        return;
+    }
+
+    if (!ui_utils::ValidateName(_ui.m_editText[1]->text()))
+    {
+        _ui.m_labHint->setText("The key you entered is invalid !");
         return;
     }
 
