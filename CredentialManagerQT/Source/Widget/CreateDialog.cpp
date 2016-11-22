@@ -8,6 +8,7 @@
 
 #include "Credential/Credential.h"
 
+#include "credential_qt_string.h"
 #include "credential_qt_utils.h"
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
@@ -66,10 +67,10 @@ void CreateDialog::OnClickedOK()
     }
 
 	g_AppMgr.Model().Data().Clear();
-	g_AppMgr.Model().Data().SetUser(_ui.m_editUserName->text().toStdString());
-	g_AppMgr.Model().Data().SetWord(s1.toStdString());
-    g_AppMgr.Model().Data().SetComment(_ui.m_editComment->text().toStdString());
-	g_AppMgr.Model().SetFile(_ui.m_editFilePath->text().toStdString());
+    g_AppMgr.Model().Data().SetWord(From_QString(s1));
+	g_AppMgr.Model().Data().SetUser(From_QString(_ui.m_editUserName->text()));
+    g_AppMgr.Model().Data().SetComment(From_QString(_ui.m_editComment->text()));
+	g_AppMgr.Model().SetFile(_ui.m_editFilePath->text());
 	g_AppMgr.Model().SaveCredential();
 
     accept();
@@ -104,42 +105,38 @@ void CreateDialog::ui_type::SetupUI(CreateDialog * pView)
 
     m_labHint = ui_utils::MakeDynamicLabel(pView, Qt::red, Qt::AlignCenter);
 
-    m_btnOK = ui_utils::MakeButton(pView);
-    m_btnCancel = ui_utils::MakeButton(pView);
+    m_editUserName = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
+    m_editPassword = ui_utils::MakePasswordLine(pView, ui_utils::edit_path_w);
+    m_editValidate = ui_utils::MakePasswordLine(pView, ui_utils::edit_path_w);
+    m_editComment = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
+    m_editFilePath = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
+
     m_btnBrowse = new QPushButton(pView);
     m_btnBrowse->setFixedSize(ui_utils::lab_text_w, ui_utils::def_widget_h);
     m_btnBrowse->setStyleSheet(
         "QPushButton{ background-color:transparent; border:none; color:#FF4000; text-align:right; }\n"
         "QPushButton:hover{ color:#40B040; }\n"
         "QPushButton:pressed{ color:#4040FF; }");
-
     QFont font = QGuiApplication::font();
     font.setPointSize(ui_utils::def_text_size);
     m_btnBrowse->setFont(font);
 
-    m_editUserName = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
-    m_editPassword = ui_utils::MakePasswordLine(pView, ui_utils::edit_path_w);
-    m_editValidate = ui_utils::MakePasswordLine(pView, ui_utils::edit_path_w);
-    m_editFilePath = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
-    m_editComment = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
+    m_btnOK = ui_utils::MakeButton(pView);
+    m_btnCancel = ui_utils::MakeButton(pView);
+
+    m_editUserName->setFocus();
     m_editUserName->setMaxLength(ui_utils::def_text_length);
     m_editPassword->setMaxLength(ui_utils::def_text_length);
     m_editValidate->setMaxLength(ui_utils::def_text_length);
     m_editFilePath->setReadOnly(true);
-
-    QHBoxLayout* phLayout0 = new QHBoxLayout;
-    phLayout0->setSpacing(0);
-    phLayout0->setMargin(0);
-    phLayout0->addWidget(_labUserName);
-    phLayout0->addWidget(m_editUserName);
-    phLayout0->addWidget(ui_utils::MakeMarkLabel(pView));
+    m_btnOK->setDefault(true);
 
     QHBoxLayout* phLayout1 = new QHBoxLayout;
     phLayout1->setSpacing(0);
     phLayout1->setMargin(0);
-    phLayout1->addWidget(_labComment);
-    phLayout1->addWidget(m_editComment);
-    phLayout1->addStretch(1);
+    phLayout1->addWidget(_labUserName);
+    phLayout1->addWidget(m_editUserName);
+    phLayout1->addWidget(ui_utils::MakeMarkLabel(pView));
 
     QHBoxLayout* phLayout2 = new QHBoxLayout;
     phLayout2->setSpacing(0);
@@ -158,29 +155,36 @@ void CreateDialog::ui_type::SetupUI(CreateDialog * pView)
     QHBoxLayout* phLayout4 = new QHBoxLayout;
     phLayout4->setSpacing(0);
     phLayout4->setMargin(0);
-    phLayout4->addWidget(m_btnBrowse);
-    phLayout4->addWidget(m_editFilePath);
-    phLayout4->addWidget(ui_utils::MakeMarkLabel(pView));
+    phLayout4->addWidget(_labComment);
+    phLayout4->addWidget(m_editComment);
+    phLayout4->addStretch(1);
 
     QHBoxLayout* phLayout5 = new QHBoxLayout;
-    phLayout5->setContentsMargins(0, 12, 0, 12);
     phLayout5->setSpacing(0);
-    phLayout5->addStretch(1);
-    phLayout5->addWidget(m_btnOK);
-    phLayout5->addStretch(1);
-    phLayout5->addWidget(m_btnCancel);
-    phLayout5->addStretch(1);
+    phLayout5->setMargin(0);
+    phLayout5->addWidget(m_btnBrowse);
+    phLayout5->addWidget(m_editFilePath);
+    phLayout5->addWidget(ui_utils::MakeMarkLabel(pView));
+
+    QHBoxLayout* phLayout6 = new QHBoxLayout;
+    phLayout6->setContentsMargins(0, 12, 0, 12);
+    phLayout6->setSpacing(0);
+    phLayout6->addStretch(1);
+    phLayout6->addWidget(m_btnOK);
+    phLayout6->addStretch(1);
+    phLayout6->addWidget(m_btnCancel);
+    phLayout6->addStretch(1);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
     pMainLayout->setMargin(2);
     pMainLayout->setSpacing(4);
     pMainLayout->addWidget(m_labHint);
-    pMainLayout->addLayout(phLayout0);
     pMainLayout->addLayout(phLayout1);
     pMainLayout->addLayout(phLayout2);
     pMainLayout->addLayout(phLayout3);
     pMainLayout->addLayout(phLayout4);
     pMainLayout->addLayout(phLayout5);
+    pMainLayout->addLayout(phLayout6);
     
     pView->setLayout(pMainLayout);
     pView->setFixedSize(pView->sizeHint());

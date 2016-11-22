@@ -6,13 +6,14 @@
 
 #include "Credential/Credential.h"
 
+#include "credential_qt_string.h"
 #include "credential_qt_utils.h"
 
 #include "Widget/EditDialog.h"
 
 static inline bool IsEqual(const bnb::string_type& left, const bnb::string_type& right)
 {
-    return 0 == strcmp(left.c_str(), right.c_str());
+    return 0 == wcscmp(left.c_str(), right.c_str());
 }
 
 //==============================================================================
@@ -24,9 +25,10 @@ EditCredentialDialog::EditCredentialDialog(bnb::Credential& pc, QWidget * parent
 {
     setObjectName("EditCredentialDialog");
 
+    _ui.m_editText[0]->setFocus();
     _ui.m_editText[0]->setMaxLength(ui_utils::def_text_length);
-    _ui.m_editText[0]->setText(QString::fromStdString(m_Credential.GetUser()));
-    _ui.m_editText[1]->setText(QString::fromStdString(m_Credential.GetComment()));
+    _ui.m_editText[0]->setText(To_QString(m_Credential.GetUser()));
+    _ui.m_editText[1]->setText(To_QString(m_Credential.GetComment()));
 }
 
 void EditCredentialDialog::OnClickedOK()
@@ -43,16 +45,16 @@ void EditCredentialDialog::OnClickedOK()
         return;
     }
 
-    auto strUserName(_ui.m_editText[0]->text().toStdString());
-    auto strDisplay(_ui.m_editText[1]->text().toStdString());
-    if (IsEqual(m_Credential.GetUser(), strUserName) && IsEqual(m_Credential.GetComment(), strDisplay))
+    auto strUserName(From_QString(_ui.m_editText[0]->text()));
+    auto strComment(From_QString(_ui.m_editText[1]->text()));
+    if (IsEqual(m_Credential.GetUser(), strUserName) && IsEqual(m_Credential.GetComment(), strComment))
     {
         reject();
         return;
     }
 
     m_Credential.SetUser(strUserName);
-    m_Credential.SetComment(strDisplay);
+    m_Credential.SetComment(strComment);
 
     accept();
 }
@@ -97,6 +99,8 @@ EditPasswordDialog::EditPasswordDialog(bnb::Credential& pc, QWidget * parent)
 {
     setObjectName("EditPasswordDialog");
 
+    _ui.m_editText[0]->setFocus();
+
     for (unsigned int i = 0; i < 3; i++)
     {
         _ui.m_editText[i]->setMaxLength(ui_utils::def_text_length);
@@ -123,13 +127,13 @@ void EditPasswordDialog::OnClickedOK()
         return;
     }
 
-    if (!m_Credential.ValidateWord(_ui.m_editText[0]->text().toStdString()))
+    if (!m_Credential.ValidateWord(From_QString(_ui.m_editText[0]->text())))
     {
         _ui.m_labHint->setText("The old password you entered is incorrect !");
         return;
     }
 
-    m_Credential.SetWord(_ui.m_editText[1]->text().toStdString());
+    m_Credential.SetWord(From_QString(_ui.m_editText[1]->text()));
 
     accept();
 }
@@ -184,16 +188,17 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::
 {
     setObjectName("EditPlatformDialog");
 
+    _ui.m_editText[0]->setFocus();
     _ui.m_editText[0]->setMaxLength(ui_utils::def_text_length);
 
     if (m_Platform)
     {
         if (!m_Platform->m_Key.m_strName.empty())
-            _ui.m_editText[0]->setText(QString::fromStdString(m_Platform->m_Key.m_strName));
+            _ui.m_editText[0]->setText(To_QString(m_Platform->m_Key.m_strName));
         if (!m_Platform->m_Key.m_strUrl.empty())
-            _ui.m_editText[1]->setText(QString::fromStdString(m_Platform->m_Key.m_strUrl));
+            _ui.m_editText[1]->setText(To_QString(m_Platform->m_Key.m_strUrl));
         if (!m_Platform->m_Key.m_strComment.empty())
-            _ui.m_editText[2]->setText(QString::fromStdString(m_Platform->m_Key.m_strComment));
+            _ui.m_editText[2]->setText(To_QString(m_Platform->m_Key.m_strComment));
 
         setWindowTitle("Edit Platform");
     }
@@ -222,17 +227,17 @@ void EditPlatformDialog::OnClickedOK()
         return;
     }
 
-    auto strPlatform(_ui.m_editText[0]->text().toStdString());
-    auto strUrl(_ui.m_editText[1]->text().toStdString());
-    auto strDisplay(_ui.m_editText[2]->text().toStdString());
+    auto strPlatform(From_QString(_ui.m_editText[0]->text()));
+    auto strUrl(From_QString(_ui.m_editText[1]->text()));
+    auto strComment(From_QString(_ui.m_editText[2]->text()));
 
-    bnb::platform_type platform(strPlatform, strUrl, strDisplay);
+    bnb::platform_type platform(strPlatform, strUrl, strComment);
 
     if (m_Platform)
     {
         if (IsEqual(m_Platform->m_Key.m_strName, strPlatform)
             && IsEqual(m_Platform->m_Key.m_strUrl, strUrl)
-            && IsEqual(m_Platform->m_Key.m_strComment, strDisplay))
+            && IsEqual(m_Platform->m_Key.m_strComment, strComment))
         {
             reject();
             return;
@@ -301,18 +306,19 @@ EditAccountDialog::EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::acc
     setObjectName("EditAccountDialog");
 
     _ui.m_editText[0]->setReadOnly(true);
+    _ui.m_editText[1]->setFocus();
     _ui.m_editText[1]->setMaxLength(ui_utils::def_text_length);
 
     if (!m_Platform.m_Key.m_strName.empty())
-        _ui.m_editText[0]->setText(QString::fromStdString(m_Platform.m_Key.m_strName));
+        _ui.m_editText[0]->setText(To_QString(m_Platform.m_Key.m_strName));
 
     if (m_Account)
     {
         if (!m_Account->m_Key.m_strName.empty())
-            _ui.m_editText[1]->setText(QString::fromStdString(m_Account->m_Key.m_strName));
+            _ui.m_editText[1]->setText(To_QString(m_Account->m_Key.m_strName));
 
         if (!m_Account->m_Key.m_strComment.empty())
-            _ui.m_editText[2]->setText(QString::fromStdString(m_Account->m_Key.m_strComment));
+            _ui.m_editText[2]->setText(To_QString(m_Account->m_Key.m_strComment));
 
         setWindowTitle("Edit Account");
     }
@@ -341,13 +347,13 @@ void EditAccountDialog::OnClickedOK()
         return;
     }
 
-    auto strAccount(_ui.m_editText[1]->text().toStdString());
-    auto strDisplay(_ui.m_editText[2]->text().toStdString());
-    bnb::account_type account(strAccount, strDisplay);
+    auto strAccount(From_QString(_ui.m_editText[1]->text()));
+    auto strComment(From_QString(_ui.m_editText[2]->text()));
+    bnb::account_type account(strAccount, strComment);
 
     if (m_Account)
     {
-        if (IsEqual(m_Account->m_Key.m_strName, strAccount) && IsEqual(m_Account->m_Key.m_strComment, strDisplay))
+        if (IsEqual(m_Account->m_Key.m_strName, strAccount) && IsEqual(m_Account->m_Key.m_strComment, strComment))
         {
             reject();
             return;
@@ -416,18 +422,19 @@ EditPropertyDialog::EditPropertyDialog(bnb::account_tree::data_type & pa, bnb::p
     setObjectName("EditPropertyDialog");
 
     _ui.m_editText[0]->setReadOnly(true);
+    _ui.m_editText[1]->setFocus();
     _ui.m_editText[1]->setMaxLength(ui_utils::def_text_length << 1);
 
     if (!m_Account.m_Key.m_strName.empty())
-        _ui.m_editText[0]->setText(QString::fromStdString(m_Account.m_Key.m_strName));
+        _ui.m_editText[0]->setText(To_QString(m_Account.m_Key.m_strName));
 
     if (m_Property)
     {
         if (!m_Property->m_Key.m_strName.empty())
-            _ui.m_editText[1]->setText(QString::fromStdString(m_Property->m_Key.m_strName));
+            _ui.m_editText[1]->setText(To_QString(m_Property->m_Key.m_strName));
 
         if (!m_Property->m_Value.m_strName.empty())
-            _ui.m_editText[2]->setText(QString::fromStdString(m_Property->m_Value.m_strName));
+            _ui.m_editText[2]->setText(To_QString(m_Property->m_Value.m_strName));
 
         setWindowTitle("Edit Property");
     }
@@ -456,12 +463,12 @@ void EditPropertyDialog::OnClickedOK()
         return;
     }
 
-    bnb::property_key key(_ui.m_editText[1]->text().toStdString());
-    bnb::property_value value(_ui.m_editText[2]->text().toStdString());
+    bnb::property_key key(From_QString(_ui.m_editText[1]->text()));
+    bnb::property_value value(From_QString(_ui.m_editText[2]->text()));
 
     if (m_Property)
     {
-        if (IsEqual(m_Property->m_Key.m_strName, key.m_strName) && IsEqual(m_Property->m_Value.m_strName, key.m_strName))
+        if (IsEqual(m_Property->m_Key.m_strName, key.m_strName) && IsEqual(m_Property->m_Value.m_strName, value.m_strName))
         {
             reject();
             return;

@@ -13,12 +13,11 @@ public:
 
     void Initialize();
 
-	const bnb::string_type& GetFile() const { return m_strFile; }
-	void SetFile(const bnb::string_type& strFile) { m_strFile = strFile; }
+	const QT_PREPEND_NAMESPACE(QString)& GetFile() const { return m_strFile; }
+	void SetFile(const QT_PREPEND_NAMESPACE(QString)& strFile) { m_strFile = strFile; }
 
 	bnb::Credential& Data() { return m_Credential; }
 
-	bool Load(const bnb::memory_type & source, const bnb::string_type& password);
 	bool SaveCredential();
 
 private:
@@ -27,7 +26,7 @@ private:
     CredentialModelManager(const CredentialModelManager&) = delete;
     CredentialModelManager& operator=(const CredentialModelManager&) = delete;
 
-	bnb::string_type m_strFile;
+    QT_PREPEND_NAMESPACE(QString) m_strFile;
 	bnb::Credential m_Credential;
 
 };

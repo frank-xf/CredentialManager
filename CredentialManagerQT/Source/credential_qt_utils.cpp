@@ -134,7 +134,6 @@ namespace ui_utils
         {
             if ('~' == character) return false;
             if ('!' == character) return false;
-            if ('@' == character) return false;
             if ('#' == character) return false;
             if ('$' == character) return false;
             if ('%' == character) return false;

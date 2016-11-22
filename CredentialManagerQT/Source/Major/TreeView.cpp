@@ -6,6 +6,7 @@
 
 #include "Credential/Credential.h"
 
+#include "credential_qt_string.h"
 #include "credential_qt_utils.h"
 #include "credential_qt_manager.h"
 #include "credential_model_manager.h"
@@ -57,7 +58,7 @@ TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
 
 void TreeView::InitCredential()
 {
-    QTreeWidgetItem* item_root = new QTreeWidgetItem(this, { QString::fromStdString("Credential - " + g_AppMgr.Model().Data().GetUser()) });
+    QTreeWidgetItem* item_root = new QTreeWidgetItem(this, { '[' + To_QString(g_AppMgr.Model().Data().GetUser()) + ']' });
     SetTreeItem(item_root, bnb::credential_type::ct_credential, ui_utils::g_clrCredential);
     addTopLevelItem(item_root);
 
@@ -85,18 +86,15 @@ void TreeView::UpdateHeader()
 {
     QTreeWidgetItem* pItem = topLevelItem(0);
 
-	if (pItem)
-	{
-		if (g_AppMgr.Model().Data().IsValid())
-			pItem->setText(0, QString::fromStdString("Credential - " + g_AppMgr.Model().Data().GetUser()));
-		else
-			pItem->setText(0, "Credential");
-	}
+    if (pItem && g_AppMgr.Model().Data().IsValid())
+    {
+        pItem->setText(0, '[' + To_QString(g_AppMgr.Model().Data().GetUser()) + ']');
+    }
 }
 
 QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::platform_tree::data_type& pp)
 {
-    auto item_platform = MakeTreeItem(parent, QString::fromStdString(pp.m_Key.m_strName), pp.m_Key.m_Type, ui_utils::g_clrPlatform);
+    auto item_platform = MakeTreeItem(parent, To_QString(pp.m_Key.m_strName), pp.m_Key.GetType(), ui_utils::g_clrPlatform);
     parent->addChild(item_platform);
     expandItem(parent);
 
@@ -105,7 +103,7 @@ QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::plat
 
 QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::account_tree::data_type& pa)
 {
-    auto item_account = MakeTreeItem(parent, QString::fromStdString(pa.m_Key.m_strName), pa.m_Key.m_Type, ui_utils::g_clrAccount);
+    auto item_account = MakeTreeItem(parent, To_QString(pa.m_Key.m_strName), pa.m_Key.GetType(), ui_utils::g_clrAccount);
 	parent->addChild(item_account);
     expandItem(parent);
 
@@ -114,7 +112,7 @@ QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::accoun
 
 QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_tree::data_type& pp)
 {
-    auto item_property = MakeTreeItem(parent, QString::fromStdString(pp.m_Key.m_strName), pp.m_Key.m_Type, ui_utils::g_clrProperty);
+    auto item_property = MakeTreeItem(parent, To_QString(pp.m_Key.m_strName), pp.m_Key.GetType(), ui_utils::g_clrProperty);
 	parent->addChild(item_property);
     expandItem(parent);
 

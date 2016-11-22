@@ -110,6 +110,8 @@ void ConfirmDialog::ui_type::SetupUI(ConfirmDialog * pDlg)
     m_btnOK = ui_utils::MakeButton(pDlg);
     m_btnCancel = ui_utils::MakeButton(pDlg);
 
+    m_btnOK->setDefault(true);
+
     QHBoxLayout* phLayout = new QHBoxLayout;
     phLayout->setContentsMargins(0, 12, 0, 12);
     phLayout->setSpacing(0);

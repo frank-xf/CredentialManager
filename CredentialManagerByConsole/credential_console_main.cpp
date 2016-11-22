@@ -8,7 +8,7 @@ void fun2();
 
 int main()
 {
-	fun2();
+	fun1();
 
     return (0);
 }
@@ -50,55 +50,53 @@ void fun1()
 	// bnb::Encoding(mt, (const unsigned char*)bc.GetWord().c_str(), bc.GetWord().size());
 
 	const char strText[] = R"(<?xml version="1.0" encoding="UTF-8"?>
-<credential user="" time="1466185402">
- <platform name="platform1" url="http://" display="">
-  <account name="account2" display="">
-   <property name="k1"><![CDATA[v1]]></property>
-   <property name="k4"><![CDATA[v4]]></property>
-   <property name="k3"><![CDATA[v3]]></property>
-  </account>
-  <account name="account3" display="">
-   <property name="k1"><![CDATA[v1]]></property>
-   <property name="k2"><![CDATA[v2]]></property>
-  </account>
- </platform>
- <platform name="platform2" url="http://" display="">
-  <account name="account5" display="">
-   <property name="k7"><![CDATA[v7]]></property>
-   <property name="k2"><![CDATA[v2]]></property>
-  </account>
-  <account name="account6" display="">
-   <property name="k1"><![CDATA[v1]]></property>
-  </account>
-  <account name="account9" display="">
-   <property name="k4"><![CDATA[v4]]></property>
-   <property name="k5"><![CDATA[v5]]></property>
-   <property name="k3"><![CDATA[v3]]></property>
-  </account>
- </platform>
- <platform name="platform4" url="http://" display="">
-  <account name="account5" display="">
-  </account>
-  <account name="account6" display="">
-   <property name="k1"><![CDATA[v1]]></property>
-  </account>
-  <account name="account9" display="">
-   <property name="k8"><![CDATA[v8]]></property>
-   <property name="k6"><![CDATA[v6]]></property>
-   <property name="k9"><![CDATA[v9]]></property>
-  </account>
- </platform>
- <platform name="platform7" url="http://" display="">
- </platform>
+<credential user="just a name" time="1466185402" comment="just a comment">
+    <platform name="platform1" url="http://" comment="">
+        <account name="account2" display="">
+            <property name="k1"><![CDATA[v1]]></property>
+            <property name="k4"><![CDATA[v4]]></property>
+            <property name="k3"><![CDATA[v3]]></property>
+        </account>
+        <account name="account3" comment="">
+            <property name="k1"><![CDATA[v1]]></property>
+            <property name="k2"><![CDATA[v2]]></property>
+        </account>
+    </platform>
+    <platform name="platform2" url="http://" comment="">
+        <account name="account5" comment="">
+            <property name="k7"><![CDATA[v7]]></property>
+            <property name="k2"><![CDATA[v2]]></property>
+        </account>
+        <account name="account6" comment="">
+            <property name="k1"><![CDATA[v1]]></property>
+        </account>
+        <account name="account9" comment="">
+            <property name="k4"><![CDATA[v4]]></property>
+            <property name="k5"><![CDATA[v5]]></property>
+            <property name="k3"><![CDATA[v3]]></property>
+        </account>
+        </platform>
+    <platform name="platform4" url="http://" comment="">
+        <account name="account5" comment=""/>
+        <account name="account6" comment="">
+            <property name="k1"><![CDATA[v1]]></property>
+        </account>
+        <account name="account9" comment="">
+            <property name="k8"><![CDATA[v8]]></property>
+            <property name="k6"><![CDATA[v6]]></property>
+            <property name="k9"><![CDATA[v9]]></property>
+        </account>
+    </platform>
+    <platform name="platform7" url="http://" comment=""/>
 </credential>)";
 
 	bnb::memory_type mt;
 
-	bnb::Credential xx("123");
+	bnb::Credential xx(L"123");
 
 	xx.FromXml(bnb::memory_type((const unsigned char*)strText, sizeof(strText)));
 
-	xx.SetUser("Frank");
+	// xx.SetUser(L"Frank");
 	xx.UpdateTime();
 	std::cout << xx.ToXml(mt) << std::endl;
 

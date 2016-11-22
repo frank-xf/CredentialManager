@@ -39,10 +39,12 @@ protected:
 
             m_labHint = ui_utils::MakeDynamicLabel(pView, Qt::red, Qt::AlignCenter);
 
+            CreateLabel(pView);
+
             m_btnOK = ui_utils::MakeButton(pView);
             m_btnCancel = ui_utils::MakeButton(pView);
 
-            CreateLabel(pView);
+            m_btnOK->setDefault(true);
 
             QVBoxLayout* pMainLayout = new QVBoxLayout;
             pMainLayout->setMargin(4);

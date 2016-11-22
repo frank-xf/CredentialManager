@@ -36,6 +36,9 @@ void PasswordInput::ui_type::SetupUI(PasswordInput * pDlg)
     m_btnOK = ui_utils::MakeButton(pDlg);
     m_btnCancel = ui_utils::MakeButton(pDlg);
 
+    m_editPassword->setFocus();
+    m_btnOK->setDefault(true);
+
     QHBoxLayout* phLayout1 = new QHBoxLayout;
     phLayout1->setMargin(0);
     phLayout1->setSpacing(0);

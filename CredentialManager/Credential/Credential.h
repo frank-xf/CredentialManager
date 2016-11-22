@@ -10,20 +10,18 @@ namespace std
 
 namespace bnb
 {
+    using char_type = wchar_t;
+    using byte_type = unsigned char;
+    using size_type = unsigned int;
 
-    using char_t = char;
-    using byte_t = unsigned char;
-    using size_t = unsigned int;
+    using string_type = std::basic_string<char_type, std::char_traits<char_type>, std::allocator<char_type>>;
+    using memory_type = std::basic_string<byte_type, std::char_traits<byte_type>, std::allocator<byte_type>>;
 
-    using string_type = std::basic_string<char_t, std::char_traits<char_t>, std::allocator<char_t>>;
-    using memory_type = std::basic_string<byte_t, std::char_traits<byte_t>, std::allocator<byte_t>>;
-
-    inline bool operator < (const string_type& a, const string_type& b) { return (_stricmp(a.c_str(), b.c_str()) < 0); }
+    inline bool operator < (const string_type& a, const string_type& b) { return (_wcsicmp(a.c_str(), b.c_str()) < 0); }
     inline bool operator > (const string_type& a, const string_type& b) { return (b < a); }
-    inline bool operator == (const string_type& a, const string_type& b) { return (0 == _stricmp(a.c_str(), b.c_str())); }
+    inline bool operator == (const string_type& a, const string_type& b) { return (0 == _wcsicmp(a.c_str(), b.c_str())); }
     inline bool operator != (const string_type& a, const string_type& b) { return !(a == b); }
 
-    extern size_t _credential_id;
     enum class credential_type : unsigned char { ct_credential, ct_platform, ct_account, ct_property };
 
     template<typename _Ty1, typename _Ty2>
@@ -256,34 +254,34 @@ namespace bnb
 
     struct credential_base
     {
-    public:
+    protected:
+
+        static size_t _credential_id;
 
         const credential_type m_Type;
         const size_t m_ID;
-        string_type m_strName;
 
-    protected:
+        credential_base(credential_type type) : m_Type(type), m_ID(_credential_id++) { }
+        credential_base(const credential_base& other) : m_Type(other.m_Type), m_ID(_credential_id++) { }
+        credential_base& operator=(const credential_base& other) { return *this; }
 
-        credential_base(credential_type type, const string_type& name) : m_Type(type), m_ID(_credential_id++), m_strName(name) { }
+    public:
 
-        credential_base(const credential_base& other) : m_Type(other.m_Type), m_ID(_credential_id++), m_strName(other.m_strName) { }
-        credential_base& operator=(const credential_base& other)
-        {
-            if (&other != this)
-                m_strName = other.m_strName;
+        size_t GetID() const { return m_ID; }
+        credential_type GetType() const { return m_Type; }
 
-            return *this;
-        }
     };
 
     struct platform_type : public credential_base
     {
         platform_type(const string_type& name = string_type(), const string_type& url = string_type(), const string_type& comment = string_type())
-            : credential_base(credential_type::ct_platform, name)
+            : credential_base(credential_type::ct_platform)
+            , m_strName(name)
             , m_strUrl(url)
             , m_strComment(comment)
         { }
 
+        string_type m_strName;
         string_type m_strUrl;
         string_type m_strComment;
     };
@@ -291,19 +289,23 @@ namespace bnb
     struct account_type : public credential_base
     {
         account_type(const string_type& name = string_type(), const string_type& comment = string_type())
-            : credential_base(credential_type::ct_account, name)
+            : credential_base(credential_type::ct_account)
+            , m_strName(name)
             , m_strComment(comment)
         { }
 
+        string_type m_strName;
         string_type m_strComment;
     };
 
     struct property_key : public credential_base
     {
         property_key(const string_type& name = string_type())
-            : credential_base(credential_type::ct_property, name)
+            : credential_base(credential_type::ct_property)
+            , m_strName(name)
         { }
 
+        string_type m_strName;
     };
 
     struct property_value
@@ -358,13 +360,12 @@ namespace bnb
         return &ptr->m_Pair;
     }
 
-    class Credential
+    class Credential : public credential_base
     {
         string_type m_strWord;
         string_type m_strUser;
         string_type m_strComment;
-        unsigned long long m_ullTime;
-        const size_t m_uID;
+        unsigned long long m_ullTime{ 0 };
 
         platform_tree m_Tree;
 
@@ -373,8 +374,8 @@ namespace bnb
 
     public:
 
-        Credential() : m_uID(_credential_id++) { }
-        explicit Credential(const string_type& strWord) : m_uID(_credential_id++), m_strWord(strWord) { }
+        Credential() : credential_base(credential_type::ct_credential) { }
+        explicit Credential(const string_type& strWord) : credential_base(credential_type::ct_credential), m_strWord(strWord) { }
 
         void Clear();
 
@@ -383,7 +384,6 @@ namespace bnb
         platform_tree& Tree() { return m_Tree; }
         const platform_tree& Tree() const { return m_Tree; }
 
-        size_t GetID() const { return m_uID; }
         const string_type& GetWord() const { return m_strWord; }
         const string_type& GetUser() const { return m_strUser; }
         const string_type& GetComment() const { return m_strComment; }
@@ -400,8 +400,8 @@ namespace bnb
         bool Load(const char* file);
         bool Save(const char* file) const;
 
-        static bool Encoding(memory_type& mt, const byte_t* key, size_t n);
-        static bool Decoding(memory_type& mt, const byte_t* key, size_t n);
+        static bool Encoding(memory_type& mt, const byte_type* key, size_t n);
+        static bool Decoding(memory_type& mt, const byte_type* key, size_t n);
         static bool CheckFile(const char* file, memory_type* dst);
 
     };
