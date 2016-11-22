@@ -55,7 +55,6 @@ void CredentialView::UpdateTable()
 
     unsigned int nRows = m_Credential.Tree().Size();
     _ui.m_tabView->setRowCount(nRows);
-    //_ui.m_tabView->setEnabled(0 < nRows);
 
     if (0 < nRows)
     {
@@ -149,7 +148,6 @@ void PlatformView::UpdateTable()
 
     unsigned int nRows = m_Platform.m_Value.Size();
     _ui.m_tabView->setRowCount(nRows);
-    //_ui.m_tabView->setEnabled(0 < nRows);
 
     if (0 < nRows)
     {
@@ -239,7 +237,6 @@ void AccountView::UpdateTable()
 
     unsigned int nRows = m_Account.m_Value.Size();
     _ui.m_tabView->setRowCount(nRows);
-    //_ui.m_tabView->setEnabled(0 < nRows);
 
     if (0 < nRows)
     {

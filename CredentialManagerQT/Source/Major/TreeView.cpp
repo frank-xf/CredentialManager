@@ -16,6 +16,8 @@
 
 QT_BEGIN_NAMESPACE
 
+//------------------------------------------------------------------------------
+
 static inline void SetTreeItem(QTreeWidgetItem* pItem, bnb::credential_type t, const QColor& c)
 {
     pItem->setTextColor(0, c);
@@ -35,6 +37,9 @@ static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& s
     return pItem;
 }
 
+//==============================================================================
+// Implementation of TreeView
+//==============================================================================
 TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
 {
     setItemDelegate(new NoFocusDelegate);
@@ -44,8 +49,8 @@ TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
 	setContextMenuPolicy(Qt::CustomContextMenu);
     setHeaderHidden(true);
     setRootIsDecorated(false);
-    setSortingEnabled(true);
-    header()->setSortIndicator(0, Qt::AscendingOrder);
+    // setSortingEnabled(true);
+    // header()->setSortIndicator(0, Qt::AscendingOrder);
 
     setStyleSheet(
         "QToolTip{ background:white; border:1px solid #C0C0C0; opacity:192; color:black; }\n"

@@ -1,5 +1,3 @@
-#include <string>
-// #include <QtCore/qglobal.h>
 #include <QtCore/QString>
 
 #include "Credential/Credential.h"
