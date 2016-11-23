@@ -1,5 +1,4 @@
-﻿#include <QtGui/QGuiApplication>
-#include <QtWidgets/QHeaderView>
+﻿#include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QStyleFactory>
 #include <QtWidgets/QStyledItemDelegate>
@@ -23,10 +22,7 @@ static inline void SetTreeItem(QTreeWidgetItem* pItem, bnb::credential_type t, c
     pItem->setTextColor(0, c);
     pItem->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::def_widget_h });
     pItem->setData(0, Qt::UserRole, static_cast<unsigned char>(t));
-
-    QFont font = QGuiApplication::font();
-    font.setPointSize(ui_utils::def_text_size);
-    pItem->setFont(0, font);
+    pItem->setFont(0, ui_utils::MakeFont());
 }
 
 static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& strText, bnb::credential_type t, const QColor& c)
@@ -56,8 +52,8 @@ TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
         "QToolTip{ background:white; border:1px solid #C0C0C0; opacity:192; color:black; }\n"
         "QTreeView::item{ border: none; }\n"
         "QTreeView::item:hover{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #B0FFB0, stop:1 #F0FFF0); }\n"
-        "QTreeView::item:selected{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); }\n"
-        "QTreeView::item:selected:active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); color:white; }\n"
+        "QTreeView::item:selected{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #F04020, stop:1 #F0FFF0); }\n"
+        "QTreeView::item:selected:active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #FF2040, stop:1 #F0FFF0); color:white; }\n"
         "QTreeView::item:selected:!active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); color:white; }");
 }
 

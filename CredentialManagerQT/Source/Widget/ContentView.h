@@ -25,7 +25,7 @@ public:
 
 };	// class BaseView
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 template<typename _Ty, unsigned int n>
 class ContentView : public BaseView
@@ -73,11 +73,8 @@ protected:
             m_tabView->horizontalHeader()->setHighlightSections(false);
             m_tabView->horizontalHeader()->setStretchLastSection(true);
             m_tabView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+            m_tabView->horizontalHeader()->setFont(ui_utils::MakeFont());
             m_tabView->horizontalHeader()->setStyleSheet("QHeaderView::section{ background-color:#F0F0F0; color: #FF4080; }");
-
-            QFont font = QGuiApplication::font();
-            font.setPointSize(ui_utils::def_text_size);
-            m_tabView->horizontalHeader()->setFont(font);
 
             QVBoxLayout* pvLayout = new QVBoxLayout;
             pvLayout->setMargin(0);
@@ -154,7 +151,7 @@ private:
 
 };	// class CredentialView
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class PlatformView : public ContentView<PlatformView, 3>
 {
@@ -172,7 +169,7 @@ private:
 
 };	// class PlatformView
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class AccountView : public ContentView<AccountView, 2>
 {

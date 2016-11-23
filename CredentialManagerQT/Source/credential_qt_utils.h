@@ -38,6 +38,9 @@ namespace ui_utils
     const QColor g_clrLabel{ 0, 64, 255 };
 
     void SetBackgroundColor(QWidget* pView, const QColor& color);
+    bool ValidateName(const QString& strName);
+
+    QFont MakeFont(unsigned int size = def_text_size, bool bold = false);
 
     QLabel* MakeLabel(QWidget* parent, unsigned int w, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size);
     QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = lab_text_w, const QColor& clr = g_clrLabel);
@@ -50,7 +53,6 @@ namespace ui_utils
 
     QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w);
 
-    bool ValidateName(const QString& strName);
 }
 
 QT_END_NAMESPACE

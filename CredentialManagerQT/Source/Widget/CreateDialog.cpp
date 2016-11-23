@@ -1,5 +1,4 @@
-﻿#include <QtGui/QGuiApplication>
-#include <QtWidgets/QBoxLayout>
+﻿#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
@@ -113,13 +112,11 @@ void CreateDialog::ui_type::SetupUI(CreateDialog * pView)
 
     m_btnBrowse = new QPushButton(pView);
     m_btnBrowse->setFixedSize(ui_utils::lab_text_w, ui_utils::def_widget_h);
+    m_btnBrowse->setFont(ui_utils::MakeFont());
     m_btnBrowse->setStyleSheet(
         "QPushButton{ background-color:transparent; border:none; color:#FF4000; text-align:right; }\n"
         "QPushButton:hover{ color:#40B040; }\n"
         "QPushButton:pressed{ color:#4040FF; }");
-    QFont font = QGuiApplication::font();
-    font.setPointSize(ui_utils::def_text_size);
-    m_btnBrowse->setFont(font);
 
     m_btnOK = ui_utils::MakeButton(pView);
     m_btnCancel = ui_utils::MakeButton(pView);

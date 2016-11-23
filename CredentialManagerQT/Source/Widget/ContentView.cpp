@@ -1,5 +1,4 @@
 ﻿#include <QtCore/QDateTime>
-#include <QtGui/QGuiApplication>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
@@ -23,10 +22,7 @@ static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned i
     pItem->setTextAlignment(a);
     pItem->setTextColor(c);
     pItem->setData(Qt::UserRole, id);
-
-    QFont font = QGuiApplication::font();
-    font.setPointSize(ui_utils::def_text_size);
-    pItem->setFont(font);
+    pItem->setFont(ui_utils::MakeFont());
 
     return pItem;
 }

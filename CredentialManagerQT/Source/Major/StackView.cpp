@@ -1,5 +1,4 @@
-﻿#include <QtGui/QGuiApplication>
-#include <QtWidgets/QBoxLayout>
+﻿#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QStackedWidget>
 
@@ -23,10 +22,7 @@ StackView::StackView(QWidget * parent) : QStackedWidget(parent)
     m_labHint->setAlignment(Qt::AlignCenter);
     m_labHint->setMinimumSize(512, 256);
     m_labHint->setStyleSheet("QLabel{ background:transparent; color:#20A020; }");
-
-    QFont font = QGuiApplication::font();
-    font.setPointSize(10);
-    m_labHint->setFont(font);
+    m_labHint->setFont(ui_utils::MakeFont());
 
     addWidget(m_labHint);
 }

@@ -164,6 +164,16 @@ namespace ui_utils
 
         return true;
     }
+
+    QFont MakeFont(unsigned int size, bool bold)
+    {
+        QFont font = QGuiApplication::font();
+        font.setPointSize(ui_utils::def_text_size);
+        font.setBold(bold);
+
+        return font;
+    }
+
 }
 
 QT_END_NAMESPACE

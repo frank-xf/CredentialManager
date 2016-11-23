@@ -1,5 +1,4 @@
-﻿#include <QtGui/QGuiApplication>
-#include <QtWidgets/QBoxLayout>
+﻿#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QDialog>
 #include <QtWidgets/QLabel>
@@ -53,10 +52,7 @@ void HintDialog::ui_type::SetupUI(HintDialog * pDlg)
     m_labText->setWordWrap(true);
     m_labText->setAlignment(Qt::AlignCenter);
     m_labText->setMinimumWidth(ui_utils::edit_default_w);
-
-    QFont font = QGuiApplication::font();
-    font.setPointSize(10);
-    m_labText->setFont(font);
+    m_labText->setFont(ui_utils::MakeFont());
 
     m_btnClose = ui_utils::MakeButton(pDlg);
 

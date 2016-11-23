@@ -44,5 +44,12 @@ bool CredentialModelManager::SaveCredential()
 	return m_Credential.Save(m_strFile.toStdString().c_str());
 }
 
-bnb::string_type From_QString(const QString& strText) { return strText.toStdWString(); }
-QString To_QString(const bnb::string_type& str) { return QString::fromStdWString(str); }
+bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str)
+{
+    return str.toStdWString();
+}
+
+QT_PREPEND_NAMESPACE(QString) To_QString(const bnb::string_type& str)
+{
+    return QT_PREPEND_NAMESPACE(QString)::fromStdWString(str);
+}
