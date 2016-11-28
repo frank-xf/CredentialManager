@@ -55,12 +55,13 @@ namespace bnb
 
         public:
 
-            node_type() : m_Next(nullptr) { }
-            explicit node_type(const key_type& key) : m_Pair(key), m_Next(nullptr) { }
-            node_type(const key_type& key, const value_type& value) : m_Pair(key, value), m_Next(nullptr) { }
+            node_type() = default;
+            explicit node_type(const key_type& key) : m_Pair(key) { }
+            node_type(const key_type& key, const value_type& value) : m_Pair(key, value) { }
 
             data_type  m_Pair;
-            node_type* m_Next;
+            node_type* m_Next{ nullptr };
+            node_type* m_Prev{ nullptr };
 
         };
 
@@ -72,14 +73,14 @@ namespace bnb
 
         data_type* _Update(const key_type& target, const key_type& key)
         {
-            data_type* ptr_target = nullptr;
+            data_type* target_ptr = nullptr;
             for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
             {
-                if (nullptr == ptr_target)
+                if (nullptr == target_ptr)
                 {
                     if (&target == &ptr->m_Pair.m_Key || target == ptr->m_Pair.m_Key)
                     {
-                        ptr_target = &ptr->m_Pair;
+                        target_ptr = &ptr->m_Pair;
                         continue;
                     }
                 }
@@ -88,10 +89,10 @@ namespace bnb
                     return false;
             }
 
-            if (ptr_target)
-                ptr_target->m_Key = key;
+            if (target_ptr)
+                target_ptr->m_Key = key;
 
-            return ptr_target;
+            return target_ptr;
         }
 
     public:
@@ -116,35 +117,35 @@ namespace bnb
             m_nCount = 0;
         }
 
-        template<typename _Func>
-        void Foreach(_Func pFunc)
+        template<typename _actionT>
+        void Foreach(_actionT _actionFunc)
         {
             for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-                pFunc(ptr->m_Pair);
+                _actionFunc(ptr->m_Pair);
         }
 
-        template<typename _Func>
-        void Foreach(_Func pFunc) const
+        template<typename _actionT>
+        void Foreach(_actionT _actionFunc) const
         {
             for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-                pFunc(ptr->m_Pair);
+                _actionFunc(ptr->m_Pair);
         }
 
-        template<typename _Func>
-        bool Action(_Func pFunc)
+        template<typename _actionT>
+        bool Action(_actionT _actionFunc)
         {
             for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-                if (pFunc(ptr->m_Pair))
+                if (_actionFunc(ptr->m_Pair))
                     return true;
 
             return false;
         }
 
-        template<typename _Func>
-        bool Action(_Func pFunc) const
+        template<typename _actionT>
+        bool Action(_actionT _actionFunc) const
         {
             for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-                if (pFunc(ptr->m_Pair))
+                if (_actionFunc(ptr->m_Pair))
                     return true;
 
             return false;
@@ -168,47 +169,52 @@ namespace bnb
             return nullptr;
         }
 
-        data_type* Insert(const key_type& key)
+        data_type* Add(const key_type& key)
         {
-            node_type* prev = nullptr;
+            node_type* last_ptr = nullptr;
 
             for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
             {
                 if (ptr->m_Pair.m_Key == key) return nullptr;
 
-                if (ptr->m_Pair.m_Key < key)
-                    prev = ptr;
-                else
-                    break;
+                last_ptr = ptr;
             }
 
             node_type* ptr = new node_type(key);
+            ptr->m_Prev = last_ptr;
 
-            if (prev)
-            {
-                ptr->m_Next = prev->m_Next;
-                prev->m_Next = ptr;
-            }
+            if (last_ptr)
+                last_ptr->m_Next = ptr;
             else
-            {
-                ptr->m_Next = m_Head;
                 m_Head = ptr;
-            }
 
             ++m_nCount;
 
             return &ptr->m_Pair;
         }
 
-        data_type* Insert(const key_type& key, const value_type& value)
+        data_type* Add(const key_type& key, const value_type& value)
         {
-            if (auto ptr = Insert(key))
+            node_type* last_ptr = nullptr;
+
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
             {
-                ptr->m_Value = value;
-                return ptr;
+                if (ptr->m_Pair.m_Key == key) return nullptr;
+
+                last_ptr = ptr;
             }
 
-            return nullptr;
+            node_type* ptr = new node_type(key, value);
+            ptr->m_Prev = last_ptr;
+
+            if (last_ptr)
+                last_ptr->m_Next = ptr;
+            else
+                m_Head = ptr;
+
+            ++m_nCount;
+
+            return &ptr->m_Pair;
         }
 
         bool Update(const key_type& target, const key_type& key)
@@ -229,25 +235,71 @@ namespace bnb
 
         bool Remove(const key_type& key)
         {
-            for (node_type *prev = nullptr, *curr = m_Head; curr; curr = curr->m_Next)
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
             {
-                if (&key == &curr->m_Pair.m_Key || key == curr->m_Pair.m_Key)
+                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
                 {
-                    if (curr == m_Head)
-                        m_Head = curr->m_Next;
+                    if (m_Head == ptr)
+                        m_Head = ptr->m_Next;
                     else
-                        prev->m_Next = curr->m_Next;
+                        ptr->m_Prev->m_Next = ptr->m_Next;
+
+                    if (ptr->m_Next)
+                        ptr->m_Next->m_Prev = ptr->m_Prev;
 
                     --m_nCount;
+                    delete ptr;
 
-                    delete curr;
                     return true;
                 }
-
-                prev = curr;
             }
 
             return false;
+        }
+
+        template<typename _CompareT>
+        void Sort(_CompareT _compareFunc)
+        {
+            if (m_Head)
+            {
+                node_type* new_header = m_Head;
+                node_type* target_ptr = m_Head->m_Next;
+
+                new_header->m_Prev = nullptr;
+                new_header->m_Next = nullptr;
+
+                while (target_ptr)
+                {
+                    node_type* next_ptr = target_ptr->m_Next;
+
+                    for (node_type* ptr = new_header; ptr; ptr = ptr->m_Next)
+                    {
+                        if (_compareFunc(target_ptr->m_Pair, ptr->m_Pair))
+                        {
+                            target_ptr->m_Prev = ptr->m_Prev;
+                            target_ptr->m_Next = ptr;
+
+                            if (new_header == ptr)
+                                new_header = target_ptr;
+                            else
+                                ptr->m_Prev->m_Next = target_ptr;
+
+                            ptr->m_Prev = target_ptr;
+
+                            break;
+                        }
+                    }
+
+                    target_ptr = next_ptr;
+                }
+
+                m_Head = new_header;
+            }
+        }
+
+        void Sort()
+        {
+            Sort([](const data_type& left, const data_type& right) { return left < right; });
         }
 
     };
@@ -335,30 +387,6 @@ namespace bnb
     using property_tree = tree_type<property_key, property_value>;
     using account_tree = tree_type<account_type, property_tree>;
     using platform_tree = tree_type<platform_type, account_tree>;
-
-    template<>
-    inline property_tree::data_type* property_tree::Insert(const property_key& key)
-    {
-        node_type* last = nullptr;
-
-        for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-        {
-            if (ptr->m_Pair.m_Key == key) return nullptr;
-
-            last = ptr;
-        }
-
-        node_type* ptr = new node_type(key);
-
-        if (last)
-            last->m_Next = ptr;
-        else
-            m_Head = ptr;
-
-        ++m_nCount;
-
-        return &ptr->m_Pair;
-    }
 
     class Credential : public credential_base
     {

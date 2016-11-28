@@ -251,7 +251,7 @@ void EditPlatformDialog::OnClickedOK()
     }
     else
     {
-        m_Platform = m_Credential.Tree().Insert(platform);
+        m_Platform = m_Credential.Tree().Add(platform);
         if (nullptr == m_Platform)
         {
             _ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
@@ -367,7 +367,7 @@ void EditAccountDialog::OnClickedOK()
     }
     else
     {
-        m_Account = m_Platform.m_Value.Insert(account);
+        m_Account = m_Platform.m_Value.Add(account);
         if (nullptr == m_Account)
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
@@ -482,7 +482,7 @@ void EditPropertyDialog::OnClickedOK()
     }
     else
     {
-        m_Property = m_Account.m_Value.Insert(key, value);
+        m_Property = m_Account.m_Value.Add(key, value);
         if (nullptr == m_Property)
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");

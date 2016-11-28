@@ -40,7 +40,7 @@ protected:
     {
     private:
 
-        QWidget* _viewCentral;
+        // QWidget* _viewCentral;
         QLabel* _labText[n];
 
     public:
@@ -49,15 +49,16 @@ protected:
 
         QTableWidget* m_tabView;
 
-        void SetupUI(QWidget* pView)
+        void SetupUI(ContentView* pView)
         {
+            /*
             _viewCentral = new QWidget(pView);
             _viewCentral->setObjectName("_viewCentral");
             _viewCentral->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-            
-            CreateLabel();
+            */
+            CreateLabel(pView);
 
-            m_tabView = new QTableWidget(_viewCentral);
+            m_tabView = new QTableWidget(pView);
             m_tabView->setItemDelegate(new NoFocusDelegate);
             m_tabView->setMinimumSize(512, 128);
             m_tabView->setShowGrid(true);
@@ -97,13 +98,11 @@ protected:
             pvMainLayout->addLayout(pvLayout);
             pvMainLayout->addWidget(m_tabView, 1);
 
-            _viewCentral->setLayout(pvMainLayout);
-
             QHBoxLayout* phMainLayout = new QHBoxLayout;
             phMainLayout->setMargin(4);
             phMainLayout->setSpacing(0);
             phMainLayout->addStretch(1);
-            phMainLayout->addWidget(_viewCentral, 2);
+            phMainLayout->addLayout(pvMainLayout, 2);
             phMainLayout->addStretch(1);
 
             pView->setLayout(phMainLayout);
@@ -111,14 +110,14 @@ protected:
             RetranslateUI(pView);
         }
 
-        void RetranslateUI(QWidget* pView) { }
+        void RetranslateUI(ContentView* pView) { }
 
-        void CreateLabel()
+        void CreateLabel(ContentView* pView)
         {
             for (unsigned int i = 0; i < n; ++i)
             {
-                _labText[i] = ui_utils::MakeStaticLabel(_viewCentral, ui_utils::lab_text_w, ui_utils::g_clrLabel);
-                m_editText[i] = ui_utils::MakeShowLine(_viewCentral);
+                _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_text_w, ui_utils::g_clrLabel);
+                m_editText[i] = ui_utils::MakeShowLine(pView);
             }
         }
     };

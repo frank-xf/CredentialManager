@@ -6,9 +6,37 @@
 void fun1();
 void fun2();
 
+class TypeA {
+public:
+    TypeA() = default;
+    TypeA(int m) : a(m) {}
+    TypeA(int m, int n) : a(m), b(n) {}
+    TypeA(int m, int n, int x) : a(m), b(n), c(x) {}
+
+    void Show() {
+        std::cout << a << " " << b << " " << c << std::endl;
+    }
+
+    int a{1};
+    int b{2};
+    int c{3};
+};
+
+
 int main()
 {
-	fun1();
+	// fun1();
+
+    TypeA a;
+    TypeA b(10);
+    TypeA c(10, 20);
+    TypeA d(10, 20, 30);
+
+    a.Show();
+    b.Show();
+    c.Show();
+    d.Show();
+
 
     return (0);
 }

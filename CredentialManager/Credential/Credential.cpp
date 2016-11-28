@@ -126,7 +126,7 @@ namespace bnb
             auto name_attr_platform = node_platform.attribute(_sKey(sk_name));
             if (name_attr_platform.empty()) return false;
 
-            auto ptr_platform = m_Tree.Insert({
+            auto ptr_platform = m_Tree.Add({
                 name_attr_platform.value(), node_platform.attribute(_sKey(sk_url)).value(), node_platform.attribute(_sKey(sk_comment)).value() }
             );
 
@@ -135,14 +135,14 @@ namespace bnb
                 auto name_attr_account = node_account.attribute(_sKey(sk_name));
                 if (name_attr_account.empty()) return false;
 
-                auto ptr_account = ptr_platform->m_Value.Insert({ name_attr_account.value(), node_account.attribute(_sKey(sk_comment)).value() });
+                auto ptr_account = ptr_platform->m_Value.Add({ name_attr_account.value(), node_account.attribute(_sKey(sk_comment)).value() });
 
                 for (auto node_property : node_account.children(_sKey(sk_property)))
                 {
                     auto name_attr_property = node_property.attribute(_sKey(sk_name));
                     if (name_attr_property.empty()) return false;
 
-                    auto ptr_property = ptr_account->m_Value.Insert({ name_attr_property.value() });
+                    auto ptr_property = ptr_account->m_Value.Add({ name_attr_property.value() });
 
                     auto node_value = node_property.first_child();
                     if (!node_value.empty())

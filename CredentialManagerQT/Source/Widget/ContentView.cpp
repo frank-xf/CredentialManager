@@ -100,7 +100,7 @@ void CredentialView::UpdateTable(unsigned int id)
 //------------------------------------------------------------------------------
 
 template<>
-void CredentialView::base_type::ui_type::RetranslateUI(QWidget* pView)
+void CredentialView::base_type::ui_type::RetranslateUI(CredentialView::base_type* pView)
 {
     m_tabView->setColumnCount(3);
     m_tabView->setHorizontalHeaderLabels({ "    Platform    ", "        Url        ", "        Description        " });
@@ -111,12 +111,12 @@ void CredentialView::base_type::ui_type::RetranslateUI(QWidget* pView)
 }
 
 template<>
-void CredentialView::base_type::ui_type::CreateLabel()
+void CredentialView::base_type::ui_type::CreateLabel(CredentialView::base_type* pView)
 {
     for (unsigned int i = 0; i < 3; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral);
-        m_editText[i] = ui_utils::MakeShowLine(_viewCentral, ui_utils::g_clrCredential);
+        _labText[i] = ui_utils::MakeStaticLabel(pView);
+        m_editText[i] = ui_utils::MakeShowLine(pView, ui_utils::g_clrCredential);
     }
 }
 
@@ -190,7 +190,7 @@ void PlatformView::UpdateTable(unsigned int id)
 //------------------------------------------------------------------------------
 
 template<>
-void PlatformView::base_type::ui_type::RetranslateUI(QWidget* pView)
+void PlatformView::base_type::ui_type::RetranslateUI(PlatformView::base_type* pView)
 {
     m_tabView->setColumnCount(2);
     m_tabView->setHorizontalHeaderLabels({ "        Account        ", "        Description        " });
@@ -201,12 +201,12 @@ void PlatformView::base_type::ui_type::RetranslateUI(QWidget* pView)
 }
 
 template<>
-void PlatformView::base_type::ui_type::CreateLabel()
+void PlatformView::base_type::ui_type::CreateLabel(PlatformView::base_type* pView)
 {
     for (unsigned int i = 0; i < 3; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral);
-        m_editText[i] = ui_utils::MakeShowLine(_viewCentral, ui_utils::g_clrPlatform);
+        _labText[i] = ui_utils::MakeStaticLabel(pView);
+        m_editText[i] = ui_utils::MakeShowLine(pView, ui_utils::g_clrPlatform);
     }
 }
 
@@ -279,7 +279,7 @@ void AccountView::UpdateTable(unsigned int id)
 //------------------------------------------------------------------------------
 
 template<>
-void AccountView::base_type::ui_type::RetranslateUI(QWidget* pView)
+void AccountView::base_type::ui_type::RetranslateUI(AccountView::base_type* pView)
 {
     m_tabView->setColumnCount(2);
     m_tabView->setHorizontalHeaderLabels({ "        Key        ", "        Value        " });
@@ -289,12 +289,12 @@ void AccountView::base_type::ui_type::RetranslateUI(QWidget* pView)
 }
 
 template<>
-void AccountView::base_type::ui_type::CreateLabel()
+void AccountView::base_type::ui_type::CreateLabel(AccountView::base_type* pView)
 {
     for (unsigned int i = 0; i < 2; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(_viewCentral);
-        m_editText[i] = ui_utils::MakeShowLine(_viewCentral, ui_utils::g_clrAccount);
+        _labText[i] = ui_utils::MakeStaticLabel(pView);
+        m_editText[i] = ui_utils::MakeShowLine(pView, ui_utils::g_clrAccount);
     }
 }
 
