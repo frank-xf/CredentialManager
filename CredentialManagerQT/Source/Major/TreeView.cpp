@@ -39,14 +39,16 @@ static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& s
 TreeView::TreeView(QWidget * parent) : QTreeWidget(parent)
 {
     setItemDelegate(new NoFocusDelegate);
+
     setMinimumWidth(ui_utils::tree_view_min_w);
     setMaximumWidth(ui_utils::tree_view_max_w);
+
 	setStyle(QStyleFactory::create("Windows"));
+
 	setContextMenuPolicy(Qt::CustomContextMenu);
+
     setHeaderHidden(true);
     setRootIsDecorated(false);
-    // setSortingEnabled(true);
-    // header()->setSortIndicator(0, Qt::AscendingOrder);
 
     setStyleSheet(
         "QToolTip{ background:white; border:1px solid #C0C0C0; opacity:192; color:black; }\n"
@@ -63,13 +65,13 @@ void TreeView::InitCredential()
     SetTreeItem(item_root, bnb::credential_type::ct_credential, ui_utils::g_clrCredential);
     addTopLevelItem(item_root);
 
-	g_AppMgr.Model().Data().Tree().Foreach([this, item_root](const bnb::platform_tree::data_type& platform) {
+	g_AppMgr.Model().Data().List().Foreach([this, item_root](const bnb::platform_list::data_type& platform) {
 		QTreeWidgetItem* item_platform = AddPlatform(item_root, platform);
 
-		platform.m_Value.Foreach([this, item_platform](const bnb::account_tree::data_type& account) {
+		platform.m_Value.Foreach([this, item_platform](const bnb::account_list::data_type& account) {
 			QTreeWidgetItem* item_account = AddAccount(item_platform, account);
 
-			account.m_Value.Foreach([this, item_account](const bnb::property_tree::data_type& property) {
+			account.m_Value.Foreach([this, item_account](const bnb::property_list::data_type& property) {
 				QTreeWidgetItem* item_property = AddProperty(item_account, property);
 			});
 		});
@@ -93,7 +95,7 @@ void TreeView::UpdateHeader()
     }
 }
 
-QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::platform_tree::data_type& pp)
+QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::platform_list::data_type& pp)
 {
     auto item_platform = MakeTreeItem(parent, To_QString(pp.m_Key.m_strName), pp.m_Key.GetType(), ui_utils::g_clrPlatform);
     parent->addChild(item_platform);
@@ -102,7 +104,7 @@ QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::plat
 	return item_platform;
 }
 
-QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::account_tree::data_type& pa)
+QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::account_list::data_type& pa)
 {
     auto item_account = MakeTreeItem(parent, To_QString(pa.m_Key.m_strName), pa.m_Key.GetType(), ui_utils::g_clrAccount);
 	parent->addChild(item_account);
@@ -111,7 +113,7 @@ QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::accoun
 	return item_account;
 }
 
-QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_tree::data_type& pp)
+QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_list::data_type& pp)
 {
     auto item_property = MakeTreeItem(parent, To_QString(pp.m_Key.m_strName), pp.m_Key.GetType(), ui_utils::g_clrProperty);
 	parent->addChild(item_property);

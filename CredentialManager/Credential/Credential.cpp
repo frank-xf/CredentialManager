@@ -86,7 +86,7 @@ namespace bnb
         m_strUser.clear();
         m_ullTime = 0;
 
-        m_Tree.Clear();
+        m_List.Clear();
     }
 
     void Credential::UpdateTime()
@@ -115,7 +115,7 @@ namespace bnb
         auto node_credential = doc.child(_sKey(sk_credential));
         if (pugi::node_element != node_credential.type()) return false;
 
-        m_Tree.Clear();
+        m_List.Clear();
 
         m_ullTime = node_credential.attribute(_sKey(sk_time)).as_ullong();
         m_strUser = node_credential.attribute(_sKey(sk_user)).value();
@@ -126,7 +126,7 @@ namespace bnb
             auto name_attr_platform = node_platform.attribute(_sKey(sk_name));
             if (name_attr_platform.empty()) return false;
 
-            auto ptr_platform = m_Tree.Add({
+            auto ptr_platform = m_List.Add({
                 name_attr_platform.value(), node_platform.attribute(_sKey(sk_url)).value(), node_platform.attribute(_sKey(sk_comment)).value() }
             );
 
@@ -171,18 +171,18 @@ namespace bnb
         node_credential.append_attribute(_sKey(sk_user)).set_value(m_strUser.c_str());
         node_credential.append_attribute(_sKey(sk_comment)).set_value(m_strComment.c_str());
 
-        m_Tree.Foreach([&node_credential](const platform_tree::data_type& platform) {
+        m_List.Foreach([&node_credential](const platform_list::data_type& platform) {
             auto node_platform = node_credential.append_child(_sKey(sk_platform));
             node_platform.append_attribute(_sKey(sk_name)).set_value(platform.m_Key.m_strName.c_str());
             node_platform.append_attribute(_sKey(sk_url)).set_value(platform.m_Key.m_strUrl.c_str());
             node_platform.append_attribute(_sKey(sk_comment)).set_value(platform.m_Key.m_strComment.c_str());
 
-            platform.m_Value.Foreach([&node_platform](const account_tree::data_type& account) {
+            platform.m_Value.Foreach([&node_platform](const account_list::data_type& account) {
                 auto node_account = node_platform.append_child(_sKey(sk_account));
                 node_account.append_attribute(_sKey(sk_name)).set_value(account.m_Key.m_strName.c_str());
                 node_account.append_attribute(_sKey(sk_comment)).set_value(account.m_Key.m_strComment.c_str());
 
-                account.m_Value.Foreach([&node_account](const property_tree::data_type& property) {
+                account.m_Value.Foreach([&node_account](const property_list::data_type& property) {
                     auto node_property = node_account.append_child(_sKey(sk_property));
                     node_property.append_attribute(_sKey(sk_name)).set_value(property.m_Key.m_strName.c_str());
                     node_property.append_child(pugi::node_cdata).set_value(property.m_Value.m_strName.c_str());

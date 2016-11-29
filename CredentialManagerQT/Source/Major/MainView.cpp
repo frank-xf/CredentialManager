@@ -198,7 +198,7 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         }
         case bnb::credential_type::ct_platform:
         {
-            if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(cur->text(0)) }))
+            if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(cur->text(0)) }))
                 _ui.m_viewStack->SwitchToPlatform(ptr_platform->m_Key.GetID());
 
             return;
@@ -215,7 +215,7 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         {
             auto item_platform = cur->parent();
             if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
-                if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) }))
+                if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
                     if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(cur->text(0)) }))
                         _ui.m_viewStack->SwitchToAccount(ptr_account->m_Key.GetID());
 
@@ -420,7 +420,7 @@ bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
 
 bool MainView::AddAccount(QTreeWidgetItem* item_platform)
 {
-    auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) });
+    auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
         EditAccountDialog dlg(*ptr_platform, nullptr, this);
@@ -444,7 +444,7 @@ bool MainView::AddProperty(QTreeWidgetItem * item_account)
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
     {
-        if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) }))
+        if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
         {
             if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
             {
@@ -483,7 +483,7 @@ bool MainView::EditCredential(QTreeWidgetItem * item_credential)
 
 bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
 {
-    auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) });
+    auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
         EditPlatformDialog dlg(g_AppMgr.Model().Data(), ptr_platform, this);
@@ -507,7 +507,7 @@ bool MainView::EditAccount(QTreeWidgetItem * item_account)
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
     {
-        if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) }))
+        if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
         {
             if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
             {
@@ -537,7 +537,7 @@ bool MainView::EditProperty(QTreeWidgetItem * item_property)
         QTreeWidgetItem* item_platform = item_account->parent();
         if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
         {
-            if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) }))
+            if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
             {
                 if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
                 {
@@ -565,15 +565,15 @@ bool MainView::EditProperty(QTreeWidgetItem * item_property)
 
 bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
 {
-    auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) });
+    auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
         std::vector<unsigned int> vtrIds{ ptr_platform->m_Key.GetID() };
-        ptr_platform->m_Value.Foreach([&vtrIds](const bnb::account_tree::data_type& account) mutable {
+        ptr_platform->m_Value.Foreach([&vtrIds](const bnb::account_list::data_type& account) mutable {
             vtrIds.push_back(account.m_Key.GetID());
         });
 
-        if (g_AppMgr.Model().Data().Tree().Remove(ptr_platform->m_Key))
+        if (g_AppMgr.Model().Data().List().Remove(ptr_platform->m_Key))
         {
             g_AppMgr.Model().SaveCredential();
 
@@ -600,7 +600,7 @@ bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
     {
-        if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) }))
+        if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
         {
             if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
             {
@@ -632,7 +632,7 @@ bool MainView::RemoveProperty(QTreeWidgetItem* item_property)
         QTreeWidgetItem* item_platform = item_account->parent();
         if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
         {
-            if (auto ptr_platform = g_AppMgr.Model().Data().Tree().Find({ From_QString(item_platform->text(0)) }))
+            if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
             {
                 if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
                 {

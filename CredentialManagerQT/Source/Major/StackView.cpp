@@ -32,10 +32,10 @@ void StackView::InitCredential()
     auto view_credential = new CredentialView(g_AppMgr.Model().Data(), this);
     addWidget(view_credential);
 
-    g_AppMgr.Model().Data().Tree().Foreach([this](const bnb::platform_tree::data_type& platform) {
+    g_AppMgr.Model().Data().List().Foreach([this](const bnb::platform_list::data_type& platform) {
         addWidget(new PlatformView(platform, this));
 
-        platform.m_Value.Foreach([this](const bnb::account_tree::data_type& account) {
+        platform.m_Value.Foreach([this](const bnb::account_list::data_type& account) {
             addWidget(new AccountView(account, this));
         });
     });
@@ -224,7 +224,7 @@ unsigned int StackView::RemoveView(const std::vector<unsigned int>& ids)
     return nCount;
 }
 
-bool StackView::AddPlatform(unsigned int credential_id, const bnb::platform_tree::data_type & platform)
+bool StackView::AddPlatform(unsigned int credential_id, const bnb::platform_list::data_type & platform)
 {
     for (int i = 0; i < count(); ++i)
     {
@@ -240,7 +240,7 @@ bool StackView::AddPlatform(unsigned int credential_id, const bnb::platform_tree
     return false;
 }
 
-bool StackView::AddAccount(unsigned int platform_id, const bnb::account_tree::data_type & account)
+bool StackView::AddAccount(unsigned int platform_id, const bnb::account_list::data_type & account)
 {
     for (int i = 0; i < count(); ++i)
     {
@@ -256,7 +256,7 @@ bool StackView::AddAccount(unsigned int platform_id, const bnb::account_tree::da
     return false;
 }
 
-bool StackView::AddProperty(unsigned int account_id, const bnb::property_tree::data_type & property)
+bool StackView::AddProperty(unsigned int account_id, const bnb::property_list::data_type & property)
 {
     for (int i = 0; i < count(); ++i)
     {

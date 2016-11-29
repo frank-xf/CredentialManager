@@ -4,7 +4,7 @@
 QT_BEGIN_NAMESPACE
 
 class QLineEdit;
-class QTableWidget;
+class DropTable;
 
 //------------------------------------------------------------------------------
 
@@ -40,42 +40,19 @@ protected:
     {
     private:
 
-        // QWidget* _viewCentral;
         QLabel* _labText[n];
 
     public:
 
         QLineEdit* m_editText[n];
 
-        QTableWidget* m_tabView;
+        DropTable* m_tabView;
 
         void SetupUI(ContentView* pView)
         {
-            /*
-            _viewCentral = new QWidget(pView);
-            _viewCentral->setObjectName("_viewCentral");
-            _viewCentral->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding);
-            */
             CreateLabel(pView);
 
-            m_tabView = new QTableWidget(pView);
-            m_tabView->setItemDelegate(new NoFocusDelegate);
-            m_tabView->setMinimumSize(512, 128);
-            m_tabView->setShowGrid(true);
-            m_tabView->setContextMenuPolicy(Qt::CustomContextMenu);
-            m_tabView->setSelectionMode(QAbstractItemView::SingleSelection);
-            m_tabView->setSelectionBehavior(QAbstractItemView::SelectRows);
-            m_tabView->setEditTriggers(QAbstractItemView::NoEditTriggers);
-            m_tabView->verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
-            m_tabView->verticalHeader()->setDefaultSectionSize(ui_utils::def_widget_h);
-            m_tabView->verticalHeader()->setVisible(false);
-            m_tabView->horizontalHeader()->setFixedHeight(ui_utils::def_widget_h);
-            m_tabView->horizontalHeader()->setSectionsClickable(false);
-            m_tabView->horizontalHeader()->setHighlightSections(false);
-            m_tabView->horizontalHeader()->setStretchLastSection(true);
-            m_tabView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-            m_tabView->horizontalHeader()->setFont(ui_utils::MakeFont());
-            m_tabView->horizontalHeader()->setStyleSheet("QHeaderView::section{ background-color:#F0F0F0; color: #FF4080; }");
+            m_tabView = new DropTable(pView);
 
             QVBoxLayout* pvLayout = new QVBoxLayout;
             pvLayout->setMargin(0);
@@ -128,6 +105,9 @@ protected:
         _ui.SetupUI(this);
     }
 
+
+
+
     ui_type _ui;
 
 };	// class ContentView
@@ -156,7 +136,7 @@ class PlatformView : public ContentView<PlatformView, 3>
 {
 public:
 
-    PlatformView(const bnb::platform_tree::data_type& tp, QWidget * parent = nullptr);
+    PlatformView(const bnb::platform_list::data_type& tp, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
@@ -164,7 +144,7 @@ public:
 
 private:
 
-    const bnb::platform_tree::data_type& m_Platform;
+    const bnb::platform_list::data_type& m_Platform;
 
 };	// class PlatformView
 
@@ -174,7 +154,7 @@ class AccountView : public ContentView<AccountView, 2>
 {
 public:
 
-    AccountView(const bnb::account_tree::data_type& tp, QWidget * parent = nullptr);
+    AccountView(const bnb::account_list::data_type& tp, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
@@ -182,7 +162,7 @@ public:
 
 private:
 
-    const bnb::account_tree::data_type& m_Account;
+    const bnb::account_list::data_type& m_Account;
 
 };	// class AccountView
 

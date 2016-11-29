@@ -36,7 +36,7 @@ namespace bnb
     };
 
     template<typename _Ty1, typename _Ty2>
-    class tree_type
+    class list_type
     {
     public:
 
@@ -68,8 +68,8 @@ namespace bnb
         node_type* m_Head{ nullptr };
         size_t m_nCount{ 0 };
 
-        tree_type(const tree_type&) = delete;
-        tree_type& operator=(const tree_type&) = delete;
+        list_type(const list_type&) = delete;
+        list_type& operator=(const list_type&) = delete;
 
         data_type* _Update(const key_type& target, const key_type& key)
         {
@@ -95,11 +95,22 @@ namespace bnb
             return target_ptr;
         }
 
+        void _Take(node_type* ptr)
+        {
+            if (m_Head == ptr)
+                m_Head = ptr->m_Next;
+            else
+                ptr->m_Prev->m_Next = ptr->m_Next;
+
+            if (ptr->m_Next)
+                ptr->m_Next->m_Prev = ptr->m_Prev;
+        }
+
     public:
 
-        tree_type() = default;
+        list_type() = default;
 
-        ~tree_type() { Clear(); }
+        ~list_type() { Clear(); }
 
         bool IsEmpty() const { return (nullptr == m_Head || 0 == m_nCount); }
 
@@ -239,14 +250,7 @@ namespace bnb
             {
                 if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
                 {
-                    if (m_Head == ptr)
-                        m_Head = ptr->m_Next;
-                    else
-                        ptr->m_Prev->m_Next = ptr->m_Next;
-
-                    if (ptr->m_Next)
-                        ptr->m_Next->m_Prev = ptr->m_Prev;
-
+                    _Take(ptr);
                     --m_nCount;
                     delete ptr;
 
@@ -300,6 +304,69 @@ namespace bnb
         void Sort()
         {
             Sort([](const data_type& left, const data_type& right) { return left < right; });
+        }
+
+        bool Move(const key_type& key, unsigned int index)
+        {
+            node_type* target_ptr = nullptr;
+            node_type* insert_ptr = nullptr;
+            node_type* end_ptr = nullptr;
+
+            unsigned int i = 0;
+
+            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            {
+                if (nullptr == target_ptr)
+                    if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
+                        target_ptr = ptr;
+
+                if (nullptr == insert_ptr)
+                    if (index == i)
+                        insert_ptr = ptr;
+
+                if (target_ptr && insert_ptr)
+                    break;
+
+                end_ptr = ptr;
+
+                ++i;
+            }
+
+            if (target_ptr)
+            {
+                if (insert_ptr)
+                {
+                    if (target_ptr != insert_ptr)
+                    {
+                        _Take(target_ptr);
+
+                        target_ptr->m_Prev = insert_ptr->m_Prev;
+                        target_ptr->m_Next = insert_ptr;
+
+                        if (m_Head == insert_ptr)
+                            m_Head = target_ptr;
+                        else
+                            insert_ptr->m_Prev->m_Next = target;
+
+                        insert_ptr->m_Prev = target_ptr;
+                    }
+                }
+                else
+                {
+                    if (target_ptr != end_ptr)
+                    {
+                        _Take(target_ptr);
+
+                        end_ptr->m_Next = target_ptr;
+                        target_ptr->m_Prev = end_ptr;
+                        target_ptr->m_Next = nullptr;
+                    }
+                }
+
+                return true;
+            }
+
+            return false;
         }
 
     };
@@ -384,9 +451,9 @@ namespace bnb
     inline bool operator != (const property_key& a, const property_key& b) { return !(a == b); }
     inline bool operator != (const property_value& a, const property_value& b) { return !(a == b); }
 
-    using property_tree = tree_type<property_key, property_value>;
-    using account_tree = tree_type<account_type, property_tree>;
-    using platform_tree = tree_type<platform_type, account_tree>;
+    using property_list = list_type<property_key, property_value>;
+    using account_list = list_type<account_type, property_list>;
+    using platform_list = list_type<platform_type, account_list>;
 
     class Credential : public credential_base
     {
@@ -395,7 +462,7 @@ namespace bnb
         string_type m_strComment;
         unsigned long long m_ullTime{ 0 };
 
-        platform_tree m_Tree;
+        platform_list m_List;
 
         Credential(const Credential&) = delete;
         Credential& operator=(const Credential&) = delete;
@@ -409,8 +476,8 @@ namespace bnb
 
         bool IsValid() const { return !(m_strUser.empty() || m_strWord.empty()); }
 
-        platform_tree& Tree() { return m_Tree; }
-        const platform_tree& Tree() const { return m_Tree; }
+        platform_list& List() { return m_List; }
+        const platform_list& List() const { return m_List; }
 
         const string_type& GetWord() const { return m_strWord; }
         const string_type& GetUser() const { return m_strUser; }

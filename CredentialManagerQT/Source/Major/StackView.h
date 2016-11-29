@@ -22,9 +22,9 @@ public:
     bool RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids);
     unsigned int RemoveView(const std::vector<unsigned int>& ids);
 
-    bool AddPlatform(unsigned int credential_id, const bnb::platform_tree::data_type& platform);
-    bool AddAccount(unsigned int platform_id, const bnb::account_tree::data_type& account);
-    bool AddProperty(unsigned int account_id, const bnb::property_tree::data_type& property);
+    bool AddPlatform(unsigned int credential_id, const bnb::platform_list::data_type& platform);
+    bool AddAccount(unsigned int platform_id, const bnb::account_list::data_type& account);
+    bool AddProperty(unsigned int account_id, const bnb::property_list::data_type& property);
 
     bool SwitchToCredential(unsigned int id);
     bool SwitchToPlatform(unsigned int id);

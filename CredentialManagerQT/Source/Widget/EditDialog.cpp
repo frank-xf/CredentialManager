@@ -181,7 +181,7 @@ void EditPasswordDialog::base_type::ui_type::RetranslateLabel(EditPasswordDialog
 //==============================================================================
 // Implementation of EditPlatformDialog
 //==============================================================================
-EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::data_type* pp, QWidget* parent)
+EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_list::data_type* pp, QWidget* parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Credential(pc)
     , m_Platform(pp)
@@ -208,7 +208,7 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::
     }
 }
 
-const bnb::platform_tree::data_type * EditPlatformDialog::GetPlatform() const
+const bnb::platform_list::data_type * EditPlatformDialog::GetPlatform() const
 {
     return m_Platform;
 }
@@ -243,7 +243,7 @@ void EditPlatformDialog::OnClickedOK()
             return;
         }
 
-        if (!m_Credential.Tree().Update(m_Platform->m_Key, platform))
+        if (!m_Credential.List().Update(m_Platform->m_Key, platform))
         {
             _ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
             return;
@@ -251,7 +251,7 @@ void EditPlatformDialog::OnClickedOK()
     }
     else
     {
-        m_Platform = m_Credential.Tree().Add(platform);
+        m_Platform = m_Credential.List().Add(platform);
         if (nullptr == m_Platform)
         {
             _ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
@@ -298,7 +298,7 @@ void EditPlatformDialog::base_type::ui_type::RetranslateLabel(EditPlatformDialog
 //==============================================================================
 // Implementation of EditAccountDialog
 //==============================================================================
-EditAccountDialog::EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::account_tree::data_type* pa, QWidget * parent)
+EditAccountDialog::EditAccountDialog(bnb::platform_list::data_type& pp, bnb::account_list::data_type* pa, QWidget * parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Platform(pp)
     , m_Account(pa)
@@ -328,7 +328,7 @@ EditAccountDialog::EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::acc
     }
 }
 
-const bnb::account_tree::data_type * EditAccountDialog::GetAccount() const
+const bnb::account_list::data_type * EditAccountDialog::GetAccount() const
 {
     return m_Account;
 }
@@ -414,7 +414,7 @@ void EditAccountDialog::base_type::ui_type::RetranslateLabel(EditAccountDialog::
 //==============================================================================
 // Implementation of EditPropertyDialog
 //==============================================================================
-EditPropertyDialog::EditPropertyDialog(bnb::account_tree::data_type & pa, bnb::property_tree::data_type * pp, QWidget * parent)
+EditPropertyDialog::EditPropertyDialog(bnb::account_list::data_type & pa, bnb::property_list::data_type * pp, QWidget * parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Account(pa)
     , m_Property(pp)
@@ -444,7 +444,7 @@ EditPropertyDialog::EditPropertyDialog(bnb::account_tree::data_type & pa, bnb::p
     }
 }
 
-const bnb::property_tree::data_type * EditPropertyDialog::GetProperty() const
+const bnb::property_list::data_type * EditPropertyDialog::GetProperty() const
 {
     return m_Property;
 }

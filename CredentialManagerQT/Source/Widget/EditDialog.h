@@ -167,8 +167,8 @@ class EditPlatformDialog : public EditDialog<EditPlatformDialog, 3>
 {
 public:
 
-    EditPlatformDialog(bnb::Credential& pc, bnb::platform_tree::data_type* pp, QWidget* parent);
-    const bnb::platform_tree::data_type* GetPlatform() const;
+    EditPlatformDialog(bnb::Credential& pc, bnb::platform_list::data_type* pp, QWidget* parent);
+    const bnb::platform_list::data_type* GetPlatform() const;
 
 private:
 
@@ -177,7 +177,7 @@ private:
 private:
 
     bnb::Credential& m_Credential;
-    bnb::platform_tree::data_type* m_Platform;
+    bnb::platform_list::data_type* m_Platform;
 
 };  // class EditPlatformDialog
 
@@ -187,8 +187,8 @@ class EditAccountDialog : public EditDialog<EditAccountDialog, 3>
 {
 public:
 
-    EditAccountDialog(bnb::platform_tree::data_type& pp, bnb::account_tree::data_type* pa, QWidget * parent);
-    const bnb::account_tree::data_type* GetAccount() const;
+    EditAccountDialog(bnb::platform_list::data_type& pp, bnb::account_list::data_type* pa, QWidget * parent);
+    const bnb::account_list::data_type* GetAccount() const;
 
 private:
 
@@ -196,8 +196,8 @@ private:
 
 private:
 
-    bnb::platform_tree::data_type& m_Platform;
-    bnb::account_tree::data_type* m_Account;
+    bnb::platform_list::data_type& m_Platform;
+    bnb::account_list::data_type* m_Account;
 
 };  // class EditAccountDialog
 
@@ -207,8 +207,8 @@ class EditPropertyDialog : public EditDialog<EditPropertyDialog, 3>
 {
 public:
 
-    EditPropertyDialog(bnb::account_tree::data_type& pa, bnb::property_tree::data_type* pp, QWidget * parent);
-    const bnb::property_tree::data_type* GetProperty() const;
+    EditPropertyDialog(bnb::account_list::data_type& pa, bnb::property_list::data_type* pp, QWidget * parent);
+    const bnb::property_list::data_type* GetProperty() const;
 
 private:
 
@@ -216,8 +216,8 @@ private:
 
 private:
 
-    bnb::account_tree::data_type& m_Account;
-    bnb::property_tree::data_type* m_Property;
+    bnb::account_list::data_type& m_Account;
+    bnb::property_list::data_type* m_Property;
 
 };  // class EditPropertyDialog
 
