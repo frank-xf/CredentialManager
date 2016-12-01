@@ -65,20 +65,22 @@ namespace bnb
 
         };
 
-        node_type* m_Head{ nullptr };
+        node_type* m_Header{ nullptr };
+        node_type* m_End{ nullptr };
         size_t m_nCount{ 0 };
 
         list_type(const list_type&) = delete;
         list_type& operator=(const list_type&) = delete;
 
-        data_type* _Update(const key_type& target, const key_type& key)
+        template<typename _findT>
+        data_type* _Preorder(_findT _findFunc, const key_type& key)
         {
             data_type* target_ptr = nullptr;
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
             {
                 if (nullptr == target_ptr)
                 {
-                    if (&target == &ptr->m_Pair.m_Key || target == ptr->m_Pair.m_Key)
+                    if (_findFunc(ptr->m_Pair))
                     {
                         target_ptr = &ptr->m_Pair;
                         continue;
@@ -86,24 +88,71 @@ namespace bnb
                 }
 
                 if (key == ptr->m_Pair.m_Key)
-                    return false;
+                    return nullptr;
             }
 
-            if (target_ptr)
-                target_ptr->m_Key = key;
+            return target_ptr;
+        }
+
+        template<typename _findT>
+        data_type* _Postorder(_findT _findFunc, const key_type& key)
+        {
+            data_type* target_ptr = nullptr;
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+            {
+                if (nullptr == target_ptr)
+                {
+                    if (_findFunc(ptr->m_Pair))
+                    {
+                        target_ptr = &ptr->m_Pair;
+                        continue;
+                    }
+                }
+
+                if (key == ptr->m_Pair.m_Key)
+                    return nullptr;
+            }
 
             return target_ptr;
         }
 
         void _Take(node_type* ptr)
         {
-            if (m_Head == ptr)
-                m_Head = ptr->m_Next;
+            if (m_Header == ptr)
+                m_Header = ptr->m_Next;
             else
                 ptr->m_Prev->m_Next = ptr->m_Next;
 
-            if (ptr->m_Next)
+            if (m_End == ptr)
+                m_End = ptr->m_Prev;
+            else
                 ptr->m_Next->m_Prev = ptr->m_Prev;
+        }
+
+        void _InsertAfter(node_type* target_ptr, node_type* insert_ptr)
+        {
+            target_ptr->m_Prev = insert_ptr;
+            target_ptr->m_Next = insert_ptr->m_Next;
+
+            if (m_End == insert_ptr)
+                m_End = target_ptr;
+            else
+                insert_ptr->m_Next->m_Prev = target_ptr;
+
+            insert_ptr->m_Next = target_ptr;
+        }
+
+        void _InsertBefore(node_type* target_ptr, node_type* insert_ptr)
+        {
+            target_ptr->m_Prev = insert_ptr->m_Prev;
+            target_ptr->m_Next = insert_ptr;
+
+            if (m_Header == insert_ptr)
+                m_Header = target_ptr;
+            else
+                insert_ptr->m_Prev->m_Next = target_ptr;
+
+            insert_ptr->m_Prev = target_ptr;
         }
 
     public:
@@ -112,40 +161,55 @@ namespace bnb
 
         ~list_type() { Clear(); }
 
-        bool IsEmpty() const { return (nullptr == m_Head || 0 == m_nCount); }
+        bool IsEmpty() const { return (nullptr == m_Header || nullptr == m_End || 0 == m_nCount); }
 
         size_t Size() const { return m_nCount; }
 
         void Clear()
         {
-            while (m_Head)
+            while (m_Header)
             {
-                node_type* ptr = m_Head;
-                m_Head = m_Head->m_Next;
+                node_type* ptr = m_Header;
+                m_Header = m_Header->m_Next;
                 delete ptr;
             }
 
+            m_End = nullptr;
             m_nCount = 0;
         }
 
         template<typename _actionT>
-        void Foreach(_actionT _actionFunc)
+        void PreorderTraversal(_actionT _actionFunc)
         {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
                 _actionFunc(ptr->m_Pair);
         }
 
         template<typename _actionT>
-        void Foreach(_actionT _actionFunc) const
+        void PreorderTraversal(_actionT _actionFunc) const
         {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
                 _actionFunc(ptr->m_Pair);
         }
 
         template<typename _actionT>
-        bool Action(_actionT _actionFunc)
+        void PostorderTraversal(_actionT _actionFunc)
         {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+                _actionFunc(ptr->m_Pair);
+        }
+
+        template<typename _actionT>
+        void PostorderTraversal(_actionT _actionFunc) const
+        {
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+                _actionFunc(ptr->m_Pair);
+        }
+
+        template<typename _actionT>
+        bool PreorderAction(_actionT _actionFunc)
+        {
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
                 if (_actionFunc(ptr->m_Pair))
                     return true;
 
@@ -153,90 +217,218 @@ namespace bnb
         }
 
         template<typename _actionT>
-        bool Action(_actionT _actionFunc) const
+        bool PreorderAction(_actionT _actionFunc) const
         {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
                 if (_actionFunc(ptr->m_Pair))
                     return true;
 
             return false;
         }
 
-        data_type* Find(const key_type& key)
+        template<typename _actionT>
+        bool PostorderAction(_actionT _actionFunc)
         {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+                if (_actionFunc(ptr->m_Pair))
+                    return true;
+
+            return false;
+        }
+
+        template<typename _actionT>
+        bool PostorderAction(_actionT _actionFunc) const
+        {
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+                if (_actionFunc(ptr->m_Pair))
+                    return true;
+
+            return false;
+        }
+
+        template<typename _findT>
+        data_type* PreorderFind(_findT _findFunc)
+        {
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
+                if (_findFunc(ptr->m_Pair))
                     return &ptr->m_Pair;
 
             return nullptr;
         }
 
-        const data_type* Find(const key_type& key) const
+        template<typename _findT>
+        const data_type* PreorderFind(_findT _findFunc) const
         {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
+                if (_findFunc(ptr->m_Pair))
                     return &ptr->m_Pair;
 
             return nullptr;
         }
 
-        data_type* Add(const key_type& key)
+        template<typename _findT>
+        data_type* PostorderFind(_findT _findFunc)
         {
-            node_type* last_ptr = nullptr;
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+                if (_findFunc(ptr->m_Pair))
+                    return &ptr->m_Pair;
 
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
-            {
-                if (ptr->m_Pair.m_Key == key) return nullptr;
+            return nullptr;
+        }
 
-                last_ptr = ptr;
-            }
+        template<typename _findT>
+        const data_type* PostorderFind(_findT _findFunc) const
+        {
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+                if (_findFunc(ptr->m_Pair))
+                    return &ptr->m_Pair;
+
+            return nullptr;
+        }
+
+        data_type* PushBack(const key_type& key)
+        {
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
+                if (ptr->m_Pair.m_Key == key)
+                    return nullptr;
 
             node_type* ptr = new node_type(key);
-            ptr->m_Prev = last_ptr;
 
-            if (last_ptr)
-                last_ptr->m_Next = ptr;
-            else
-                m_Head = ptr;
-
-            ++m_nCount;
-
-            return &ptr->m_Pair;
-        }
-
-        data_type* Add(const key_type& key, const value_type& value)
-        {
-            node_type* last_ptr = nullptr;
-
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            if (IsEmpty())
             {
-                if (ptr->m_Pair.m_Key == key) return nullptr;
-
-                last_ptr = ptr;
+                m_Header = ptr;
+                m_End = ptr;
+            }
+            else
+            {
+                ptr->m_Prev = m_End;
+                m_End->m_Next = ptr;
+                m_End = ptr;
             }
 
-            node_type* ptr = new node_type(key, value);
-            ptr->m_Prev = last_ptr;
+            ++m_nCount;
 
-            if (last_ptr)
-                last_ptr->m_Next = ptr;
+            return &ptr->m_Pair;
+        }
+
+        data_type* PushBack(const key_type& key, const value_type& value)
+        {
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
+                if (ptr->m_Pair.m_Key == key)
+                    return nullptr;
+
+            node_type* ptr = new node_type(key, value);
+
+            if (IsEmpty())
+            {
+                m_Header = ptr;
+                m_End = ptr;
+            }
             else
-                m_Head = ptr;
+            {
+                ptr->m_Prev = m_End;
+                m_End->m_Next = ptr;
+                m_End = ptr;
+            }
 
             ++m_nCount;
 
             return &ptr->m_Pair;
         }
 
-        bool Update(const key_type& target, const key_type& key)
+        data_type* PushFront(const key_type& key)
         {
-            return (_Update(target, key));
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+                if (ptr->m_Pair.m_Key == key)
+                    return nullptr;
+
+            node_type* ptr = new node_type(key);
+
+            if (IsEmpty())
+            {
+                m_Header = ptr;
+                m_End = ptr;
+            }
+            else
+            {
+                ptr->m_Next = m_Header;
+                m_Header->m_Prev = ptr;
+                m_Header = ptr;
+            }
+
+            ++m_nCount;
+
+            return &ptr->m_Pair;
         }
 
-        bool Update(const key_type& target, const key_type& key, const value_type& value)
+        data_type* PushFront(const key_type& key, const value_type& value)
         {
-            if (auto ptr = _Update(target, key))
+            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
+                if (ptr->m_Pair.m_Key == key)
+                    return nullptr;
+
+            node_type* ptr = new node_type(key, value);
+
+            if (IsEmpty())
             {
+                m_Header = ptr;
+                m_End = ptr;                
+            }
+            else
+            {
+                ptr->m_Next = m_Header;
+                m_Header->m_Prev = ptr;
+                m_Header = ptr;
+            }
+
+            ++m_nCount;
+
+            return &ptr->m_Pair;
+        }
+
+        template<typename _findT>
+        bool PreorderUpdate(_findT _findFunc, const key_type& key)
+        {
+            if (auto ptr = _Preorder(_findFunc, key))
+            {
+                ptr->m_Key = key;
+                return true;
+            }
+
+            return false;
+        }
+
+        template<typename _findT>
+        bool PreorderUpdate(_findT _findFunc, const key_type& key, const value_type& value)
+        {
+            if (auto ptr = _Preorder(_findFunc, key))
+            {
+                ptr->m_Key = key;
+                ptr->m_Value = value;
+                return true;
+            }
+
+            return false;
+        }
+
+        template<typename _findT>
+        bool PostorderUpdate(_findT _findFunc, const key_type& key)
+        {
+            if (auto ptr = _Postorder(_findFunc, key))
+            {
+                ptr->m_Key = key;
+                return true;
+            }
+
+            return false;
+        }
+
+        template<typename _findT>
+        bool PostorderUpdate(_findT _findFunc, const key_type& key, const value_type& value)
+        {
+            if (auto ptr = _Postorder(_findFunc, key))
+            {
+                ptr->m_Key = key;
                 ptr->m_Value = value;
                 return true;
             }
@@ -246,7 +438,7 @@ namespace bnb
 
         bool Remove(const key_type& key)
         {
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
             {
                 if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
                 {
@@ -261,43 +453,67 @@ namespace bnb
             return false;
         }
 
+        template<typename _findT>
+        size_type RemoveIf(_findT _findFunc)
+        {
+            size_type nResult = 0;
+
+            for (node_type* ptr = m_Header; ptr; )
+            {
+                node_type* next_ptr = ptr->m_Next;
+
+                if (_findFunc(ptr->m_Pair))
+                {
+                    _Take(ptr);
+                    --m_nCount;
+                    delete ptr;
+
+                    ++nResult;
+                }
+
+                ptr = next_ptr;
+            }
+
+            return nResult;
+        }
+
         template<typename _CompareT>
         void Sort(_CompareT _compareFunc)
         {
-            if (m_Head)
+            if (m_Header)
             {
-                node_type* new_header = m_Head;
-                node_type* target_ptr = m_Head->m_Next;
-
-                new_header->m_Prev = nullptr;
-                new_header->m_Next = nullptr;
-
-                while (target_ptr)
+                if (node_type* target_ptr = m_Header->m_Next)
                 {
-                    node_type* next_ptr = target_ptr->m_Next;
+                    m_End = m_Header;
+                    m_Header->m_Prev = nullptr;
+                    m_Header->m_Next = nullptr;
 
-                    for (node_type* ptr = new_header; ptr; ptr = ptr->m_Next)
+                    while (target_ptr)
                     {
-                        if (_compareFunc(target_ptr->m_Pair, ptr->m_Pair))
+                        node_type* next_ptr = target_ptr->m_Next;
+
+                        if (![this, &_compareFunc, &target_ptr]() {
+                            for (node_type* insert_ptr = m_Header; insert_ptr; insert_ptr = insert_ptr->m_Next)
+                            {
+                                if (_compareFunc(target_ptr->m_Pair, insert_ptr->m_Pair))
+                                {
+                                    _InsertBefore(target_ptr, insert_ptr);
+                                    return true;
+                                }
+                            }
+
+                            return false;
+                        }())
                         {
-                            target_ptr->m_Prev = ptr->m_Prev;
-                            target_ptr->m_Next = ptr;
-
-                            if (new_header == ptr)
-                                new_header = target_ptr;
-                            else
-                                ptr->m_Prev->m_Next = target_ptr;
-
-                            ptr->m_Prev = target_ptr;
-
-                            break;
+                            target_ptr->m_Next = nullptr;
+                            target_ptr->m_Prev = m_End;
+                            m_End->m_Next = target_ptr;
+                            m_End = target_ptr;
                         }
+
+                        target_ptr = next_ptr;
                     }
-
-                    target_ptr = next_ptr;
                 }
-
-                m_Head = new_header;
             }
         }
 
@@ -306,64 +522,53 @@ namespace bnb
             Sort([](const data_type& left, const data_type& right) { return left < right; });
         }
 
-        bool Move(const key_type& key, unsigned int index)
+        bool Move(const key_type& key, int offset)
         {
-            node_type* target_ptr = nullptr;
-            node_type* insert_ptr = nullptr;
-            node_type* end_ptr = nullptr;
-
-            unsigned int i = 0;
-
-            for (node_type* ptr = m_Head; ptr; ptr = ptr->m_Next)
+            if (0 < offset)
             {
-                if (nullptr == target_ptr)
-                    if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
-                        target_ptr = ptr;
+                for (node_type* target_ptr = m_Header; target_ptr; target_ptr = target_ptr->m_Next)
+                {
+                    if (&key == &target_ptr->m_Pair.m_Key || key == target_ptr->m_Pair.m_Key)
+                    {
+                        node_type* insert_ptr = target_ptr;
+                        for (int i = 0; i < offset && insert_ptr != m_End; ++i)
+                            insert_ptr = insert_ptr->m_Next;
 
-                if (nullptr == insert_ptr)
-                    if (index == i)
-                        insert_ptr = ptr;
+                        if (target_ptr != insert_ptr)
+                        {
+                            _Take(target_ptr);
+                            _InsertAfter(target_ptr, insert_ptr);
+                        }
 
-                if (target_ptr && insert_ptr)
-                    break;
-
-                end_ptr = ptr;
-
-                ++i;
+                        return true;
+                    }
+                }
             }
-
-            if (target_ptr)
+            else if (offset < 0)
             {
-                if (insert_ptr)
+                for (node_type* target_ptr = m_End; target_ptr; target_ptr = target_ptr->m_Prev)
                 {
-                    if (target_ptr != insert_ptr)
+                    if (&key == &target_ptr->m_Pair.m_Key || key == target_ptr->m_Pair.m_Key)
                     {
-                        _Take(target_ptr);
+                        node_type* insert_ptr = target_ptr;
+                        for (int i = 0; offset < i && insert_ptr != m_Header; --i)
+                            insert_ptr = insert_ptr->m_Prev;
 
-                        target_ptr->m_Prev = insert_ptr->m_Prev;
-                        target_ptr->m_Next = insert_ptr;
+                        if (target_ptr != insert_ptr)
+                        {
+                            _Take(target_ptr);
+                            _InsertBefore(target_ptr, insert_ptr);
+                        }
 
-                        if (m_Head == insert_ptr)
-                            m_Head = target_ptr;
-                        else
-                            insert_ptr->m_Prev->m_Next = target;
-
-                        insert_ptr->m_Prev = target_ptr;
+                        return true;
                     }
                 }
-                else
-                {
-                    if (target_ptr != end_ptr)
-                    {
-                        _Take(target_ptr);
-
-                        end_ptr->m_Next = target_ptr;
-                        target_ptr->m_Prev = end_ptr;
-                        target_ptr->m_Next = nullptr;
-                    }
-                }
-
-                return true;
+            }
+            else
+            {
+                for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
+                    if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
+                        return true;
             }
 
             return false;

@@ -198,7 +198,7 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         }
         case bnb::credential_type::ct_platform:
         {
-            if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(cur->text(0)) }))
+            if (auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(cur->text(0)) }))
                 _ui.m_viewStack->SwitchToPlatform(ptr_platform->m_Key.GetID());
 
             return;
@@ -215,8 +215,8 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         {
             auto item_platform = cur->parent();
             if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
-                if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
-                    if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(cur->text(0)) }))
+                if (auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) }))
+                    if (auto ptr_account = ptr_platform->m_Value.PreorderFind({ From_QString(cur->text(0)) }))
                         _ui.m_viewStack->SwitchToAccount(ptr_account->m_Key.GetID());
 
             return;
@@ -420,7 +420,7 @@ bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
 
 bool MainView::AddAccount(QTreeWidgetItem* item_platform)
 {
-    auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) });
+    auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
         EditAccountDialog dlg(*ptr_platform, nullptr, this);
@@ -444,9 +444,9 @@ bool MainView::AddProperty(QTreeWidgetItem * item_account)
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
     {
-        if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
+        if (auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) }))
         {
-            if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
+            if (auto ptr_account = ptr_platform->m_Value.PreorderFind({ From_QString(item_account->text(0)) }))
             {
                 EditPropertyDialog dlg(*ptr_account, nullptr, this);
                 if (QDialog::Accepted == dlg.exec())
@@ -483,7 +483,7 @@ bool MainView::EditCredential(QTreeWidgetItem * item_credential)
 
 bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
 {
-    auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) });
+    auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
         EditPlatformDialog dlg(g_AppMgr.Model().Data(), ptr_platform, this);
@@ -507,9 +507,9 @@ bool MainView::EditAccount(QTreeWidgetItem * item_account)
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
     {
-        if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
+        if (auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) }))
         {
-            if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
+            if (auto ptr_account = ptr_platform->m_Value.PreorderFind({ From_QString(item_account->text(0)) }))
             {
                 EditAccountDialog dlg(*ptr_platform, ptr_account, this);
                 if (QDialog::Accepted == dlg.exec())
@@ -537,11 +537,11 @@ bool MainView::EditProperty(QTreeWidgetItem * item_property)
         QTreeWidgetItem* item_platform = item_account->parent();
         if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
         {
-            if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
+            if (auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) }))
             {
-                if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
+                if (auto ptr_account = ptr_platform->m_Value.PreorderFind({ From_QString(item_account->text(0)) }))
                 {
-                    if (auto ptr_property = ptr_account->m_Value.Find({ From_QString(item_property->text(0)) }))
+                    if (auto ptr_property = ptr_account->m_Value.PreorderFind({ From_QString(item_property->text(0)) }))
                     {
                         EditPropertyDialog dlg(*ptr_account, ptr_property, this);
                         if (QDialog::Accepted == dlg.exec())
@@ -565,7 +565,7 @@ bool MainView::EditProperty(QTreeWidgetItem * item_property)
 
 bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
 {
-    auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) });
+    auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
         std::vector<unsigned int> vtrIds{ ptr_platform->m_Key.GetID() };
@@ -600,9 +600,9 @@ bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
     {
-        if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
+        if (auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) }))
         {
-            if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
+            if (auto ptr_account = ptr_platform->m_Value.PreorderFind({ From_QString(item_account->text(0)) }))
             {
                 std::vector<unsigned int> vtrIds{ ptr_account->m_Key.GetID() };
                 if (ptr_platform->m_Value.Remove(ptr_account->m_Key))
@@ -632,11 +632,11 @@ bool MainView::RemoveProperty(QTreeWidgetItem* item_property)
         QTreeWidgetItem* item_platform = item_account->parent();
         if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
         {
-            if (auto ptr_platform = g_AppMgr.Model().Data().List().Find({ From_QString(item_platform->text(0)) }))
+            if (auto ptr_platform = g_AppMgr.Model().Data().List().PreorderFind({ From_QString(item_platform->text(0)) }))
             {
-                if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
+                if (auto ptr_account = ptr_platform->m_Value.PreorderFind({ From_QString(item_account->text(0)) }))
                 {
-                    if (auto ptr_property = ptr_account->m_Value.Find({ From_QString(item_property->text(0)) }))
+                    if (auto ptr_property = ptr_account->m_Value.PreorderFind({ From_QString(item_property->text(0)) }))
                     {
                         std::vector<unsigned int> vtrIds{ ptr_property->m_Key.GetID() };
                         if (ptr_account->m_Value.Remove(ptr_property->m_Key))
@@ -703,9 +703,9 @@ void MainView::ui_type::SetupUI(MainView* pView)
 
 void MainView::ui_type::RetranslateUI(MainView * pView)
 {
-    m_actAddAccount->setText("Add Account");
-    m_actAddPlatform->setText("Add Platform");
-    m_actAddProperty->setText("Add Property");
+    m_actAddAccount->setText("PushBack Account");
+    m_actAddPlatform->setText("PushBack Platform");
+    m_actAddProperty->setText("PushBack Property");
     m_actDelAccount->setText("Remove Account");
     m_actDelPlatform->setText("Remove Platform");
     m_actDelProperty->setText("Remove Property");

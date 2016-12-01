@@ -204,7 +204,7 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, bnb::platform_list::
     }
     else
     {
-        setWindowTitle("Add Platform");
+        setWindowTitle("PushBack Platform");
     }
 }
 
@@ -251,7 +251,7 @@ void EditPlatformDialog::OnClickedOK()
     }
     else
     {
-        m_Platform = m_Credential.List().Add(platform);
+        m_Platform = m_Credential.List().PushBack(platform);
         if (nullptr == m_Platform)
         {
             _ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
@@ -324,7 +324,7 @@ EditAccountDialog::EditAccountDialog(bnb::platform_list::data_type& pp, bnb::acc
     }
     else
     {
-        setWindowTitle("Add Account");
+        setWindowTitle("PushBack Account");
     }
 }
 
@@ -367,7 +367,7 @@ void EditAccountDialog::OnClickedOK()
     }
     else
     {
-        m_Account = m_Platform.m_Value.Add(account);
+        m_Account = m_Platform.m_Value.PushBack(account);
         if (nullptr == m_Account)
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
@@ -440,7 +440,7 @@ EditPropertyDialog::EditPropertyDialog(bnb::account_list::data_type & pa, bnb::p
     }
     else
     {
-        setWindowTitle("Add Property");
+        setWindowTitle("PushBack Property");
     }
 }
 
@@ -482,7 +482,7 @@ void EditPropertyDialog::OnClickedOK()
     }
     else
     {
-        m_Property = m_Account.m_Value.Add(key, value);
+        m_Property = m_Account.m_Value.PushBack(key, value);
         if (nullptr == m_Property)
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
