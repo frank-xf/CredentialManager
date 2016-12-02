@@ -28,7 +28,7 @@ static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned i
 //==============================================================================
 // Implementation of CredentialView
 //==============================================================================
-CredentialView::CredentialView(bnb::Credential& credential, QWidget * parent)
+CredentialView::CredentialView(const bnb::Credential& credential, QWidget * parent)
     : base_type(credential.GetID(), parent)
     , m_Credential(credential)
 {
@@ -53,7 +53,7 @@ void CredentialView::UpdateTable()
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        m_Credential.List().Foreach([this, &nIndex](const bnb::platform_list::data_type& platform) mutable {
+        m_Credential.List().PreorderTraversal([this, &nIndex](const bnb::platform_list::data_type& platform) mutable {
             auto pName = MakeTableItem(To_QString(platform.m_Key.m_strName), platform.m_Key.GetID(), { 255, 64, 0 }, Qt::AlignCenter);
             auto pUrl = MakeTableItem(To_QString(platform.m_Key.m_strUrl), platform.m_Key.GetID(), { 64, 64, 255 });
             auto pDisplay = MakeTableItem(To_QString(platform.m_Key.m_strComment), platform.m_Key.GetID(), { 32, 160, 32 });
@@ -77,7 +77,7 @@ void CredentialView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                m_Credential.List().Action([this, pItem, id, i](const bnb::platform_list::data_type& platform) {
+                m_Credential.List().PreorderAction([this, pItem, id, i](const bnb::platform_list::data_type& platform) {
                     if (platform.m_Key.GetID() == id)
                     {
                         pItem->setText(To_QString(platform.m_Key.m_strName));
@@ -146,7 +146,7 @@ void PlatformView::UpdateTable()
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        m_Platform.m_Value.Foreach([this, &nIndex](const bnb::account_list::data_type& account) mutable {
+        m_Platform.m_Value.PreorderTraversal([this, &nIndex](const bnb::account_list::data_type& account) mutable {
             auto pName = MakeTableItem(To_QString(account.m_Key.m_strName), account.m_Key.GetID(), { 64, 64, 255 }, Qt::AlignCenter);
             auto pDisplay = MakeTableItem(To_QString(account.m_Key.m_strComment), account.m_Key.GetID(), { 32, 160, 32 });
 
@@ -168,7 +168,7 @@ void PlatformView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                m_Platform.m_Value.Action([this, pItem, id, i](const bnb::account_list::data_type& account) {
+                m_Platform.m_Value.PreorderAction([this, pItem, id, i](const bnb::account_list::data_type& account) {
                     if (account.m_Key.GetID() == id)
                     {
                         pItem->setText(To_QString(account.m_Key.m_strName));
@@ -235,7 +235,7 @@ void AccountView::UpdateTable()
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        m_Account.m_Value.Foreach([this, &nIndex](const bnb::property_list::data_type& property) mutable {
+        m_Account.m_Value.PreorderTraversal([this, &nIndex](const bnb::property_list::data_type& property) mutable {
             auto pKey = MakeTableItem(To_QString(property.m_Key.m_strName), property.m_Key.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
             auto pValue = MakeTableItem(To_QString(property.m_Value.m_strName), property.m_Key.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
 
@@ -257,7 +257,7 @@ void AccountView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                m_Account.m_Value.Action([this, pItem, id, i](const bnb::property_list::data_type& property) {
+                m_Account.m_Value.PreorderAction([this, pItem, id, i](const bnb::property_list::data_type& property) {
                     if (property.m_Key.GetID() == id)
                     {
                         pItem->setText(To_QString(property.m_Key.m_strName));

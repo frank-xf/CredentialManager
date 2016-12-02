@@ -7,7 +7,7 @@ class QLabel;
 class QPushButton;
 class QLineEdit;
 
-class CreateDialog : public QDialog
+class NewDialog : public QDialog
 {
     struct ui_type
     {
@@ -32,13 +32,18 @@ class CreateDialog : public QDialog
         QLineEdit* m_editFilePath;
         QLineEdit* m_editComment;
 
-        void SetupUI(CreateDialog* pView);
-        void RetranslateUI(CreateDialog* pView);
+        void SetupUI(NewDialog* pView);
+        void RetranslateUI(NewDialog* pView);
     };
 
 public:
 
-	CreateDialog(QWidget * parent = nullptr);
+	NewDialog(QWidget * parent = nullptr);
+
+    QString GetFileName() const;
+    QString GetUserName() const;
+    QString GetPassword() const;
+    QString GetComment() const;
 
 private:
 

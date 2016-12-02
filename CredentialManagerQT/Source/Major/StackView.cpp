@@ -5,8 +5,6 @@
 #include "Credential/Credential.h"
 
 #include "credential_qt_utils.h"
-#include "credential_qt_manager.h"
-#include "credential_model_manager.h"
 
 #include "Widget/ContentView.h"
 #include "Major/StackView.h"
@@ -25,22 +23,6 @@ StackView::StackView(QWidget * parent) : QStackedWidget(parent)
     m_labHint->setFont(ui_utils::MakeFont());
 
     addWidget(m_labHint);
-}
-
-void StackView::InitCredential()
-{
-    auto view_credential = new CredentialView(g_AppMgr.Model().Data(), this);
-    addWidget(view_credential);
-
-    g_AppMgr.Model().Data().List().Foreach([this](const bnb::platform_list::data_type& platform) {
-        addWidget(new PlatformView(platform, this));
-
-        platform.m_Value.Foreach([this](const bnb::account_list::data_type& account) {
-            addWidget(new AccountView(account, this));
-        });
-    });
-
-    setCurrentWidget(view_credential);
 }
 
 void StackView::ClearCredential()
@@ -224,7 +206,20 @@ unsigned int StackView::RemoveView(const std::vector<unsigned int>& ids)
     return nCount;
 }
 
-bool StackView::AddPlatform(unsigned int credential_id, const bnb::platform_list::data_type & platform)
+bool StackView::AddCredential(const bnb::Credential & credential)
+{
+    addWidget(new CredentialView(credential, this));
+
+    return true;
+}
+
+bool StackView::AddPlatform(const bnb::platform_list::data_type & platform)
+{
+    addWidget(new PlatformView(platform, this));
+    return true;
+}
+
+bool StackView::AddPlatform(const bnb::platform_list::data_type & platform, unsigned int credential_id)
 {
     for (int i = 0; i < count(); ++i)
     {
@@ -240,7 +235,13 @@ bool StackView::AddPlatform(unsigned int credential_id, const bnb::platform_list
     return false;
 }
 
-bool StackView::AddAccount(unsigned int platform_id, const bnb::account_list::data_type & account)
+bool StackView::AddAccount(const bnb::account_list::data_type & account)
+{
+    addWidget(new AccountView(account, this));
+    return true;
+}
+
+bool StackView::AddAccount(const bnb::account_list::data_type & account, unsigned int platform_id)
 {
     for (int i = 0; i < count(); ++i)
     {
@@ -256,7 +257,12 @@ bool StackView::AddAccount(unsigned int platform_id, const bnb::account_list::da
     return false;
 }
 
-bool StackView::AddProperty(unsigned int account_id, const bnb::property_list::data_type & property)
+bool StackView::AddProperty(const bnb::property_list::data_type & property)
+{
+    return true;
+}
+
+bool StackView::AddProperty(const bnb::property_list::data_type & property, unsigned int account_id)
 {
     for (int i = 0; i < count(); ++i)
     {

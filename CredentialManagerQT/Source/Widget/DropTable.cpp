@@ -58,11 +58,12 @@ void DropTable::dropEvent(QDropEvent * event)
             QTableWidgetItem* item_insert = itemAt(event->pos());
             if (item_target && item_insert)
             {
-                QRect itemRect = visualItemRect(item_insert);
-                QAbstractItemView::AboveItem
+                int offset = row(item_insert) - row(item_target);
+                if (0 != offset)
+                {
+
+                }
             }
-
-
         }
 
         event->accept();
@@ -71,33 +72,6 @@ void DropTable::dropEvent(QDropEvent * event)
     {
         QTableWidget::dropEvent(event);
     }
-
-    if (auto pItem = itemAt(event->pos()))
-    {
-        std::cout << "text: " << pItem->text().toStdString() << std::endl;
-        std::cout << "row: " << row(pItem) << std::endl;
-        std::cout << "column: " << column(pItem) << std::endl;
-    }
-
-    std::cout << "mouse: " << event->mouseButtons() << std::endl;
-    std::cout << "possibleActions: " << event->possibleActions() << std::endl;
-    std::cout << "proposedAction: " << event->proposedAction() << std::endl;
-    std::cout << "dropAction: " << event->dropAction() << std::endl;
-    std::cout << "is this: " << ((event->source() == this) ? "true" : "false") << std::endl;
-    std::cout << "---------------------------------" << std::endl;
-
-    int i = 0;
-    auto listItem = selectedItems();
-    for (auto pItem : listItem)
-    {
-        if (pItem)
-        {
-            std::cout << i <<" text: " << pItem->text().toStdString() << ", ("<< row(pItem) <<", "<< column(pItem) <<")"<<std::endl;
-        }
-        ++i;
-    }
-
-    event->accept();
 }
 
 QT_END_NAMESPACE

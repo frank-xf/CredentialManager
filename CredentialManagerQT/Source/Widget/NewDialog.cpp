@@ -9,14 +9,12 @@
 
 #include "credential_qt_string.h"
 #include "credential_qt_utils.h"
-#include "credential_qt_manager.h"
-#include "credential_model_manager.h"
 
-#include "Widget/CreateDialog.h"
+#include "Widget/NewDialog.h"
 
 QT_BEGIN_NAMESPACE
 
-CreateDialog::CreateDialog(QWidget * parent)
+NewDialog::NewDialog(QWidget * parent)
     : QDialog(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
 {
     _ui.SetupUI(this);
@@ -26,12 +24,17 @@ CreateDialog::CreateDialog(QWidget * parent)
     QObject::connect(_ui.m_editValidate, &QLineEdit::textChanged, _ui.m_labHint, &QLabel::clear);
     QObject::connect(_ui.m_editFilePath, &QLineEdit::textChanged, _ui.m_labHint, &QLabel::clear);
     QObject::connect(_ui.m_editComment, &QLineEdit::textChanged, _ui.m_labHint, &QLabel::clear);
-    QObject::connect(_ui.m_btnBrowse, &QPushButton::clicked, this, &CreateDialog::OnClickedBrowse);
-    QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &CreateDialog::OnClickedOK);
+    QObject::connect(_ui.m_btnBrowse, &QPushButton::clicked, this, &NewDialog::OnClickedBrowse);
+    QObject::connect(_ui.m_btnOK, &QPushButton::clicked, this, &NewDialog::OnClickedOK);
     QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
 }
 
-void CreateDialog::OnClickedOK()
+QString NewDialog::GetFileName() const { return _ui.m_editFilePath->text(); }
+QString NewDialog::GetUserName() const { return _ui.m_editUserName->text(); }
+QString NewDialog::GetPassword() const { return _ui.m_editPassword->text(); }
+QString NewDialog::GetComment() const { return _ui.m_editComment->text(); }
+
+void NewDialog::OnClickedOK()
 {
     if (_ui.m_editUserName->text().isEmpty())
     {
@@ -65,17 +68,10 @@ void CreateDialog::OnClickedOK()
         return;
     }
 
-	g_AppMgr.Model().Data().Clear();
-    g_AppMgr.Model().Data().SetWord(From_QString(s1));
-	g_AppMgr.Model().Data().SetUser(From_QString(_ui.m_editUserName->text()));
-    g_AppMgr.Model().Data().SetComment(From_QString(_ui.m_editComment->text()));
-	g_AppMgr.Model().SetFile(_ui.m_editFilePath->text());
-	g_AppMgr.Model().SaveCredential();
-
     accept();
 }
 
-void CreateDialog::OnClickedBrowse()
+void NewDialog::OnClickedBrowse()
 {
     QString strText;
     if (_ui.m_editUserName->text().isEmpty())
@@ -92,9 +88,9 @@ void CreateDialog::OnClickedBrowse()
     }
 }
 
-void CreateDialog::ui_type::SetupUI(CreateDialog * pView)
+void NewDialog::ui_type::SetupUI(NewDialog * pView)
 {
-    pView->setObjectName("CreateDialog");
+    pView->setObjectName("NewDialog");
     ui_utils::SetBackgroundColor(pView, Qt::white);
 
     _labUserName = ui_utils::MakeStaticLabel(pView);
@@ -189,7 +185,7 @@ void CreateDialog::ui_type::SetupUI(CreateDialog * pView)
     RetranslateUI(pView);
 }
 
-void CreateDialog::ui_type::RetranslateUI(CreateDialog * pView)
+void NewDialog::ui_type::RetranslateUI(NewDialog * pView)
 {
     _labUserName->setText("User Name: ");
     _labPassword->setText("Password: ");

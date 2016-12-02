@@ -118,7 +118,7 @@ class CredentialView : public ContentView<CredentialView, 3>
 {
 public:
 
-    CredentialView(bnb::Credential& credential, QWidget * parent = nullptr);
+    CredentialView(const bnb::Credential& credential, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
@@ -126,7 +126,7 @@ public:
 
 private:
 
-    bnb::Credential& m_Credential;
+    const bnb::Credential& m_Credential;
 
 };	// class CredentialView
 

@@ -38,6 +38,7 @@ public:
 
 private:
 
+    bool SaveCredential();
     void InitCredential();
     void ClearCredential();
 
@@ -75,6 +76,8 @@ private:
 private:
 
     ui_type _ui;
+
+    QString m_strFile;
 
 };
 

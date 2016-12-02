@@ -5,15 +5,19 @@ QT_BEGIN_NAMESPACE
 
 class TreeView : public QTreeWidget
 {
+private:
+    
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+
 public:
 
 	TreeView(QWidget * parent = nullptr);
 
-	void InitCredential();
 	void ClearCredential();
-	void UpdateHeader();
+	void UpdateHeader(const QString& strText);
 
-	QTreeWidgetItem* AddPlatform(QTreeWidgetItem* parent, const bnb::platform_list::data_type& pp);
+    QTreeWidgetItem* AddRoot(const bnb::Credential& pc);
+    QTreeWidgetItem* AddPlatform(QTreeWidgetItem* parent, const bnb::platform_list::data_type& pp);
 	QTreeWidgetItem* AddAccount(QTreeWidgetItem* parent, const bnb::account_list::data_type& pa);
 	QTreeWidgetItem* AddProperty(QTreeWidgetItem* parent, const bnb::property_list::data_type& pp);
 

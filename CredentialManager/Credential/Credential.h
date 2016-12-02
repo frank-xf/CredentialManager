@@ -72,37 +72,15 @@ namespace bnb
         list_type(const list_type&) = delete;
         list_type& operator=(const list_type&) = delete;
 
-        template<typename _findT>
-        data_type* _Preorder(_findT _findFunc, const key_type& key)
+        data_type* _Traversal(const key_type& target, const key_type& key)
         {
             data_type* target_ptr = nullptr;
+
             for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
             {
                 if (nullptr == target_ptr)
                 {
-                    if (_findFunc(ptr->m_Pair))
-                    {
-                        target_ptr = &ptr->m_Pair;
-                        continue;
-                    }
-                }
-
-                if (key == ptr->m_Pair.m_Key)
-                    return nullptr;
-            }
-
-            return target_ptr;
-        }
-
-        template<typename _findT>
-        data_type* _Postorder(_findT _findFunc, const key_type& key)
-        {
-            data_type* target_ptr = nullptr;
-            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
-            {
-                if (nullptr == target_ptr)
-                {
-                    if (_findFunc(ptr->m_Pair))
+                    if (&target == &ptr->m_Pair.m_Key || target == ptr->m_Pair.m_Key)
                     {
                         target_ptr = &ptr->m_Pair;
                         continue;
@@ -246,41 +224,19 @@ namespace bnb
             return false;
         }
 
-        template<typename _findT>
-        data_type* PreorderFind(_findT _findFunc)
+        data_type* Find(const key_type& key)
         {
             for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
-                if (_findFunc(ptr->m_Pair))
+                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
                     return &ptr->m_Pair;
 
             return nullptr;
         }
 
-        template<typename _findT>
-        const data_type* PreorderFind(_findT _findFunc) const
+        const data_type* Find(const key_type& key) const
         {
             for (node_type* ptr = m_Header; ptr; ptr = ptr->m_Next)
-                if (_findFunc(ptr->m_Pair))
-                    return &ptr->m_Pair;
-
-            return nullptr;
-        }
-
-        template<typename _findT>
-        data_type* PostorderFind(_findT _findFunc)
-        {
-            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
-                if (_findFunc(ptr->m_Pair))
-                    return &ptr->m_Pair;
-
-            return nullptr;
-        }
-
-        template<typename _findT>
-        const data_type* PostorderFind(_findT _findFunc) const
-        {
-            for (node_type* ptr = m_End; ptr; ptr = ptr->m_Prev)
-                if (_findFunc(ptr->m_Pair))
+                if (&key == &ptr->m_Pair.m_Key || key == ptr->m_Pair.m_Key)
                     return &ptr->m_Pair;
 
             return nullptr;
@@ -386,10 +342,9 @@ namespace bnb
             return &ptr->m_Pair;
         }
 
-        template<typename _findT>
-        bool PreorderUpdate(_findT _findFunc, const key_type& key)
+        bool Update(const key_type& target, const key_type& key)
         {
-            if (auto ptr = _Preorder(_findFunc, key))
+            if (auto ptr = _Traversal(target, key))
             {
                 ptr->m_Key = key;
                 return true;
@@ -398,35 +353,9 @@ namespace bnb
             return false;
         }
 
-        template<typename _findT>
-        bool PreorderUpdate(_findT _findFunc, const key_type& key, const value_type& value)
+        bool Update(const key_type& target, const key_type& key, const value_type& value)
         {
-            if (auto ptr = _Preorder(_findFunc, key))
-            {
-                ptr->m_Key = key;
-                ptr->m_Value = value;
-                return true;
-            }
-
-            return false;
-        }
-
-        template<typename _findT>
-        bool PostorderUpdate(_findT _findFunc, const key_type& key)
-        {
-            if (auto ptr = _Postorder(_findFunc, key))
-            {
-                ptr->m_Key = key;
-                return true;
-            }
-
-            return false;
-        }
-
-        template<typename _findT>
-        bool PostorderUpdate(_findT _findFunc, const key_type& key, const value_type& value)
-        {
-            if (auto ptr = _Postorder(_findFunc, key))
+            if (auto ptr = _Traversal(target, key))
             {
                 ptr->m_Key = key;
                 ptr->m_Value = value;
@@ -488,22 +417,21 @@ namespace bnb
                     m_Header->m_Prev = nullptr;
                     m_Header->m_Next = nullptr;
 
-                    while (target_ptr)
-                    {
+                    do {
                         node_type* next_ptr = target_ptr->m_Next;
 
                         if (![this, &_compareFunc, &target_ptr]() {
-                            for (node_type* insert_ptr = m_Header; insert_ptr; insert_ptr = insert_ptr->m_Next)
-                            {
-                                if (_compareFunc(target_ptr->m_Pair, insert_ptr->m_Pair))
+                                for (node_type* insert_ptr = m_Header; insert_ptr; insert_ptr = insert_ptr->m_Next)
                                 {
-                                    _InsertBefore(target_ptr, insert_ptr);
-                                    return true;
+                                    if (_compareFunc(target_ptr->m_Pair, insert_ptr->m_Pair))
+                                    {
+                                        _InsertBefore(target_ptr, insert_ptr);
+                                        return true;
+                                    }
                                 }
-                            }
 
-                            return false;
-                        }())
+                                return false;
+                            }())
                         {
                             target_ptr->m_Next = nullptr;
                             target_ptr->m_Prev = m_End;
@@ -512,7 +440,7 @@ namespace bnb
                         }
 
                         target_ptr = next_ptr;
-                    }
+                    } while (target_ptr)
                 }
             }
         }

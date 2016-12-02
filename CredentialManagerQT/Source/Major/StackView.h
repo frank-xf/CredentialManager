@@ -9,7 +9,6 @@ public:
 
     StackView(QWidget * parent = nullptr);
 
-    void InitCredential();
     void ClearCredential();
 
     bool UpdateCredential(unsigned int credential_id);
@@ -22,9 +21,13 @@ public:
     bool RemoveProperty(unsigned int account_id, const std::vector<unsigned int>& ids);
     unsigned int RemoveView(const std::vector<unsigned int>& ids);
 
-    bool AddPlatform(unsigned int credential_id, const bnb::platform_list::data_type& platform);
-    bool AddAccount(unsigned int platform_id, const bnb::account_list::data_type& account);
-    bool AddProperty(unsigned int account_id, const bnb::property_list::data_type& property);
+    bool AddCredential(const bnb::Credential& credential);
+    bool AddPlatform(const bnb::platform_list::data_type& platform);
+    bool AddPlatform(const bnb::platform_list::data_type& platform, unsigned int credential_id);
+    bool AddAccount(const bnb::account_list::data_type& account);
+    bool AddAccount(const bnb::account_list::data_type& account, unsigned int platform_id);
+    bool AddProperty(const bnb::property_list::data_type& property);
+    bool AddProperty(const bnb::property_list::data_type& property, unsigned int account_id);
 
     bool SwitchToCredential(unsigned int id);
     bool SwitchToPlatform(unsigned int id);
