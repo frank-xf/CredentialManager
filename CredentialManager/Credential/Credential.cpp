@@ -80,18 +80,24 @@ namespace bnb
 
     };
 
+    unsigned long long Credential::_GetTime()
+    {
+        return time(nullptr);
+    }
+
     void Credential::Clear()
     {
         m_strWord.clear();
         m_strUser.clear();
-        m_ullTime = 0;
+        m_strComment.clear();
+        UpdateTime();
 
-        m_List.Clear();
+        list_type<platform_node>::Clear();
     }
 
     void Credential::UpdateTime()
     {
-        m_ullTime = time(nullptr);
+        m_ullTime = _GetTime();
     }
 
     bool Credential::ValidateWord(const string_type& strWord) const
@@ -115,7 +121,7 @@ namespace bnb
         auto node_credential = doc.child(_sKey(sk_credential));
         if (pugi::node_element != node_credential.type()) return false;
 
-        m_List.Clear();
+        Clear();
 
         m_ullTime = node_credential.attribute(_sKey(sk_time)).as_ullong();
         m_strUser = node_credential.attribute(_sKey(sk_user)).value();
@@ -126,7 +132,7 @@ namespace bnb
             auto name_attr_platform = node_platform.attribute(_sKey(sk_name));
             if (name_attr_platform.empty()) return false;
 
-            auto ptr_platform = m_List.PushBack({
+            auto ptr_platform = PushBack({
                 name_attr_platform.value(), node_platform.attribute(_sKey(sk_url)).value(), node_platform.attribute(_sKey(sk_comment)).value() }
             );
 
@@ -135,21 +141,19 @@ namespace bnb
                 auto name_attr_account = node_account.attribute(_sKey(sk_name));
                 if (name_attr_account.empty()) return false;
 
-                auto ptr_account = ptr_platform->m_Value.PushBack({ name_attr_account.value(), node_account.attribute(_sKey(sk_comment)).value() });
+                auto ptr_account = ptr_platform->PushBack({ name_attr_account.value(), node_account.attribute(_sKey(sk_comment)).value() });
 
                 for (auto node_property : node_account.children(_sKey(sk_property)))
                 {
                     auto name_attr_property = node_property.attribute(_sKey(sk_name));
                     if (name_attr_property.empty()) return false;
 
-                    auto ptr_property = ptr_account->m_Value.PushBack({ name_attr_property.value() });
-
                     auto node_value = node_property.first_child();
                     if (!node_value.empty())
                     {
                         if (pugi::node_cdata != node_value.type()) return false;
 
-                        ptr_property->m_Value.m_strName = node_value.value();
+                        ptr_account->PushBack({ name_attr_property.value(), node_value.value() });
                     }
                 }
             }
@@ -171,21 +175,21 @@ namespace bnb
         node_credential.append_attribute(_sKey(sk_user)).set_value(m_strUser.c_str());
         node_credential.append_attribute(_sKey(sk_comment)).set_value(m_strComment.c_str());
 
-        m_List.PreorderTraversal([&node_credential](const platform_list::data_type& platform) {
+        PreorderTraversal([&node_credential](const platform_node& platform) {
             auto node_platform = node_credential.append_child(_sKey(sk_platform));
-            node_platform.append_attribute(_sKey(sk_name)).set_value(platform.m_Key.m_strName.c_str());
-            node_platform.append_attribute(_sKey(sk_url)).set_value(platform.m_Key.m_strUrl.c_str());
-            node_platform.append_attribute(_sKey(sk_comment)).set_value(platform.m_Key.m_strComment.c_str());
+            node_platform.append_attribute(_sKey(sk_name)).set_value(platform.GetData().m_strName.c_str());
+            node_platform.append_attribute(_sKey(sk_url)).set_value(platform.GetData().m_strUrl.c_str());
+            node_platform.append_attribute(_sKey(sk_comment)).set_value(platform.GetData().m_strComment.c_str());
 
-            platform.m_Value.PreorderTraversal([&node_platform](const account_list::data_type& account) {
+            platform.PreorderTraversal([&node_platform](const account_node& account) {
                 auto node_account = node_platform.append_child(_sKey(sk_account));
-                node_account.append_attribute(_sKey(sk_name)).set_value(account.m_Key.m_strName.c_str());
-                node_account.append_attribute(_sKey(sk_comment)).set_value(account.m_Key.m_strComment.c_str());
+                node_account.append_attribute(_sKey(sk_name)).set_value(account.GetData().m_strName.c_str());
+                node_account.append_attribute(_sKey(sk_comment)).set_value(account.GetData().m_strComment.c_str());
 
-                account.m_Value.PreorderTraversal([&node_account](const property_list::data_type& property) {
+                account.PreorderTraversal([&node_account](const property_node& property) {
                     auto node_property = node_account.append_child(_sKey(sk_property));
-                    node_property.append_attribute(_sKey(sk_name)).set_value(property.m_Key.m_strName.c_str());
-                    node_property.append_child(pugi::node_cdata).set_value(property.m_Value.m_strName.c_str());
+                    node_property.append_attribute(_sKey(sk_name)).set_value(property.GetData().m_strKey.c_str());
+                    node_property.append_child(pugi::node_cdata).set_value(property.GetData().m_strValue.c_str());
                 });
             });
         });

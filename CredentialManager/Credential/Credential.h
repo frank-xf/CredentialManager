@@ -1,6 +1,8 @@
 #ifndef _bnb_Credential_H_
 #define _bnb_Credential_H_
 
+#include "Tree.h"
+
 namespace std
 {
     template<typename _Ty> class allocator;
@@ -22,8 +24,8 @@ namespace bnb
     inline bool operator == (const string_type& a, const string_type& b) { return (0 == _wcsicmp(a.c_str(), b.c_str())); }
     inline bool operator != (const string_type& a, const string_type& b) { return !(a == b); }
 
-    enum class credential_type : unsigned char { ct_credential, ct_platform, ct_account, ct_property };
-
+    enum class credential_enum : unsigned char { ct_credential, ct_platform, ct_account, ct_property };
+    /*
     template<typename _Ty1, typename _Ty2>
     struct pair_type
     {
@@ -503,31 +505,31 @@ namespace bnb
         }
 
     };
-
+    */
     struct credential_base
     {
     protected:
 
         static size_t _credential_id;
 
-        const credential_type m_Type;
+        const credential_enum m_Type;
         const size_t m_ID;
 
-        credential_base(credential_type type) : m_Type(type), m_ID(_credential_id++) { }
+        credential_base(credential_enum type) : m_Type(type), m_ID(_credential_id++) { }
         credential_base(const credential_base& other) : m_Type(other.m_Type), m_ID(_credential_id++) { }
         credential_base& operator=(const credential_base& other) { return *this; }
 
     public:
 
         size_t GetID() const { return m_ID; }
-        credential_type GetType() const { return m_Type; }
+        credential_enum GetType() const { return m_Type; }
 
     };
 
     struct platform_type : public credential_base
     {
         platform_type(const string_type& name = string_type(), const string_type& url = string_type(), const string_type& comment = string_type())
-            : credential_base(credential_type::ct_platform)
+            : credential_base(credential_enum::ct_platform)
             , m_strName(name)
             , m_strUrl(url)
             , m_strComment(comment)
@@ -541,7 +543,7 @@ namespace bnb
     struct account_type : public credential_base
     {
         account_type(const string_type& name = string_type(), const string_type& comment = string_type())
-            : credential_base(credential_type::ct_account)
+            : credential_base(credential_enum::ct_account)
             , m_strName(name)
             , m_strComment(comment)
         { }
@@ -550,67 +552,71 @@ namespace bnb
         string_type m_strComment;
     };
 
-    struct property_key : public credential_base
+    struct property_type : public credential_base
     {
-        property_key(const string_type& name = string_type())
-            : credential_base(credential_type::ct_property)
-            , m_strName(name)
+        property_type(const string_type& key = string_type(), const string_type& value = string_type())
+            : credential_base(credential_enum::ct_property)
+            , m_strKey(key)
+            , m_strValue(value)
         { }
 
-        string_type m_strName;
-    };
-
-    struct property_value
-    {
-        property_value(const string_type& value = string_type()) : m_strName(value) { }
-
-        string_type m_strName;
+        string_type m_strKey;
+        string_type m_strValue;
     };
 
     inline bool operator < (const platform_type& a, const platform_type& b) { return a.m_strName < b.m_strName; }
     inline bool operator < (const account_type& a, const account_type& b) { return a.m_strName < b.m_strName; }
-    inline bool operator < (const property_key& a, const property_key& b) { return a.m_strName < b.m_strName; }
-    inline bool operator < (const property_value& a, const property_value& b) { return a.m_strName < b.m_strName; }
+    inline bool operator < (const property_type& a, const property_type& b) { return a.m_strKey < b.m_strKey; }
     inline bool operator > (const platform_type& a, const platform_type& b) { return (b < a); }
     inline bool operator > (const account_type& a, const account_type& b) { return (b < a); }
-    inline bool operator > (const property_key& a, const property_key& b) { return (b < a); }
-    inline bool operator > (const property_value& a, const property_value& b) { return (b < a); }
+    inline bool operator > (const property_type& a, const property_type& b) { return (b < a); }
     inline bool operator == (const platform_type& a, const platform_type& b) { return a.m_strName == b.m_strName; }
     inline bool operator == (const account_type& a, const account_type& b) { return a.m_strName == b.m_strName; }
-    inline bool operator == (const property_key& a, const property_key& b) { return a.m_strName == b.m_strName; }
-    inline bool operator == (const property_value& a, const property_value& b) { return a.m_strName == b.m_strName; }
+    inline bool operator == (const property_type& a, const property_type& b) { return a.m_strKey == b.m_strKey; }
     inline bool operator != (const platform_type& a, const platform_type& b) { return !(a == b); }
     inline bool operator != (const account_type& a, const account_type& b) { return !(a == b); }
-    inline bool operator != (const property_key& a, const property_key& b) { return !(a == b); }
-    inline bool operator != (const property_value& a, const property_value& b) { return !(a == b); }
-
+    inline bool operator != (const property_type& a, const property_type& b) { return !(a == b); }
+    /*
     using property_list = list_type<property_key, property_value>;
     using account_list = list_type<account_type, property_list>;
     using platform_list = list_type<platform_type, account_list>;
+    */
+    /*
+    using account_node = tree_node<account_type, platform_node, property_node>;
+    using property_node = list_node<property_type, account_node>;
+    using platform_node = tree_node<platform_type, Credential, account_node>;
+    */
+    class Credential;
 
-    class Credential : public credential_base
+    using property_node = list_node<property_type>;
+    using account_node = tree_node<account_type, property_node>;
+    using platform_node = tree_node<platform_type, account_node>;
+
+    class Credential : public credential_base, public list_type<platform_node>
     {
         string_type m_strWord;
         string_type m_strUser;
         string_type m_strComment;
         unsigned long long m_ullTime{ 0 };
 
-        platform_list m_List;
-
         Credential(const Credential&) = delete;
         Credential& operator=(const Credential&) = delete;
 
+        static unsigned long long _GetTime();
+
     public:
 
-        Credential() : credential_base(credential_type::ct_credential) { }
-        explicit Credential(const string_type& strWord) : credential_base(credential_type::ct_credential), m_strWord(strWord) { }
+        Credential(const string_type& user = string_type(), const string_type& word = string_type(), const string_type& comment = string_type())
+            : credential_base(credential_enum::ct_credential)
+            , m_strUser(user)
+            , m_strWord(word)
+            , m_strComment(comment)
+            , m_ullTime(_GetTime())
+        { }
 
         void Clear();
 
         bool IsValid() const { return !(m_strUser.empty() || m_strWord.empty()); }
-
-        platform_list& List() { return m_List; }
-        const platform_list& List() const { return m_List; }
 
         const string_type& GetWord() const { return m_strWord; }
         const string_type& GetUser() const { return m_strUser; }

@@ -18,7 +18,7 @@ QT_BEGIN_NAMESPACE
 
 //------------------------------------------------------------------------------
 
-static inline void SetTreeItem(QTreeWidgetItem* pItem, bnb::credential_type t, const QColor& c)
+static inline void SetTreeItem(QTreeWidgetItem* pItem, bnb::credential_enum t, const QColor& c)
 {
     pItem->setTextColor(0, c);
     pItem->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::def_widget_h });
@@ -26,7 +26,7 @@ static inline void SetTreeItem(QTreeWidgetItem* pItem, bnb::credential_type t, c
     pItem->setFont(0, ui_utils::MakeFont());
 }
 
-static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& strText, bnb::credential_type t, const QColor& c)
+static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& strText, bnb::credential_enum t, const QColor& c)
 {
     QTreeWidgetItem* pItem = new QTreeWidgetItem(p, { strText });
     SetTreeItem(pItem, t, c);
@@ -90,7 +90,7 @@ void TreeView::UpdateHeader(const QString& strText)
 QTreeWidgetItem * TreeView::AddRoot(const bnb::Credential & pc)
 {
     QTreeWidgetItem* item_root = new QTreeWidgetItem(this, { '[' + To_QString(pc.GetUser()) + ']' });
-    SetTreeItem(item_root, bnb::credential_type::ct_credential, ui_utils::g_clrCredential);
+    SetTreeItem(item_root, bnb::credential_enum::ct_credential, ui_utils::g_clrCredential);
     addTopLevelItem(item_root);
 
     return item_root;

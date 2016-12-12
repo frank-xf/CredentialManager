@@ -35,9 +35,9 @@ bnb::Credential& g_Credential()
 
 QT_BEGIN_NAMESPACE
 
-inline static bnb::credential_type GetItemType(const QTreeWidgetItem& item)
+inline static bnb::credential_enum GetItemType(const QTreeWidgetItem& item)
 {
-    return static_cast<bnb::credential_type>(item.data(0, Qt::UserRole).toUInt());
+    return static_cast<bnb::credential_enum>(item.data(0, Qt::UserRole).toUInt());
 }
 
 MainView::MainView(QWidget *parent)
@@ -204,25 +204,25 @@ void MainView::OnTreeContextMenu(const QPoint & pos)
 
     if (pItem)
     {
-        switch (static_cast<bnb::credential_type>(pItem->data(0, Qt::UserRole).toUInt()))
+        switch (static_cast<bnb::credential_enum>(pItem->data(0, Qt::UserRole).toUInt()))
         {
-        case bnb::credential_type::ct_credential:
+        case bnb::credential_enum::ct_credential:
             treeMenu.addAction(_ui.m_actEditCredential);
             treeMenu.addAction(_ui.m_actModifyPassword);
             treeMenu.addSeparator();
             treeMenu.addAction(_ui.m_actAddPlatform);
             break;
-        case bnb::credential_type::ct_property:
+        case bnb::credential_enum::ct_property:
             treeMenu.addAction(_ui.m_actEditProperty);
             treeMenu.addAction(_ui.m_actDelProperty);
             break;
-        case bnb::credential_type::ct_account:
+        case bnb::credential_enum::ct_account:
             treeMenu.addAction(_ui.m_actEditAccount);
             treeMenu.addAction(_ui.m_actDelAccount);
             treeMenu.addSeparator();
             treeMenu.addAction(_ui.m_actAddProperty);
             break;
-        case bnb::credential_type::ct_platform:
+        case bnb::credential_enum::ct_platform:
             treeMenu.addAction(_ui.m_actEditPlatform);
             treeMenu.addAction(_ui.m_actDelPlatform);
             treeMenu.addSeparator();
@@ -242,7 +242,7 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
     {
         switch (GetItemType(*cur))
         {
-        case bnb::credential_type::ct_credential:
+        case bnb::credential_enum::ct_credential:
         {
             if (g_Credential().IsValid())
                 _ui.m_viewStack->SwitchToCredential(g_Credential().GetID());
@@ -251,25 +251,25 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 
             return;
         }
-        case bnb::credential_type::ct_platform:
+        case bnb::credential_enum::ct_platform:
         {
             if (auto ptr_platform = g_Credential().List().Find({ From_QString(cur->text(0)) }))
                 _ui.m_viewStack->SwitchToPlatform(ptr_platform->m_Key.GetID());
 
             return;
         }
-        case bnb::credential_type::ct_property:
+        case bnb::credential_enum::ct_property:
         {
             auto item_account = cur->parent();
-            if (item_account && bnb::credential_type::ct_account == GetItemType(*item_account))
+            if (item_account && bnb::credential_enum::ct_account == GetItemType(*item_account))
                 cur = item_account;
             else
                 return;
         }
-        case bnb::credential_type::ct_account:
+        case bnb::credential_enum::ct_account:
         {
             auto item_platform = cur->parent();
-            if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+            if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
                 if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
                     if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(cur->text(0)) }))
                         _ui.m_viewStack->SwitchToAccount(ptr_account->m_Key.GetID());
@@ -290,28 +290,28 @@ void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
     {
         switch (GetItemType(*pItem))
         {
-        case bnb::credential_type::ct_credential:
+        case bnb::credential_enum::ct_credential:
         {
             if (EditCredential(pItem))
                 return;
 
             break;
         }
-        case bnb::credential_type::ct_platform:
+        case bnb::credential_enum::ct_platform:
         {
             if (EditPlatform(pItem))
                 return;
 
             break;
         }
-        case bnb::credential_type::ct_property:
+        case bnb::credential_enum::ct_property:
         {
             if (EditProperty(pItem))
                 return;
 
             break;
         }
-        case bnb::credential_type::ct_account:
+        case bnb::credential_enum::ct_account:
         {
             if (EditAccount(pItem))
                 return;
@@ -329,7 +329,7 @@ void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
 void MainView::OnAddPlatform()
 {
     if (QTreeWidgetItem* item_credential = _ui.m_treeView->currentItem())
-        if (bnb::credential_type::ct_credential == GetItemType(*item_credential))
+        if (bnb::credential_enum::ct_credential == GetItemType(*item_credential))
             if (AddPlatform(item_credential))
                 return;
 
@@ -339,7 +339,7 @@ void MainView::OnAddPlatform()
 void MainView::OnAddAccount()
 {
     if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
-        if (bnb::credential_type::ct_platform == GetItemType(*item_platform))
+        if (bnb::credential_enum::ct_platform == GetItemType(*item_platform))
             if (AddAccount(item_platform))
                 return;
 
@@ -349,7 +349,7 @@ void MainView::OnAddAccount()
 void MainView::OnAddProperty()
 {
     if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
-        if (bnb::credential_type::ct_account == GetItemType(*item_account))
+        if (bnb::credential_enum::ct_account == GetItemType(*item_account))
             if (AddProperty(item_account))
                 return;
 
@@ -369,7 +369,7 @@ void MainView::OnMotifyPassword()
 void MainView::OnEditCredential()
 {
     if (QTreeWidgetItem* item_credential = _ui.m_treeView->currentItem())
-        if (bnb::credential_type::ct_credential == GetItemType(*item_credential))
+        if (bnb::credential_enum::ct_credential == GetItemType(*item_credential))
             if (EditCredential(item_credential))
                 return;
 
@@ -379,7 +379,7 @@ void MainView::OnEditCredential()
 void MainView::OnEditPlatform()
 {
     if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
-        if (bnb::credential_type::ct_platform == GetItemType(*item_platform))
+        if (bnb::credential_enum::ct_platform == GetItemType(*item_platform))
             if (EditPlatform(item_platform))
                 return;
 
@@ -389,7 +389,7 @@ void MainView::OnEditPlatform()
 void MainView::OnEditAccount()
 {
     if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
-        if (bnb::credential_type::ct_account == GetItemType(*item_account))
+        if (bnb::credential_enum::ct_account == GetItemType(*item_account))
             if (EditAccount(item_account))
                 return;
 
@@ -399,7 +399,7 @@ void MainView::OnEditAccount()
 void MainView::OnEditProperty()
 {
     if (QTreeWidgetItem* item_property = _ui.m_treeView->currentItem())
-        if (bnb::credential_type::ct_property == GetItemType(*item_property))
+        if (bnb::credential_enum::ct_property == GetItemType(*item_property))
             if (EditProperty(item_property))
                 return;
 
@@ -410,7 +410,7 @@ void MainView::OnRemovePlatform()
 {
     if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
     {
-        if (bnb::credential_type::ct_platform == GetItemType(*item_platform))
+        if (bnb::credential_enum::ct_platform == GetItemType(*item_platform))
         {
             QString strText = "Are you sure to remove the platform \"" + item_platform->text(0) + "\"?";
             if (QDialog::Accepted == ConfirmDialog(strText, this).exec())
@@ -428,7 +428,7 @@ void MainView::OnRemoveAccount()
 {
     if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
     {
-        if (bnb::credential_type::ct_account == GetItemType(*item_account))
+        if (bnb::credential_enum::ct_account == GetItemType(*item_account))
         {
             QString strText = "Are you sure to remove the account \"" + item_account->text(0) + "\"?";
             if (QDialog::Accepted == ConfirmDialog(strText, this).exec())
@@ -446,7 +446,7 @@ void MainView::OnRemoveProperty()
 {
     if (QTreeWidgetItem* item_property = _ui.m_treeView->currentItem())
     {
-        if (bnb::credential_type::ct_property == GetItemType(*item_property))
+        if (bnb::credential_enum::ct_property == GetItemType(*item_property))
         {
             QString strText = "Are you sure to remove the key \"" + item_property->text(0) + "\"?";
             if (QDialog::Accepted == ConfirmDialog(strText, this).exec())
@@ -499,7 +499,7 @@ bool MainView::AddAccount(QTreeWidgetItem* item_platform)
 bool MainView::AddProperty(QTreeWidgetItem * item_account)
 {
     QTreeWidgetItem* item_platform = item_account->parent();
-    if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+    if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
     {
         if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
         {
@@ -562,7 +562,7 @@ bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
 bool MainView::EditAccount(QTreeWidgetItem * item_account)
 {
     QTreeWidgetItem* item_platform = item_account->parent();
-    if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+    if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
     {
         if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
         {
@@ -589,10 +589,10 @@ bool MainView::EditAccount(QTreeWidgetItem * item_account)
 bool MainView::EditProperty(QTreeWidgetItem * item_property)
 {
     QTreeWidgetItem* item_account = item_property->parent();
-    if (item_account && bnb::credential_type::ct_account == GetItemType(*item_account))
+    if (item_account && bnb::credential_enum::ct_account == GetItemType(*item_account))
     {
         QTreeWidgetItem* item_platform = item_account->parent();
-        if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+        if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
         {
             if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
             {
@@ -655,7 +655,7 @@ bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
 bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
 {
     QTreeWidgetItem* item_platform = item_account->parent();
-    if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+    if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
     {
         if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
         {
@@ -684,10 +684,10 @@ bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
 bool MainView::RemoveProperty(QTreeWidgetItem* item_property)
 {
     QTreeWidgetItem* item_account = item_property->parent();
-    if (item_account && bnb::credential_type::ct_account == GetItemType(*item_account))
+    if (item_account && bnb::credential_enum::ct_account == GetItemType(*item_account))
     {
         QTreeWidgetItem* item_platform = item_account->parent();
-        if (item_platform && bnb::credential_type::ct_platform == GetItemType(*item_platform))
+        if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
         {
             if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
             {
