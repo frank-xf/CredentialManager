@@ -25,8 +25,8 @@ public:
 
 int main()
 {
-	// fun1();
-
+	fun1();
+    /*
     TypeA a;
     TypeA b(10);
     TypeA c(10, 20);
@@ -37,7 +37,7 @@ int main()
     c.Show();
     d.Show();
 
-
+    */
     return (0);
 }
 
@@ -118,17 +118,48 @@ void fun1()
     <platform name="platform7" url="http://" comment=""/>
 </credential>)";
 
-	bnb::memory_type mt;
-
-	bnb::Credential xx(L"123");
+	bnb::Credential xx;
 
 	xx.FromXml(bnb::memory_type((const unsigned char*)strText, sizeof(strText)));
 
 	// xx.SetUser(L"Frank");
-	xx.UpdateTime();
-	std::cout << xx.ToXml(mt) << std::endl;
+	// xx.UpdateTime();
 
-	std::cout << mt.c_str() << std::endl << "-----";
+    auto f = [&xx](int n) {
+        bnb::memory_type mt;
+
+        std::cout << (xx.ToXml(mt) ? "true":"false")<< std::endl;
+        std::cout << mt.c_str() << std::endl;
+        std::cout << "----------------------------- " <<n<< std::endl << std::endl;
+    };
+
+    f(0);
+
+    xx.Clear();
+    f(1);
+    std::cout<< (xx.IsEmpty() ? "true" : "false") <<std::endl;
+    std::cout << xx.Size() << std::endl;
+    f(2);
+    xx.PreorderTraversal([](const bnb::platform_node& item) {});
+    xx.PostorderTraversal([](const bnb::platform_node& item) {});
+    xx.PreorderAction([](const bnb::platform_node& item) {return true;});
+    xx.PostorderAction([](const bnb::platform_node& item) {return true;});
+    xx.Find(12);
+    xx.PushBack({ L"heh" });
+    f(3);
+    xx.PushFront({ L"bnb" });
+    f(4);
+    xx.Move({ L"heh" }, 2);
+    f(5);
+    xx.Sort();
+    f(6);
+    xx.Update({ L"heh" }, { L"fff" });
+    f(7);
+    xx.Remove({ L"bnb" });
+    f(8);
+    xx.RemoveIf([](const bnb::platform_type& item) {return true;});
+    f(9);
+
 
 	xx.Save("def.credential");
 }

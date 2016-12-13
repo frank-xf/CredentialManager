@@ -48,8 +48,6 @@ namespace bnb
 
 #define _sKey(k) ::bnb::_credential_key_string[static_cast<unsigned int>(::bnb::_credential_key_index::k)]
 
-    size_t credential_base::_credential_id(1);
-
     inline size_t _hash_seq(const byte_type *ptr, size_t n)
     {
         size_t _value = 2166136261u;
@@ -80,27 +78,17 @@ namespace bnb
 
     };
 
-    unsigned long long Credential::_GetTime()
+    unsigned long long credential_type::_GetTime()
     {
         return time(nullptr);
     }
 
-    void Credential::Clear()
-    {
-        m_strWord.clear();
-        m_strUser.clear();
-        m_strComment.clear();
-        UpdateTime();
-
-        list_type<platform_node>::Clear();
-    }
-
-    void Credential::UpdateTime()
+    void credential_type::UpdateTime()
     {
         m_ullTime = _GetTime();
     }
 
-    bool Credential::ValidateWord(const string_type& strWord) const
+    bool credential_type::ValidateWord(const string_type& strWord) const
     {
         if (strWord.empty() || m_strWord.size() != strWord.size()) return false;
 
@@ -113,6 +101,21 @@ namespace bnb
         return true;
     }
 
+    void credential_type::Clear()
+    {
+        m_strWord.clear();
+        m_strUser.clear();
+        m_strComment.clear();
+        UpdateTime();
+    }
+
+    void Credential::Clear()
+    {
+        _data.Clear();
+
+        list_type<platform_node>::Clear();
+    }
+
     bool Credential::FromXml(const memory_type& mt)
     {
         pugi::xml_document doc;
@@ -123,9 +126,9 @@ namespace bnb
 
         Clear();
 
-        m_ullTime = node_credential.attribute(_sKey(sk_time)).as_ullong();
-        m_strUser = node_credential.attribute(_sKey(sk_user)).value();
-        m_strComment = node_credential.attribute(_sKey(sk_comment)).value();
+        _data.SetTime(node_credential.attribute(_sKey(sk_time)).as_ullong());
+        _data.SetUser(node_credential.attribute(_sKey(sk_user)).value());
+        _data.SetComment(node_credential.attribute(_sKey(sk_comment)).value());
 
         for (auto node_platform : node_credential.children(_sKey(sk_platform)))
         {
@@ -171,9 +174,9 @@ namespace bnb
         declare.append_attribute(_sKey(sk_encoding)).set_value(L"UTF-8");
 
         auto node_credential = doc.append_child(_sKey(sk_credential));
-        node_credential.append_attribute(_sKey(sk_time)).set_value(m_ullTime);
-        node_credential.append_attribute(_sKey(sk_user)).set_value(m_strUser.c_str());
-        node_credential.append_attribute(_sKey(sk_comment)).set_value(m_strComment.c_str());
+        node_credential.append_attribute(_sKey(sk_time)).set_value(_data.GetTime());
+        node_credential.append_attribute(_sKey(sk_user)).set_value(_data.GetUser().c_str());
+        node_credential.append_attribute(_sKey(sk_comment)).set_value(_data.GetComment().c_str());
 
         PreorderTraversal([&node_credential](const platform_node& platform) {
             auto node_platform = node_credential.append_child(_sKey(sk_platform));
@@ -204,7 +207,7 @@ namespace bnb
         memory_type dst;
 
         if (CheckFile(file, &dst))
-            if (Decoding(dst, (const byte_type*)m_strWord.c_str(), m_strWord.size() * sizeof(char_type)))
+            if (Decoding(dst, (const byte_type*)_data.GetWord().c_str(), _data.GetWord().size() * sizeof(char_type)))
                 if (FromXml(dst))
                     return true;
 
@@ -215,7 +218,7 @@ namespace bnb
     {
         memory_type dst;
 
-        if (ToXml(dst) && Encoding(dst, (const byte_type*)m_strWord.c_str(), m_strWord.size() * sizeof(char_type)))
+        if (ToXml(dst) && Encoding(dst, (const byte_type*)_data.GetWord().c_str(), _data.GetWord().size() * sizeof(char_type)))
         {
             ofstream_type fout;
             fout.open(file, std::ios::out | std::ios::trunc | std::ios::binary);
