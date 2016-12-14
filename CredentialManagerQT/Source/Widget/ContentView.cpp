@@ -38,25 +38,25 @@ CredentialView::CredentialView(const bnb::Credential& credential, QWidget * pare
 
 void CredentialView::UpdateInfo()
 {
-    _ui.m_editText[0]->setText(QDateTime::fromTime_t(m_Credential.GetTime()).toString("yyyy-MM-dd HH:mm:ss"));
-    _ui.m_editText[1]->setText(To_QString(m_Credential.GetUser()));
-    _ui.m_editText[2]->setText(To_QString(m_Credential.GetComment()));
+    _ui.m_editText[0]->setText(QDateTime::fromTime_t(m_Credential.GetData().GetTime()).toString("yyyy-MM-dd HH:mm:ss"));
+    _ui.m_editText[1]->setText(To_QString(m_Credential.GetData().GetUser()));
+    _ui.m_editText[2]->setText(To_QString(m_Credential.GetData().GetComment()));
 }
 
 void CredentialView::UpdateTable()
 {
     _ui.m_tabView->clearContents();
 
-    unsigned int nRows = m_Credential.List().Size();
+    unsigned int nRows = m_Credential.Size();
     _ui.m_tabView->setRowCount(nRows);
 
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        m_Credential.List().PreorderTraversal([this, &nIndex](const bnb::platform_list::data_type& platform) mutable {
-            auto pName = MakeTableItem(To_QString(platform.m_Key.m_strName), platform.m_Key.GetID(), { 255, 64, 0 }, Qt::AlignCenter);
-            auto pUrl = MakeTableItem(To_QString(platform.m_Key.m_strUrl), platform.m_Key.GetID(), { 64, 64, 255 });
-            auto pDisplay = MakeTableItem(To_QString(platform.m_Key.m_strComment), platform.m_Key.GetID(), { 32, 160, 32 });
+        m_Credential.PreorderTraversal([this, &nIndex](const bnb::platform_node& platform) mutable {
+            auto pName = MakeTableItem(To_QString(platform.GetData().GetName()), platform.GetID(), { 255, 64, 0 }, Qt::AlignCenter);
+            auto pUrl = MakeTableItem(To_QString(platform.GetData().GetUrl()), platform.GetID(), { 64, 64, 255 });
+            auto pDisplay = MakeTableItem(To_QString(platform.GetData().GetComment()), platform.GetID(), { 32, 160, 32 });
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
             _ui.m_tabView->setItem(nIndex, 1, pUrl);
@@ -77,12 +77,12 @@ void CredentialView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                m_Credential.List().PreorderAction([this, pItem, id, i](const bnb::platform_list::data_type& platform) {
-                    if (platform.m_Key.GetID() == id)
+                m_Credential.PreorderAction([this, pItem, id, i](const bnb::platform_node& platform) {
+                    if (platform.GetID() == id)
                     {
-                        pItem->setText(To_QString(platform.m_Key.m_strName));
-                        _ui.m_tabView->item(i, 1)->setText(To_QString(platform.m_Key.m_strUrl));
-                        _ui.m_tabView->item(i, 2)->setText(To_QString(platform.m_Key.m_strComment));
+                        pItem->setText(To_QString(platform.GetData().GetName()));
+                        _ui.m_tabView->item(i, 1)->setText(To_QString(platform.GetData().GetUrl()));
+                        _ui.m_tabView->item(i, 2)->setText(To_QString(platform.GetData().GetComment()));
                         return true;
                     }
 
@@ -121,8 +121,8 @@ void CredentialView::base_type::ui_type::CreateLabel(CredentialView::base_type* 
 //==============================================================================
 // Implementation of PlatformView
 //==============================================================================
-PlatformView::PlatformView(const bnb::platform_list::data_type& tp, QWidget * parent)
-    : base_type(tp.m_Key.GetID(), parent)
+PlatformView::PlatformView(const bnb::platform_node& tp, QWidget * parent)
+    : base_type(tp.GetID(), parent)
     , m_Platform(tp)
 {
     UpdateInfo();
@@ -131,24 +131,24 @@ PlatformView::PlatformView(const bnb::platform_list::data_type& tp, QWidget * pa
 
 void PlatformView::UpdateInfo()
 {
-    _ui.m_editText[0]->setText(To_QString(m_Platform.m_Key.m_strName));
-    _ui.m_editText[1]->setText(To_QString(m_Platform.m_Key.m_strUrl));
-    _ui.m_editText[2]->setText(To_QString(m_Platform.m_Key.m_strComment));
+    _ui.m_editText[0]->setText(To_QString(m_Platform.GetData().GetName()));
+    _ui.m_editText[1]->setText(To_QString(m_Platform.GetData().GetUrl()));
+    _ui.m_editText[2]->setText(To_QString(m_Platform.GetData().GetComment()));
 }
 
 void PlatformView::UpdateTable()
 {
     _ui.m_tabView->clearContents();
 
-    unsigned int nRows = m_Platform.m_Value.Size();
+    unsigned int nRows = m_Platform.Size();
     _ui.m_tabView->setRowCount(nRows);
 
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        m_Platform.m_Value.PreorderTraversal([this, &nIndex](const bnb::account_list::data_type& account) mutable {
-            auto pName = MakeTableItem(To_QString(account.m_Key.m_strName), account.m_Key.GetID(), { 64, 64, 255 }, Qt::AlignCenter);
-            auto pDisplay = MakeTableItem(To_QString(account.m_Key.m_strComment), account.m_Key.GetID(), { 32, 160, 32 });
+        m_Platform.PreorderTraversal([this, &nIndex](const bnb::account_node& account) mutable {
+            auto pName = MakeTableItem(To_QString(account.GetData().GetName()), account.GetID(), { 64, 64, 255 }, Qt::AlignCenter);
+            auto pDisplay = MakeTableItem(To_QString(account.GetData().GetComment()), account.GetID(), { 32, 160, 32 });
 
             _ui.m_tabView->setItem(nIndex, 0, pName);
             _ui.m_tabView->setItem(nIndex, 1, pDisplay);
@@ -168,11 +168,11 @@ void PlatformView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                m_Platform.m_Value.PreorderAction([this, pItem, id, i](const bnb::account_list::data_type& account) {
-                    if (account.m_Key.GetID() == id)
+                m_Platform.PreorderAction([this, pItem, id, i](const bnb::account_node& account) {
+                    if (account.GetID() == id)
                     {
-                        pItem->setText(To_QString(account.m_Key.m_strName));
-                        _ui.m_tabView->item(i, 1)->setText(To_QString(account.m_Key.m_strComment));
+                        pItem->setText(To_QString(account.GetData().GetName()));
+                        _ui.m_tabView->item(i, 1)->setText(To_QString(account.GetData().GetComment()));
                         return true;
                     }
 
@@ -211,8 +211,8 @@ void PlatformView::base_type::ui_type::CreateLabel(PlatformView::base_type* pVie
 //==============================================================================
 // Implementation of AccountView
 //==============================================================================
-AccountView::AccountView(const bnb::account_list::data_type & tp, QWidget * parent)
-    : base_type(tp.m_Key.GetID(), parent)
+AccountView::AccountView(const bnb::account_node & tp, QWidget * parent)
+    : base_type(tp.GetID(), parent)
     , m_Account(tp)
 {
     UpdateInfo();
@@ -221,23 +221,23 @@ AccountView::AccountView(const bnb::account_list::data_type & tp, QWidget * pare
 
 void AccountView::UpdateInfo()
 {
-    _ui.m_editText[0]->setText(To_QString(m_Account.m_Key.m_strName));
-    _ui.m_editText[1]->setText(To_QString(m_Account.m_Key.m_strComment));
+    _ui.m_editText[0]->setText(To_QString(m_Account.GetData().GetName()));
+    _ui.m_editText[1]->setText(To_QString(m_Account.GetData().GetComment()));
 }
 
 void AccountView::UpdateTable()
 {
     _ui.m_tabView->clearContents();
 
-    unsigned int nRows = m_Account.m_Value.Size();
+    unsigned int nRows = m_Account.Size();
     _ui.m_tabView->setRowCount(nRows);
 
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        m_Account.m_Value.PreorderTraversal([this, &nIndex](const bnb::property_list::data_type& property) mutable {
-            auto pKey = MakeTableItem(To_QString(property.m_Key.m_strName), property.m_Key.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
-            auto pValue = MakeTableItem(To_QString(property.m_Value.m_strName), property.m_Key.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
+        m_Account.PreorderTraversal([this, &nIndex](const bnb::property_node& property) mutable {
+            auto pKey = MakeTableItem(To_QString(property.GetData().GetKey()), property.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
+            auto pValue = MakeTableItem(To_QString(property.GetData().GetValue()), property.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
 
             _ui.m_tabView->setItem(nIndex, 0, pKey);
             _ui.m_tabView->setItem(nIndex, 1, pValue);
@@ -257,11 +257,11 @@ void AccountView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                m_Account.m_Value.PreorderAction([this, pItem, id, i](const bnb::property_list::data_type& property) {
-                    if (property.m_Key.GetID() == id)
+                m_Account.PreorderAction([this, pItem, id, i](const bnb::property_node& property) {
+                    if (property.GetID() == id)
                     {
-                        pItem->setText(To_QString(property.m_Key.m_strName));
-                        _ui.m_tabView->item(i, 1)->setText(To_QString(property.m_Value.m_strName));
+                        pItem->setText(To_QString(property.GetData().GetKey()));
+                        _ui.m_tabView->item(i, 1)->setText(To_QString(property.GetData().GetValue()));
                         return true;
                     }
 

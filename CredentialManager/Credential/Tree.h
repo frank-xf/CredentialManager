@@ -3,23 +3,29 @@
 
 namespace bnb
 {
+    enum class action_type : unsigned char
+    {
+        at_none, at_insert, at_delete, at_update, at_move, at_sort, at_clear
+    };
 
     class index_type
     {
     public:
+
+        using id_type = unsigned int;
 
         index_type() : _id(_NextID()) { }
         index_type(const index_type&) : _id(_NextID()) { }
         index_type& operator = (const index_type&) { return *this; }
         virtual ~index_type() { }
 
-        unsigned int GetID() const { return (_id); }
+        id_type GetID() const { return (_id); }
 
     private:
 
-        static unsigned int _NextID() { static unsigned int _x_(0); return (++_x_); }
+        static id_type _NextID() { static id_type _x_(0); return (++_x_); }
 
-        const unsigned int _id;
+        const id_type _id;
 
     };
 
@@ -55,7 +61,7 @@ namespace bnb
 
     public:
 
-        const parent_type* GetParent() const { return (_parent); }
+        parent_type* GetParent() const { return (_parent); }
         void SetParent(parent_type* ptr) { (_parent = ptr); }
 
         child_base(parent_type* ptr = nullptr) : _parent(ptr) { }
@@ -70,7 +76,9 @@ namespace bnb
 
     protected:
 
+        using param_type = unsigned long;
         using size_type = unsigned int;
+        using list_base = list_type;
         using node_type = typename _NodeT;
         using node_item = typename _NodeT::item_type;
 
@@ -122,6 +130,26 @@ namespace bnb
             insert_ptr->_prev = target_ptr;
         }
 
+        template<typename _findT>
+        node_type* _Find(_findT _findFunc)
+        {
+            for (node_type* ptr = _first; ptr; ptr = ptr->_next)
+                if (_findFunc(*ptr))
+                    return ptr;
+
+            return nullptr;
+        }
+
+        template<typename _findT>
+        const node_type* _Find(_findT _findFunc) const
+        {
+            for (node_type* ptr = _first; ptr; ptr = ptr->_next)
+                if (_findFunc(*ptr))
+                    return ptr;
+
+            return nullptr;
+        }
+
     public:
 
         list_type() = default;
@@ -130,6 +158,8 @@ namespace bnb
         bool IsEmpty() const { return (nullptr == _first || nullptr == _last || 0 == _nCount); }
 
         size_type Size() const { return _nCount; }
+
+        virtual void Updated(param_type aType) { }
 
         void Clear()
         {
@@ -142,6 +172,8 @@ namespace bnb
 
             _last = nullptr;
             _nCount = 0;
+
+            Updated(static_cast<param_type>(action_type::at_clear));
         }
 
         template<typename _actionT>
@@ -212,28 +244,30 @@ namespace bnb
             return false;
         }
 
-        node_type* Find(unsigned int id)
+        node_type* FindByID(typename node_type::id_type id)
         {
-            for (node_type* ptr = _last; ptr; ptr = ptr->_prev)
-                if (id == ptr->GetID())
-                    return ptr;
-
-            return nullptr;
+            return (_Find([&id](const node_type& node) { return (id == node.GetID()); }));
         }
 
-        const node_type* Find(unsigned int id) const
+        const node_type* FindByID(typename node_type::id_type id) const
         {
-            for (node_type* ptr = _last; ptr; ptr = ptr->_prev)
-                if (id == ptr->GetID())
-                    return ptr;
+            return (_Find([&id](const node_type& node) { return (id == node.GetID()); }));
+        }
 
-            return nullptr;
+        node_type* Find(const node_item& key)
+        {
+            return (_Find([&key](const node_type& node) { return (&key == &node.GetData() || key == node.GetData()); }));
+        }
+
+        const node_type* Find(const node_item& key) const
+        {
+            return (_Find([&key](const node_type& node) { return (&key == &node.GetData() || key == node.GetData()); }));
         }
 
         node_type* PushBack(const node_item& item)
         {
             for (node_type* ptr = _first; ptr; ptr = ptr->_next)
-                if (ptr->GetData() == item)
+                if (item == ptr->GetData())
                     return nullptr;
 
             node_type* ptr = new node_type(this, item);
@@ -252,13 +286,15 @@ namespace bnb
 
             ++_nCount;
 
+            Updated(static_cast<param_type>(action_type::at_insert));
+
             return ptr;
         }
 
         node_type* PushFront(const node_item& item)
         {
             for (node_type* ptr = _last; ptr; ptr = ptr->_prev)
-                if (ptr->GetData() == item)
+                if (item == ptr->GetData())
                     return nullptr;
 
             node_type* ptr = new node_type(this, item);
@@ -276,6 +312,8 @@ namespace bnb
             }
 
             ++_nCount;
+
+            Updated(static_cast<param_type>(action_type::at_insert));
 
             return ptr;
         }
@@ -302,6 +340,8 @@ namespace bnb
             if (target_ptr)
             {
                 target_ptr->SetData(item);
+                Updated(static_cast<param_type>(action_type::at_update));
+
                 return true;
             }
 
@@ -317,6 +357,8 @@ namespace bnb
                     _Take(ptr);
                     --_nCount;
                     delete ptr;
+
+                    Updated(static_cast<param_type>(action_type::at_delete));
 
                     return true;
                 }
@@ -346,6 +388,9 @@ namespace bnb
                 ptr = next_ptr;
             }
 
+            if (0 < nResult)
+                Updated(static_cast<param_type>(action_type::at_delete));
+
             return nResult;
         }
 
@@ -363,18 +408,18 @@ namespace bnb
                     do {
                         node_type* next_ptr = target_ptr->_next;
 
-                        if (![this, &_compareFunc, &target_ptr]() {
-                            for (node_type* insert_ptr = _first; insert_ptr; insert_ptr = insert_ptr->_next)
-                            {
-                                if (_compareFunc(target_ptr->GetData(), insert_ptr->GetData()))
+                        if ([this, &_compareFunc, &target_ptr]() {
+                                for (node_type* insert_ptr = _first; insert_ptr; insert_ptr = insert_ptr->_next)
                                 {
-                                    _InsertBefore(target_ptr, insert_ptr);
-                                    return true;
+                                    if (_compareFunc(target_ptr->GetData(), insert_ptr->GetData()))
+                                    {
+                                        _InsertBefore(target_ptr, insert_ptr);
+                                        return false;
+                                    }
                                 }
-                            }
 
-                            return false;
-                        }())
+                                return true;
+                            }())
                         {
                             target_ptr->_next = nullptr;
                             target_ptr->_prev = _last;
@@ -384,6 +429,8 @@ namespace bnb
 
                         target_ptr = next_ptr;
                     } while (target_ptr);
+
+                    Updated(static_cast<param_type>(action_type::at_sort));
                 }
             }
         }
@@ -411,6 +458,8 @@ namespace bnb
                             _InsertAfter(target_ptr, insert_ptr);
                         }
 
+                        Updated(static_cast<param_type>(action_type::at_move));
+
                         return true;
                     }
                 }
@@ -431,6 +480,8 @@ namespace bnb
                             _InsertBefore(target_ptr, insert_ptr);
                         }
 
+                        Updated(static_cast<param_type>(action_type::at_move));
+
                         return true;
                     }
                 }
@@ -450,11 +501,6 @@ namespace bnb
     template<typename _ItemT, typename _NodeT>
     class list_node : public index_type, public child_base<list_type<_NodeT>>, public item_base<_ItemT>
     {
-    protected:
-
-        using base_type = list_node;
-        using node_type = _NodeT;
-
     private:
 
         using base_type1 = child_base<list_type<_NodeT>>;
@@ -465,13 +511,19 @@ namespace bnb
 
     public:
 
-        node_type* _prev{ nullptr };
-        node_type* _next{ nullptr };
-
         list_node() = default;
         list_node(parent_type* ptr, const item_type& item) : base_type1(ptr), base_type2(item) { }
         virtual ~list_node() { }
 
+    protected:
+
+        using base_type = list_node;
+        using node_type = _NodeT;
+
+        node_type* _prev{ nullptr };
+        node_type* _next{ nullptr };
+
+        friend parent_type;
     };
 
 }

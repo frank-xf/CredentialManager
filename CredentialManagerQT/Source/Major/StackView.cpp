@@ -213,13 +213,13 @@ bool StackView::AddCredential(const bnb::Credential & credential)
     return true;
 }
 
-bool StackView::AddPlatform(const bnb::platform_list::data_type & platform)
+bool StackView::AddPlatform(const bnb::platform_node & platform)
 {
     addWidget(new PlatformView(platform, this));
     return true;
 }
 
-bool StackView::AddPlatform(const bnb::platform_list::data_type & platform, unsigned int credential_id)
+bool StackView::AddPlatform(const bnb::platform_node & platform, unsigned int credential_id)
 {
     for (int i = 0; i < count(); ++i)
     {
@@ -235,13 +235,13 @@ bool StackView::AddPlatform(const bnb::platform_list::data_type & platform, unsi
     return false;
 }
 
-bool StackView::AddAccount(const bnb::account_list::data_type & account)
+bool StackView::AddAccount(const bnb::account_node & account)
 {
     addWidget(new AccountView(account, this));
     return true;
 }
 
-bool StackView::AddAccount(const bnb::account_list::data_type & account, unsigned int platform_id)
+bool StackView::AddAccount(const bnb::account_node & account, unsigned int platform_id)
 {
     for (int i = 0; i < count(); ++i)
     {
@@ -257,12 +257,12 @@ bool StackView::AddAccount(const bnb::account_list::data_type & account, unsigne
     return false;
 }
 
-bool StackView::AddProperty(const bnb::property_list::data_type & property)
+bool StackView::AddProperty(const bnb::property_node & property)
 {
     return true;
 }
 
-bool StackView::AddProperty(const bnb::property_list::data_type & property, unsigned int account_id)
+bool StackView::AddProperty(const bnb::property_node & property, unsigned int account_id)
 {
     for (int i = 0; i < count(); ++i)
     {

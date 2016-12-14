@@ -136,7 +136,7 @@ class PlatformView : public ContentView<PlatformView, 3>
 {
 public:
 
-    PlatformView(const bnb::platform_list::data_type& tp, QWidget * parent = nullptr);
+    PlatformView(const bnb::platform_node& tp, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
@@ -144,7 +144,7 @@ public:
 
 private:
 
-    const bnb::platform_list::data_type& m_Platform;
+    const bnb::platform_node& m_Platform;
 
 };	// class PlatformView
 
@@ -154,7 +154,7 @@ class AccountView : public ContentView<AccountView, 2>
 {
 public:
 
-    AccountView(const bnb::account_list::data_type& tp, QWidget * parent = nullptr);
+    AccountView(const bnb::account_node& tp, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
@@ -162,7 +162,7 @@ public:
 
 private:
 
-    const bnb::account_list::data_type& m_Account;
+    const bnb::account_node& m_Account;
 
 };	// class AccountView
 

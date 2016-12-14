@@ -85,38 +85,41 @@ void TreeView::UpdateHeader(const QString& strText)
 
     if (pItem)
         pItem->setText(0, '[' + strText + ']');
+
+    
+
 }
 
 QTreeWidgetItem * TreeView::AddRoot(const bnb::Credential & pc)
 {
-    QTreeWidgetItem* item_root = new QTreeWidgetItem(this, { '[' + To_QString(pc.GetUser()) + ']' });
+    QTreeWidgetItem* item_root = new QTreeWidgetItem(this, { '[' + To_QString(pc.GetData().GetUser()) + ']' });
     SetTreeItem(item_root, bnb::credential_enum::ct_credential, ui_utils::g_clrCredential);
     addTopLevelItem(item_root);
 
     return item_root;
 }
 
-QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::platform_list::data_type& pp)
+QTreeWidgetItem * TreeView::AddPlatform(QTreeWidgetItem* parent, const bnb::platform_node& pp)
 {
-    auto item_platform = MakeTreeItem(parent, To_QString(pp.m_Key.m_strName), pp.m_Key.GetType(), ui_utils::g_clrPlatform);
+    auto item_platform = MakeTreeItem(parent, To_QString(pp.GetData().GetName()), pp.GetData().GetType(), ui_utils::g_clrPlatform);
     parent->addChild(item_platform);
     expandItem(parent);
 
 	return item_platform;
 }
 
-QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::account_list::data_type& pa)
+QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* parent, const bnb::account_node& pa)
 {
-    auto item_account = MakeTreeItem(parent, To_QString(pa.m_Key.m_strName), pa.m_Key.GetType(), ui_utils::g_clrAccount);
+    auto item_account = MakeTreeItem(parent, To_QString(pa.GetData().GetName()), pa.GetData().GetType(), ui_utils::g_clrAccount);
 	parent->addChild(item_account);
     expandItem(parent);
 
 	return item_account;
 }
 
-QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_list::data_type& pp)
+QTreeWidgetItem * TreeView::AddProperty(QTreeWidgetItem * parent, const bnb::property_node& pp)
 {
-    auto item_property = MakeTreeItem(parent, To_QString(pp.m_Key.m_strName), pp.m_Key.GetType(), ui_utils::g_clrProperty);
+    auto item_property = MakeTreeItem(parent, To_QString(pp.GetData().GetKey()), pp.GetData().GetType(), ui_utils::g_clrProperty);
 	parent->addChild(item_property);
     expandItem(parent);
 

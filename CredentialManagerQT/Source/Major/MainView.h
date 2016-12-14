@@ -8,7 +8,7 @@ class StackView;
 class TreeView;
 class QTreeWidgetItem;
 
-class MainView : public QWidget
+class MainView : public QWidget/*, public bnb::Credential::delegate_type*/
 {
     struct ui_type
     {

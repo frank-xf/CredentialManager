@@ -17,10 +17,11 @@ public:
 	void UpdateHeader(const QString& strText);
 
     QTreeWidgetItem* AddRoot(const bnb::Credential& pc);
-    QTreeWidgetItem* AddPlatform(QTreeWidgetItem* parent, const bnb::platform_list::data_type& pp);
-	QTreeWidgetItem* AddAccount(QTreeWidgetItem* parent, const bnb::account_list::data_type& pa);
-	QTreeWidgetItem* AddProperty(QTreeWidgetItem* parent, const bnb::property_list::data_type& pp);
+    QTreeWidgetItem* AddPlatform(QTreeWidgetItem* parent, const bnb::platform_node& pp);
+	QTreeWidgetItem* AddAccount(QTreeWidgetItem* parent, const bnb::account_node& pa);
+	QTreeWidgetItem* AddProperty(QTreeWidgetItem* parent, const bnb::property_node& pp);
 
+    
 };
 
 QT_END_NAMESPACE

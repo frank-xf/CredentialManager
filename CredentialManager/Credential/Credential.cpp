@@ -13,6 +13,8 @@ namespace bnb
     using ifstream_type = std::basic_ifstream<char, std::char_traits<char>>;
     using ofstream_type = std::basic_ofstream<char, std::char_traits<char>>;
 
+//------------------------------------------------------------------------------
+
     enum class _credential_key_index : unsigned int
     {
         sk_credential,
@@ -30,6 +32,8 @@ namespace bnb
         sk_encoding
     };
 
+//------------------------------------------------------------------------------
+
     const wchar_t* _credential_key_string[]{
         L"credential",
         L"platform",
@@ -46,7 +50,11 @@ namespace bnb
         L"encoding"
     };
 
+//------------------------------------------------------------------------------
+
 #define _sKey(k) ::bnb::_credential_key_string[static_cast<unsigned int>(::bnb::_credential_key_index::k)]
+
+//------------------------------------------------------------------------------
 
     inline size_t _hash_seq(const byte_type *ptr, size_t n)
     {
@@ -60,6 +68,8 @@ namespace bnb
 
         return (_value);
     }
+
+//------------------------------------------------------------------------------
 
     struct xml_memory_writer : pugi::xml_writer
     {
@@ -77,6 +87,29 @@ namespace bnb
         memory_type& _memory;
 
     };
+
+//------------------------------------------------------------------------------
+
+    void account_node::Updated(param_type aType)
+    {
+        if (platform_node* ptr = dynamic_cast<platform_node*>(GetParent()))
+            ptr->Updated(aType, static_cast<param_type>(credential_enum::ct_property));
+    }
+
+//------------------------------------------------------------------------------
+
+    void platform_node::Updated(param_type aType)
+    {
+        Updated(aType, static_cast<param_type>(credential_enum::ct_account));
+    }
+
+    void platform_node::Updated(param_type aType, param_type cType)
+    {
+        if (Credential* ptr = dynamic_cast<Credential*>(GetParent()))
+            ptr->Updated(aType, cType);
+    }
+
+//------------------------------------------------------------------------------
 
     unsigned long long credential_type::_GetTime()
     {
@@ -101,19 +134,89 @@ namespace bnb
         return true;
     }
 
-    void credential_type::Clear()
+//------------------------------------------------------------------------------
+
+    void Credential::SetWord(const string_type& strWord)
     {
-        m_strWord.clear();
-        m_strUser.clear();
-        m_strComment.clear();
-        UpdateTime();
+        _data.m_strWord = strWord;
+        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::ct_credential));
+    }
+
+    void Credential::SetUser(const string_type& strUser)
+    {
+        _data.m_strUser = strUser;
+        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::ct_credential));
+    }
+
+    void Credential::SetComment(const string_type& strComment)
+    {
+        _data.m_strComment = strComment;
+        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::ct_credential));
     }
 
     void Credential::Clear()
     {
-        _data.Clear();
+        list_base::Clear();
 
-        list_type<platform_node>::Clear();
+        _data.m_strWord.clear();
+        _data.m_strUser.clear();
+        _data.m_strComment.clear();
+        Updated(static_cast<param_type>(action_type::at_clear), static_cast<param_type>(credential_enum::ct_credential));
+    }
+
+    void Credential::Updated(param_type aType)
+    {
+        Updated(aType, static_cast<param_type>(credential_enum::ct_platform));
+    }
+
+    void Credential::Updated(param_type aType, param_type cType)
+    {
+        _data.UpdateTime();
+
+        switch (static_cast<action_type>(aType))
+        {
+        case action_type::at_insert:
+        case action_type::at_delete:
+        case action_type::at_update:
+        case action_type::at_clear:
+        case action_type::at_move:
+        case action_type::at_sort:
+        case action_type::at_none:
+        default:
+            break;
+        }
+    }
+
+    account_node* Credential::FindByID(id_type id1, id_type id2)
+    {
+        if (platform_node* platform_ptr = list_base::FindByID(id1))
+            return platform_ptr->FindByID(id2);
+
+        return nullptr;
+    }
+
+    const account_node* Credential::FindByID(id_type id1, id_type id2) const
+    {
+        if (const platform_node* platform_ptr = list_base::FindByID(id1))
+            return platform_ptr->FindByID(id2);
+
+        return nullptr;
+    }
+
+    property_node* Credential::FindByID(id_type id1, id_type id2, id_type id3)
+    {
+        if (account_node* account_ptr = FindByID(id1, id2))
+            return account_ptr->FindByID(id3);
+
+        return nullptr;
+    }
+
+    const property_node* Credential::FindByID(id_type id1, id_type id2, id_type id3) const
+    {
+        if (const account_node* account_ptr = FindByID(id1, id2))
+            return account_ptr->FindByID(id3);
+
+        return nullptr;
     }
 
     bool Credential::FromXml(const memory_type& mt)
@@ -124,11 +227,11 @@ namespace bnb
         auto node_credential = doc.child(_sKey(sk_credential));
         if (pugi::node_element != node_credential.type()) return false;
 
-        Clear();
+        list_base::Clear();
 
-        _data.SetTime(node_credential.attribute(_sKey(sk_time)).as_ullong());
-        _data.SetUser(node_credential.attribute(_sKey(sk_user)).value());
-        _data.SetComment(node_credential.attribute(_sKey(sk_comment)).value());
+        _data.m_ullTime = node_credential.attribute(_sKey(sk_time)).as_ullong();
+        _data.m_strUser = node_credential.attribute(_sKey(sk_user)).value();
+        _data.m_strComment = node_credential.attribute(_sKey(sk_comment)).value();
 
         for (auto node_platform : node_credential.children(_sKey(sk_platform)))
         {
@@ -180,19 +283,19 @@ namespace bnb
 
         PreorderTraversal([&node_credential](const platform_node& platform) {
             auto node_platform = node_credential.append_child(_sKey(sk_platform));
-            node_platform.append_attribute(_sKey(sk_name)).set_value(platform.GetData().m_strName.c_str());
-            node_platform.append_attribute(_sKey(sk_url)).set_value(platform.GetData().m_strUrl.c_str());
-            node_platform.append_attribute(_sKey(sk_comment)).set_value(platform.GetData().m_strComment.c_str());
+            node_platform.append_attribute(_sKey(sk_name)).set_value(platform.GetData().GetName().c_str());
+            node_platform.append_attribute(_sKey(sk_url)).set_value(platform.GetData().GetUrl().c_str());
+            node_platform.append_attribute(_sKey(sk_comment)).set_value(platform.GetData().GetComment().c_str());
 
             platform.PreorderTraversal([&node_platform](const account_node& account) {
                 auto node_account = node_platform.append_child(_sKey(sk_account));
-                node_account.append_attribute(_sKey(sk_name)).set_value(account.GetData().m_strName.c_str());
-                node_account.append_attribute(_sKey(sk_comment)).set_value(account.GetData().m_strComment.c_str());
+                node_account.append_attribute(_sKey(sk_name)).set_value(account.GetData().GetName().c_str());
+                node_account.append_attribute(_sKey(sk_comment)).set_value(account.GetData().GetComment().c_str());
 
                 account.PreorderTraversal([&node_account](const property_node& property) {
                     auto node_property = node_account.append_child(_sKey(sk_property));
-                    node_property.append_attribute(_sKey(sk_name)).set_value(property.GetData().m_strKey.c_str());
-                    node_property.append_child(pugi::node_cdata).set_value(property.GetData().m_strValue.c_str());
+                    node_property.append_attribute(_sKey(sk_name)).set_value(property.GetData().GetKey().c_str());
+                    node_property.append_child(pugi::node_cdata).set_value(property.GetData().GetValue().c_str());
                 });
             });
         });
@@ -225,7 +328,7 @@ namespace bnb
 
             if (fout.is_open())
             {
-                fout.write((const char*)dst.c_str(), dst.size());
+                fout.write((const char*)dst.data(), dst.size());
                 fout.close();
 
                 return true;
@@ -242,13 +345,13 @@ namespace bnb
             byte_type sha_key[32]{ 0 };
             SHA_256(sha_key, key, n);
 
-            RC4Encoding((byte_type*)mt.c_str(), mt.c_str(), mt.size(), key, n);
+            RC4Encoding((byte_type*)mt.data(), mt.data(), mt.size(), key, n);
 
             mt.insert(_hash_seq(key, n) % mt.size(), sha_key, 32);
 
-            RC4Encoding((byte_type*)mt.c_str(), mt.c_str(), mt.size(), sha_key, 32);
+            RC4Encoding((byte_type*)mt.data(), mt.data(), mt.size(), sha_key, 32);
 
-            SHA_256(sha_key, mt.c_str(), mt.size());
+            SHA_256(sha_key, mt.data(), mt.size());
 
             mt.insert(0, sha_key, 32);
 
@@ -267,13 +370,13 @@ namespace bnb
 
             size_t pos = _hash_seq(key, n) % (mt.size() - 32);
 
-            RC4Encoding((byte_type*)mt.c_str(), mt.c_str(), mt.size(), sha_key, 32);
+            RC4Encoding((byte_type*)mt.data(), mt.data(), mt.size(), sha_key, 32);
 
-            if (0 == memcmp(sha_key, mt.c_str() + pos, 32))
+            if (0 == memcmp(sha_key, mt.data() + pos, 32))
             {
                 mt.erase(pos, 32);
 
-                return (0 < RC4Encoding((byte_type*)mt.c_str(), mt.c_str(), mt.size(), key, n));
+                return (0 < RC4Encoding((byte_type*)mt.data(), mt.data(), mt.size(), key, n));
             }
         }
 

@@ -71,7 +71,7 @@ MainView::MainView(QWidget *parent)
 
 bool MainView::SaveCredential()
 {
-    g_Credential().UpdateTime();
+    // g_Credential().UpdateTime();
 
     bnb::memory_type xml;
 
@@ -90,17 +90,17 @@ void MainView::InitCredential()
 
     auto view_credential = _ui.m_viewStack->AddCredential(g_Credential());
 
-    g_Credential().List().PreorderTraversal([this, item_root](const bnb::platform_list::data_type& platform) {
+    g_Credential().PreorderTraversal([this, item_root](const bnb::platform_node& platform) {
         QTreeWidgetItem* item_platform = _ui.m_treeView->AddPlatform(item_root, platform);
 
         _ui.m_viewStack->AddPlatform(platform);
 
-        platform.m_Value.PreorderTraversal([this, item_platform](const bnb::account_list::data_type& account) {
+        platform.PreorderTraversal([this, item_platform](const bnb::account_node& account) {
             QTreeWidgetItem* item_account = _ui.m_treeView->AddAccount(item_platform, account);
 
             _ui.m_viewStack->AddAccount(account);
 
-            account.m_Value.PreorderTraversal([this, item_account](const bnb::property_list::data_type& property) {
+            account.PreorderTraversal([this, item_account](const bnb::property_node& property) {
                 QTreeWidgetItem* item_property = _ui.m_treeView->AddProperty(item_account, property);
 
                 _ui.m_viewStack->AddProperty(property);
@@ -244,7 +244,7 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         {
         case bnb::credential_enum::ct_credential:
         {
-            if (g_Credential().IsValid())
+            if (g_Credential().GetData().IsValid())
                 _ui.m_viewStack->SwitchToCredential(g_Credential().GetID());
             else
                 _ui.m_viewStack->SwitchToHint("You haven\'t opened any credential !");
@@ -253,8 +253,8 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         }
         case bnb::credential_enum::ct_platform:
         {
-            if (auto ptr_platform = g_Credential().List().Find({ From_QString(cur->text(0)) }))
-                _ui.m_viewStack->SwitchToPlatform(ptr_platform->m_Key.GetID());
+            if (auto ptr_platform = g_Credential().Find({ From_QString(cur->text(0)) }))
+                _ui.m_viewStack->SwitchToPlatform(ptr_platform->GetID());
 
             return;
         }
@@ -270,9 +270,9 @@ void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         {
             auto item_platform = cur->parent();
             if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
-                if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
-                    if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(cur->text(0)) }))
-                        _ui.m_viewStack->SwitchToAccount(ptr_account->m_Key.GetID());
+                if (auto ptr_platform = g_Credential().Find({ From_QString(item_platform->text(0)) }))
+                    if (auto ptr_account = ptr_platform->Find({ From_QString(cur->text(0)) }))
+                        _ui.m_viewStack->SwitchToAccount(ptr_account->GetID());
 
             return;
         }
@@ -358,12 +358,14 @@ void MainView::OnAddProperty()
 
 void MainView::OnMotifyPassword()
 {
+    /*
     EditPasswordDialog dlg(g_Credential(), this);
 
     if (QDialog::Accepted == dlg.exec())
     {
         SaveCredential();
     }
+    */
 }
 
 void MainView::OnEditCredential()
@@ -462,6 +464,7 @@ void MainView::OnRemoveProperty()
 
 bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
 {
+    /*
     EditPlatformDialog dlg(g_Credential(), nullptr, this);
     if (QDialog::Accepted == dlg.exec())
     {
@@ -471,12 +474,12 @@ bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
         _ui.m_viewStack->AddPlatform(*dlg.GetPlatform(), g_Credential().GetID());
         _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
     }
-
+    */
     return true;
 }
 
 bool MainView::AddAccount(QTreeWidgetItem* item_platform)
-{
+{/*
     auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
@@ -492,12 +495,12 @@ bool MainView::AddAccount(QTreeWidgetItem* item_platform)
 
         return true;
     }
-
+    */
     return false;
 }
 
 bool MainView::AddProperty(QTreeWidgetItem * item_account)
-{
+{/*
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
     {
@@ -519,12 +522,12 @@ bool MainView::AddProperty(QTreeWidgetItem * item_account)
             }
         }
     }
-
+    */
     return false;
 }
 
 bool MainView::EditCredential(QTreeWidgetItem * item_credential)
-{
+{/*
     EditCredentialDialog dlg(g_Credential(), this);
 
     if (QDialog::Accepted == dlg.exec())
@@ -534,12 +537,12 @@ bool MainView::EditCredential(QTreeWidgetItem * item_credential)
         _ui.m_treeView->UpdateHeader(To_QString(g_Credential().GetUser()));
         _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
     }
-
+    */
     return true;
 }
 
 bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
-{
+{/*
     auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
@@ -555,12 +558,12 @@ bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
 
         return true;
     }
-
+    */
     return false;
 }
 
 bool MainView::EditAccount(QTreeWidgetItem * item_account)
-{
+{/*
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
     {
@@ -582,12 +585,12 @@ bool MainView::EditAccount(QTreeWidgetItem * item_account)
             }
         }
     }
-
+    */
     return false;
 }
 
 bool MainView::EditProperty(QTreeWidgetItem * item_property)
-{
+{/*
     QTreeWidgetItem* item_account = item_property->parent();
     if (item_account && bnb::credential_enum::ct_account == GetItemType(*item_account))
     {
@@ -616,12 +619,12 @@ bool MainView::EditProperty(QTreeWidgetItem * item_property)
             }
         }
     }
-
+    */
     return false;
 }
 
 bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
-{
+{/*
     auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) });
     if (ptr_platform)
     {
@@ -648,12 +651,12 @@ bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
             return true;
         }
     }
-
+    */
     return false;
 }
 
 bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
-{
+{/*
     QTreeWidgetItem* item_platform = item_account->parent();
     if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
     {
@@ -677,12 +680,12 @@ bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
             }
         }
     }
-
+    */
     return false;
 }
 
 bool MainView::RemoveProperty(QTreeWidgetItem* item_property)
-{
+{/*
     QTreeWidgetItem* item_account = item_property->parent();
     if (item_account && bnb::credential_enum::ct_account == GetItemType(*item_account))
     {
@@ -713,7 +716,7 @@ bool MainView::RemoveProperty(QTreeWidgetItem* item_property)
             }
         }
     }
-
+    */
     return false;
 }
 

@@ -15,7 +15,7 @@ static inline bool IsEqual(const bnb::string_type& left, const bnb::string_type&
 {
     return 0 == wcscmp(left.c_str(), right.c_str());
 }
-
+/*
 //==============================================================================
 // Implementation of EditCredentialDialog
 //==============================================================================
@@ -535,3 +535,4 @@ void EditPropertyDialog::base_type::ui_type::RetranslateLabel(EditPropertyDialog
     m_editText[1]->setPlaceholderText("input a key");
     m_editText[2]->setPlaceholderText("input a value");
 }
+*/

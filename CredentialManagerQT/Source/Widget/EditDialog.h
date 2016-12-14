@@ -8,7 +8,7 @@ class QLineEdit;
 class QPushButton;
 
 //------------------------------------------------------------------------------
-
+/*
 template<typename _Ty, unsigned int n>
 class EditDialog : public QDialog
 {
@@ -222,5 +222,5 @@ private:
 };  // class EditPropertyDialog
 
 QT_END_NAMESPACE
-
+*/
 #endif  // _bnb_Edit_Dialog_H_
