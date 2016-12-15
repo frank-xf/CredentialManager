@@ -9,6 +9,7 @@ public:
 
     StackView(QWidget * parent = nullptr);
 
+    void InitCredential(const bnb::Credential& credential);
     void ClearCredential();
 
     bool UpdateCredential(unsigned int credential_id);

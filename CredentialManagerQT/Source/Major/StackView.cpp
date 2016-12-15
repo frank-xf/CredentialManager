@@ -25,6 +25,22 @@ StackView::StackView(QWidget * parent) : QStackedWidget(parent)
     addWidget(m_labHint);
 }
 
+void StackView::InitCredential(const bnb::Credential & credential)
+{
+    auto view_credential = new CredentialView(credential, this);
+    addWidget(view_credential);
+
+    credential.PreorderTraversal([this](const bnb::platform_node& platform) {
+        addWidget(new PlatformView(platform, this));
+
+        platform.PreorderTraversal([this](const bnb::account_node& account) {
+            addWidget(new AccountView(account, this));
+        });
+    });
+
+    setCurrentWidget(view_credential);
+}
+
 void StackView::ClearCredential()
 {
     std::vector<QWidget*> vtrWidget;

@@ -212,37 +212,6 @@ namespace bnb
         static bool Decoding(memory_type& mt, const byte_type* key, size_t n);
         static bool CheckFile(const char* file, memory_type* dst);
 
-        class delegate_type
-        {
-        private:
-
-            delegate_type(const delegate_type&) = delete;
-            delegate_type& operator=(const delegate_type&) = delete;
-
-        protected:
-
-            delegate_type() = default;
-
-        public:
-
-            virtual bool OnAddCredential() { return false; }
-            virtual bool OnAddPlatform(id_type id1) { return false; }
-            virtual bool OnAddAccount(id_type id1, id_type id2) { return false; }
-            virtual bool OnAddProperty(id_type id1, id_type id2, id_type id3) { return false; }
-
-            virtual bool OnUpdateCredential(id_type id1) { return false; }
-            virtual bool OnUpdatePlatform(id_type id1, id_type id2) { return false; }
-            virtual bool OnUpdateAccount(id_type id1, id_type id2, id_type id3) { return false; }
-            virtual bool OnUpdateProperty(id_type id1, id_type id2, id_type id3, id_type id4) { return false; }
-
-            virtual bool OnRemoveCredential(id_type id1) { return false; }
-            virtual bool OnRemovePlatform(id_type id1, id_type id2) { return false; }
-            virtual bool OnRemoveAccount(id_type id1, id_type id2, id_type id3) { return false; }
-            virtual bool OnRemoveProperty(id_type id1, id_type id2, id_type id3, id_type id4) { return false; }
-
-            virtual ~delegate_type() = 0 { }
-        };
-
     };
 
 }

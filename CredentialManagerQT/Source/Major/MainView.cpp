@@ -13,6 +13,7 @@
 
 #include "credential_qt_string.h"
 #include "credential_qt_utils.h"
+#include "credential_qt_delegate.h"
 
 #include "Widget/AboutDialog.h"
 #include "Widget/HintDialog.h"
@@ -35,11 +36,6 @@ bnb::Credential& g_Credential()
 
 QT_BEGIN_NAMESPACE
 
-inline static bnb::credential_enum GetItemType(const QTreeWidgetItem& item)
-{
-    return static_cast<bnb::credential_enum>(item.data(0, Qt::UserRole).toUInt());
-}
-
 MainView::MainView(QWidget *parent)
     : QWidget(parent)
 {
@@ -55,7 +51,7 @@ MainView::MainView(QWidget *parent)
     QObject::connect(_ui.m_treeView, &QTreeWidget::customContextMenuRequested, this, &MainView::OnTreeContextMenu);
     QObject::connect(_ui.m_treeView, &QTreeWidget::currentItemChanged, this, &MainView::OnItemChanged);
     QObject::connect(_ui.m_treeView, &QTreeWidget::itemDoubleClicked, this, &MainView::OnDoubleClickedItem);
-
+    /*
     QObject::connect(_ui.m_actAddAccount, &QAction::triggered, this, &MainView::OnAddAccount);
     QObject::connect(_ui.m_actAddPlatform, &QAction::triggered, this, &MainView::OnAddPlatform);
     QObject::connect(_ui.m_actAddProperty, &QAction::triggered, this, &MainView::OnAddProperty);
@@ -67,6 +63,7 @@ MainView::MainView(QWidget *parent)
     QObject::connect(_ui.m_actEditProperty, &QAction::triggered, this, &MainView::OnEditProperty);
     QObject::connect(_ui.m_actModifyPassword, &QAction::triggered, this, &MainView::OnMotifyPassword);
     QObject::connect(_ui.m_actEditCredential, &QAction::triggered, this, &MainView::OnEditCredential);
+    */
 }
 
 bool MainView::SaveCredential()
@@ -86,31 +83,9 @@ bool MainView::SaveCredential()
 
 void MainView::InitCredential()
 {
-    auto item_root = _ui.m_treeView->AddRoot(g_Credential());
+    _ui.m_treeView->InitCredential(g_Credential());
 
-    auto view_credential = _ui.m_viewStack->AddCredential(g_Credential());
-
-    g_Credential().PreorderTraversal([this, item_root](const bnb::platform_node& platform) {
-        QTreeWidgetItem* item_platform = _ui.m_treeView->AddPlatform(item_root, platform);
-
-        _ui.m_viewStack->AddPlatform(platform);
-
-        platform.PreorderTraversal([this, item_platform](const bnb::account_node& account) {
-            QTreeWidgetItem* item_account = _ui.m_treeView->AddAccount(item_platform, account);
-
-            _ui.m_viewStack->AddAccount(account);
-
-            account.PreorderTraversal([this, item_account](const bnb::property_node& property) {
-                QTreeWidgetItem* item_property = _ui.m_treeView->AddProperty(item_account, property);
-
-                _ui.m_viewStack->AddProperty(property);
-            });
-
-            item_account->setExpanded(false);
-        });
-    });
-
-    _ui.m_viewStack->SwitchToCredential(g_Credential().GetID());
+    _ui.m_viewStack->InitCredential(g_Credential());
 
     _ui.m_viewToolBar->UpdatePath(m_strFile);
 }
@@ -462,9 +437,14 @@ void MainView::OnRemoveProperty()
     HintDialog(hint_type::ht_warning, "The property\'s parameter error !", this).exec();
 }
 
-bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
+bool MainView::OnAddPlatform(unsigned int id1)
 {
-    /*
+    if (id1 != g_Credential().GetID())
+    {
+
+        return false;
+    }
+
     EditPlatformDialog dlg(g_Credential(), nullptr, this);
     if (QDialog::Accepted == dlg.exec())
     {
@@ -474,6 +454,13 @@ bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
         _ui.m_viewStack->AddPlatform(*dlg.GetPlatform(), g_Credential().GetID());
         _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
     }
+
+
+}
+
+bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
+{
+    /*
     */
     return true;
 }
