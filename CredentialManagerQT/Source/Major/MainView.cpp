@@ -4,7 +4,6 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QStackedWidget>
-#include <QtWidgets/QMenu>
 #include <QtWidgets/QSplitter>
 
 #include<iostream>
@@ -48,22 +47,6 @@ MainView::MainView(QWidget *parent)
     QObject::connect(_ui.m_viewToolBar->UI().m_btnOpen, &QPushButton::clicked, this, &MainView::OnClickedOpen);
     QObject::connect(_ui.m_viewToolBar->UI().m_btnAbout, &QPushButton::clicked, this, &MainView::OnClickedAbout);
 
-    QObject::connect(_ui.m_treeView, &QTreeWidget::customContextMenuRequested, this, &MainView::OnTreeContextMenu);
-    QObject::connect(_ui.m_treeView, &QTreeWidget::currentItemChanged, this, &MainView::OnItemChanged);
-    QObject::connect(_ui.m_treeView, &QTreeWidget::itemDoubleClicked, this, &MainView::OnDoubleClickedItem);
-    /*
-    QObject::connect(_ui.m_actAddAccount, &QAction::triggered, this, &MainView::OnAddAccount);
-    QObject::connect(_ui.m_actAddPlatform, &QAction::triggered, this, &MainView::OnAddPlatform);
-    QObject::connect(_ui.m_actAddProperty, &QAction::triggered, this, &MainView::OnAddProperty);
-    QObject::connect(_ui.m_actDelAccount, &QAction::triggered, this, &MainView::OnRemoveAccount);
-    QObject::connect(_ui.m_actDelPlatform, &QAction::triggered, this, &MainView::OnRemovePlatform);
-    QObject::connect(_ui.m_actDelProperty, &QAction::triggered, this, &MainView::OnRemoveProperty);
-    QObject::connect(_ui.m_actEditAccount, &QAction::triggered, this, &MainView::OnEditAccount);
-    QObject::connect(_ui.m_actEditPlatform, &QAction::triggered, this, &MainView::OnEditPlatform);
-    QObject::connect(_ui.m_actEditProperty, &QAction::triggered, this, &MainView::OnEditProperty);
-    QObject::connect(_ui.m_actModifyPassword, &QAction::triggered, this, &MainView::OnMotifyPassword);
-    QObject::connect(_ui.m_actEditCredential, &QAction::triggered, this, &MainView::OnEditCredential);
-    */
 }
 
 bool MainView::SaveCredential()
@@ -167,354 +150,107 @@ void MainView::OnClickedAbout()
     AboutDialog().exec();
 }
 
-void MainView::OnTreeContextMenu(const QPoint & pos)
+bool MainView::OnUpdatePassword(unsigned int id1)
 {
-    QTreeWidgetItem* pItem = _ui.m_treeView->itemAt(pos);
-
-    QMenu treeMenu(_ui.m_treeView);
-    treeMenu.setStyleSheet("QMenu{ border: 1px solid gray; background-color: white; }"
-        "QMenu::item{ padding: 8px 20px 8px 20px; }"
-        "QMenu::item:selected{ background:#C0F0C0;}"
-        "QMenu::separator{ height: 1px; background: gray; margin-left: 2px; margin-right: 2px;}");
-
-    if (pItem)
+    if (id1 == g_Credential().GetID())
     {
-        switch (static_cast<bnb::credential_enum>(pItem->data(0, Qt::UserRole).toUInt()))
-        {
-        case bnb::credential_enum::ct_credential:
-            treeMenu.addAction(_ui.m_actEditCredential);
-            treeMenu.addAction(_ui.m_actModifyPassword);
-            treeMenu.addSeparator();
-            treeMenu.addAction(_ui.m_actAddPlatform);
-            break;
-        case bnb::credential_enum::ct_property:
-            treeMenu.addAction(_ui.m_actEditProperty);
-            treeMenu.addAction(_ui.m_actDelProperty);
-            break;
-        case bnb::credential_enum::ct_account:
-            treeMenu.addAction(_ui.m_actEditAccount);
-            treeMenu.addAction(_ui.m_actDelAccount);
-            treeMenu.addSeparator();
-            treeMenu.addAction(_ui.m_actAddProperty);
-            break;
-        case bnb::credential_enum::ct_platform:
-            treeMenu.addAction(_ui.m_actEditPlatform);
-            treeMenu.addAction(_ui.m_actDelPlatform);
-            treeMenu.addSeparator();
-            treeMenu.addAction(_ui.m_actAddAccount);
-            break;
-        default:
-            break;
-        }
-    }
-
-    treeMenu.exec(QCursor::pos());
-}
-
-void MainView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
-{
-    if (cur)
-    {
-        switch (GetItemType(*cur))
-        {
-        case bnb::credential_enum::ct_credential:
-        {
-            if (g_Credential().GetData().IsValid())
-                _ui.m_viewStack->SwitchToCredential(g_Credential().GetID());
-            else
-                _ui.m_viewStack->SwitchToHint("You haven\'t opened any credential !");
-
-            return;
-        }
-        case bnb::credential_enum::ct_platform:
-        {
-            if (auto ptr_platform = g_Credential().Find({ From_QString(cur->text(0)) }))
-                _ui.m_viewStack->SwitchToPlatform(ptr_platform->GetID());
-
-            return;
-        }
-        case bnb::credential_enum::ct_property:
-        {
-            auto item_account = cur->parent();
-            if (item_account && bnb::credential_enum::ct_account == GetItemType(*item_account))
-                cur = item_account;
-            else
-                return;
-        }
-        case bnb::credential_enum::ct_account:
-        {
-            auto item_platform = cur->parent();
-            if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
-                if (auto ptr_platform = g_Credential().Find({ From_QString(item_platform->text(0)) }))
-                    if (auto ptr_account = ptr_platform->Find({ From_QString(cur->text(0)) }))
-                        _ui.m_viewStack->SwitchToAccount(ptr_account->GetID());
-
-            return;
-        }
-        default:
-            break;
-        }
-    }
-}
-
-void MainView::OnDoubleClickedItem(QTreeWidgetItem * pItem, int index)
-{
-    std::cout << "index: " << index << ", text: " << pItem->text(0).toStdString() << std::endl;
-
-    if (0 == index && pItem)
-    {
-        switch (GetItemType(*pItem))
-        {
-        case bnb::credential_enum::ct_credential:
-        {
-            if (EditCredential(pItem))
-                return;
-
-            break;
-        }
-        case bnb::credential_enum::ct_platform:
-        {
-            if (EditPlatform(pItem))
-                return;
-
-            break;
-        }
-        case bnb::credential_enum::ct_property:
-        {
-            if (EditProperty(pItem))
-                return;
-
-            break;
-        }
-        case bnb::credential_enum::ct_account:
-        {
-            if (EditAccount(pItem))
-                return;
-
-            break;
-        }
-        default:
-            break;
-        }
-    }
-
-    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
-}
-
-void MainView::OnAddPlatform()
-{
-    if (QTreeWidgetItem* item_credential = _ui.m_treeView->currentItem())
-        if (bnb::credential_enum::ct_credential == GetItemType(*item_credential))
-            if (AddPlatform(item_credential))
-                return;
-
-    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
-}
-
-void MainView::OnAddAccount()
-{
-    if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
-        if (bnb::credential_enum::ct_platform == GetItemType(*item_platform))
-            if (AddAccount(item_platform))
-                return;
-
-    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
-}
-
-void MainView::OnAddProperty()
-{
-    if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
-        if (bnb::credential_enum::ct_account == GetItemType(*item_account))
-            if (AddProperty(item_account))
-                return;
-
-    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
-}
-
-void MainView::OnMotifyPassword()
-{
-    /*
-    EditPasswordDialog dlg(g_Credential(), this);
-
-    if (QDialog::Accepted == dlg.exec())
-    {
-        SaveCredential();
-    }
-    */
-}
-
-void MainView::OnEditCredential()
-{
-    if (QTreeWidgetItem* item_credential = _ui.m_treeView->currentItem())
-        if (bnb::credential_enum::ct_credential == GetItemType(*item_credential))
-            if (EditCredential(item_credential))
-                return;
-
-    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
-}
-
-void MainView::OnEditPlatform()
-{
-    if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
-        if (bnb::credential_enum::ct_platform == GetItemType(*item_platform))
-            if (EditPlatform(item_platform))
-                return;
-
-    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
-}
-
-void MainView::OnEditAccount()
-{
-    if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
-        if (bnb::credential_enum::ct_account == GetItemType(*item_account))
-            if (EditAccount(item_account))
-                return;
-
-    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
-}
-
-void MainView::OnEditProperty()
-{
-    if (QTreeWidgetItem* item_property = _ui.m_treeView->currentItem())
-        if (bnb::credential_enum::ct_property == GetItemType(*item_property))
-            if (EditProperty(item_property))
-                return;
-
-    HintDialog(hint_type::ht_warning, "The parameter error !", this).exec();
-}
-
-void MainView::OnRemovePlatform()
-{
-    if (QTreeWidgetItem* item_platform = _ui.m_treeView->currentItem())
-    {
-        if (bnb::credential_enum::ct_platform == GetItemType(*item_platform))
-        {
-            QString strText = "Are you sure to remove the platform \"" + item_platform->text(0) + "\"?";
-            if (QDialog::Accepted == ConfirmDialog(strText, this).exec())
-                if (!RemovePlatform(item_platform))
-                    HintDialog(hint_type::ht_error, "Remove platform failed !", this).exec();
-
-            return;
-        }
-    }
-
-    HintDialog(hint_type::ht_warning, "The platform\'s parameter error !", this).exec();
-}
-
-void MainView::OnRemoveAccount()
-{
-    if (QTreeWidgetItem* item_account = _ui.m_treeView->currentItem())
-    {
-        if (bnb::credential_enum::ct_account == GetItemType(*item_account))
-        {
-            QString strText = "Are you sure to remove the account \"" + item_account->text(0) + "\"?";
-            if (QDialog::Accepted == ConfirmDialog(strText, this).exec())
-                if (!RemoveAccount(item_account))
-                    HintDialog(hint_type::ht_error, "Remove account failed !", this).exec();
-
-            return;
-        }
-    }
-
-    HintDialog(hint_type::ht_warning, "The account\'s parameter error !", this).exec();
-}
-
-void MainView::OnRemoveProperty()
-{
-    if (QTreeWidgetItem* item_property = _ui.m_treeView->currentItem())
-    {
-        if (bnb::credential_enum::ct_property == GetItemType(*item_property))
-        {
-            QString strText = "Are you sure to remove the key \"" + item_property->text(0) + "\"?";
-            if (QDialog::Accepted == ConfirmDialog(strText, this).exec())
-                if (!RemoveProperty(item_property))
-                    HintDialog(hint_type::ht_error, "Remove property failed !", this).exec();
-
-            return;
-        }
-    }
-
-    HintDialog(hint_type::ht_warning, "The property\'s parameter error !", this).exec();
-}
-
-bool MainView::OnAddPlatform(unsigned int id1)
-{
-    if (id1 != g_Credential().GetID())
-    {
-
-        return false;
-    }
-
-    EditPlatformDialog dlg(g_Credential(), nullptr, this);
-    if (QDialog::Accepted == dlg.exec())
-    {
-        SaveCredential();
-
-        _ui.m_treeView->AddPlatform(item_credential, *dlg.GetPlatform());
-        _ui.m_viewStack->AddPlatform(*dlg.GetPlatform(), g_Credential().GetID());
-        _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
-    }
-
-
-}
-
-bool MainView::AddPlatform(QTreeWidgetItem* item_credential)
-{
-    /*
-    */
-    return true;
-}
-
-bool MainView::AddAccount(QTreeWidgetItem* item_platform)
-{/*
-    auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) });
-    if (ptr_platform)
-    {
-        EditAccountDialog dlg(*ptr_platform, nullptr, this);
+        EditPasswordDialog dlg(g_Credential(), this);
         if (QDialog::Accepted == dlg.exec())
         {
             SaveCredential();
 
-            _ui.m_treeView->AddAccount(item_platform, *dlg.GetAccount());
-            _ui.m_viewStack->AddAccount(*dlg.GetAccount(), ptr_platform->m_Key.GetID());
-            _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
+            _ui.m_viewStack->UpdateCredential(id1);
         }
 
         return true;
     }
-    */
+
     return false;
 }
 
-bool MainView::AddProperty(QTreeWidgetItem * item_account)
-{/*
-    QTreeWidgetItem* item_platform = item_account->parent();
-    if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
+bool MainView::OnUpdateCredential(unsigned int id1)
+{
+    if (id1 == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
+        EditCredentialDialog dlg(g_Credential(), this);
+        if (QDialog::Accepted == dlg.exec())
         {
-            if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
+            SaveCredential();
+
+            _ui.m_viewStack->UpdateCredential(id1);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool MainView::OnAddPlatform(unsigned int id1)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        EditPlatformDialog dlg(g_Credential(), nullptr, this);
+        if (QDialog::Accepted == dlg.exec())
+        {
+            SaveCredential();
+
+            _ui.m_treeView->AddPlatform(*dlg.GetPlatform());
+            _ui.m_viewStack->AddPlatform(*dlg.GetPlatform());
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
+bool MainView::OnAddAccount(unsigned int id1, unsigned int id2)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_platform = g_Credential().FindByID(id2))
+        {
+            EditAccountDialog dlg(*ptr_platform, nullptr, this);
+            if (QDialog::Accepted == dlg.exec())
             {
-                EditPropertyDialog dlg(*ptr_account, nullptr, this);
-                if (QDialog::Accepted == dlg.exec())
-                {
-                    SaveCredential();
+                SaveCredential();
 
-                    _ui.m_treeView->AddProperty(item_account, *dlg.GetProperty());
-                    _ui.m_viewStack->AddProperty(*dlg.GetProperty(), ptr_account->m_Key.GetID());
-                    _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
-                }
-
-                return true;
+                _ui.m_treeView->AddAccount(*dlg.GetAccount());
+                _ui.m_viewStack->AddAccount(*dlg.GetAccount());
             }
+
+            return true;
         }
     }
-    */
+
+    return false;
+}
+
+bool MainView::OnAddProperty(unsigned int id1, unsigned int id2, unsigned int id3)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_account = g_Credential().FindByID(id2, id3))
+        {
+            EditPropertyDialog dlg(*ptr_account, nullptr, this);
+            if (QDialog::Accepted == dlg.exec())
+            {
+                SaveCredential();
+
+                _ui.m_treeView->AddProperty(*dlg.GetProperty());
+                _ui.m_viewStack->AddProperty(*dlg.GetProperty());
+            }
+
+            return true;
+        }
+    }
+    
     return false;
 }
 
 bool MainView::EditCredential(QTreeWidgetItem * item_credential)
-{/*
+{
     EditCredentialDialog dlg(g_Credential(), this);
 
     if (QDialog::Accepted == dlg.exec())
@@ -524,7 +260,7 @@ bool MainView::EditCredential(QTreeWidgetItem * item_credential)
         _ui.m_treeView->UpdateHeader(To_QString(g_Credential().GetUser()));
         _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
     }
-    */
+
     return true;
 }
 

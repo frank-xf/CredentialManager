@@ -167,8 +167,8 @@ class EditPlatformDialog : public EditDialog<EditPlatformDialog, 3>
 {
 public:
 
-    EditPlatformDialog(bnb::Credential& pc, const bnb::platform_type* pp, QWidget* parent);
-    const bnb::platform_type* GetPlatform() const;
+    EditPlatformDialog(bnb::Credential& pc, const bnb::platform_node* pp, QWidget* parent);
+    const bnb::platform_node* GetPlatform() const;
 
 private:
 
@@ -177,7 +177,7 @@ private:
 private:
 
     bnb::Credential& m_Credential;
-    const bnb::platform_type* m_Platform;
+    const bnb::platform_node* m_Platform;
 
 };  // class EditPlatformDialog
 
@@ -187,8 +187,8 @@ class EditAccountDialog : public EditDialog<EditAccountDialog, 3>
 {
 public:
 
-    EditAccountDialog(bnb::platform_node& pp, const bnb::account_type* pa, QWidget * parent);
-    const bnb::account_type* GetAccount() const;
+    EditAccountDialog(bnb::platform_node& pp, const bnb::account_node* pa, QWidget * parent);
+    const bnb::account_node* GetAccount() const;
 
 private:
 
@@ -197,7 +197,7 @@ private:
 private:
 
     bnb::platform_node& m_Platform;
-    const bnb::account_type* m_Account;
+    const bnb::account_node* m_Account;
 
 };  // class EditAccountDialog
 
@@ -207,8 +207,8 @@ class EditPropertyDialog : public EditDialog<EditPropertyDialog, 3>
 {
 public:
 
-    EditPropertyDialog(bnb::account_node& pa, const bnb::property_type* pp, QWidget * parent);
-    const bnb::property_type* GetProperty() const;
+    EditPropertyDialog(bnb::account_node& pa, const bnb::property_node* pp, QWidget * parent);
+    const bnb::property_node* GetProperty() const;
 
 private:
 
@@ -217,7 +217,7 @@ private:
 private:
 
     bnb::account_node& m_Account;
-    const bnb::property_type* m_Property;
+    const bnb::property_node* m_Property;
 
 };  // class EditPropertyDialog
 

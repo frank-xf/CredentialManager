@@ -12,18 +12,6 @@ class MainView : public QWidget, public delegate_model_type
 {
     struct ui_type
     {
-        QAction* m_actAddAccount;
-        QAction* m_actAddPlatform;
-        QAction* m_actAddProperty;
-        QAction* m_actDelAccount;
-        QAction* m_actDelPlatform;
-        QAction* m_actDelProperty;
-        QAction* m_actEditAccount;
-        QAction* m_actEditPlatform;
-        QAction* m_actEditProperty;
-        QAction* m_actModifyPassword;
-        QAction* m_actEditCredential;
-
         ToolBar* m_viewToolBar;
         StackView* m_viewStack;
         TreeView* m_treeView;
@@ -42,25 +30,9 @@ private:
     void InitCredential();
     void ClearCredential();
 
-    void OnTreeContextMenu(const QPoint& pos);
-    void OnItemChanged(QTreeWidgetItem *cur, QTreeWidgetItem *pre);
-    void OnDoubleClickedItem(QTreeWidgetItem *pItem, int index);
-
     void OnClickedNew();
     void OnClickedOpen();
     void OnClickedAbout();
-
-    void OnAddPlatform();
-    void OnAddAccount();
-    void OnAddProperty();
-    void OnEditPlatform();
-    void OnEditAccount();
-    void OnEditProperty();
-    void OnEditCredential();
-    void OnMotifyPassword();
-    void OnRemovePlatform();
-    void OnRemoveAccount();
-    void OnRemoveProperty();
 
     bool AddPlatform(QTreeWidgetItem* item_credential);
     bool AddAccount(QTreeWidgetItem* item_platform);
@@ -78,6 +50,7 @@ private:
     bool OnAddAccount(unsigned int id1, unsigned int id2) override;
     bool OnAddProperty(unsigned int id1, unsigned int id2, unsigned int id3) override;
 
+    bool OnUpdatePassword(unsigned int id1) override;
     bool OnUpdateCredential(unsigned int id1) override;
     bool OnUpdatePlatform(unsigned int id1, unsigned int id2) override;
     bool OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int id3) override;

@@ -182,7 +182,7 @@ void EditPasswordDialog::base_type::ui_type::RetranslateLabel(EditPasswordDialog
 //==============================================================================
 // Implementation of EditPlatformDialog
 //==============================================================================
-EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, const bnb::platform_type* pp, QWidget* parent)
+EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, const bnb::platform_node* pp, QWidget* parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Credential(pc)
     , m_Platform(pp)
@@ -194,12 +194,12 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, const bnb::platform_
 
     if (m_Platform)
     {
-        if (!m_Platform->GetName().empty())
-            _ui.m_editText[0]->setText(To_QString(m_Platform->GetName()));
-        if (!m_Platform->GetUrl().empty())
-            _ui.m_editText[1]->setText(To_QString(m_Platform->GetUrl()));
-        if (!m_Platform->GetComment().empty())
-            _ui.m_editText[2]->setText(To_QString(m_Platform->GetComment()));
+        if (!m_Platform->GetData().GetName().empty())
+            _ui.m_editText[0]->setText(To_QString(m_Platform->GetData().GetName()));
+        if (!m_Platform->GetData().GetUrl().empty())
+            _ui.m_editText[1]->setText(To_QString(m_Platform->GetData().GetUrl()));
+        if (!m_Platform->GetData().GetComment().empty())
+            _ui.m_editText[2]->setText(To_QString(m_Platform->GetData().GetComment()));
 
         setWindowTitle("Edit Platform");
     }
@@ -209,7 +209,7 @@ EditPlatformDialog::EditPlatformDialog(bnb::Credential& pc, const bnb::platform_
     }
 }
 
-const bnb::platform_type * EditPlatformDialog::GetPlatform() const
+const bnb::platform_node * EditPlatformDialog::GetPlatform() const
 {
     return m_Platform;
 }
@@ -236,15 +236,15 @@ void EditPlatformDialog::OnClickedOK()
 
     if (m_Platform)
     {
-        if (IsEqual(m_Platform->GetName(), strPlatform)
-            && IsEqual(m_Platform->GetUrl(), strUrl)
-            && IsEqual(m_Platform->GetComment(), strComment))
+        if (IsEqual(m_Platform->GetData().GetName(), strPlatform)
+            && IsEqual(m_Platform->GetData().GetUrl(), strUrl)
+            && IsEqual(m_Platform->GetData().GetComment(), strComment))
         {
             reject();
             return;
         }
 
-        if (!m_Credential.Update(*m_Platform, platform))
+        if (!m_Credential.Update(m_Platform->GetData(), platform))
         {
             _ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
             return;
@@ -252,14 +252,12 @@ void EditPlatformDialog::OnClickedOK()
     }
     else
     {
-        auto ptr = m_Credential.PushBack(platform);
-        if (nullptr == ptr)
+        m_Platform = m_Credential.PushBack(platform);
+        if (nullptr == m_Platform)
         {
             _ui.m_labHint->setText("The platform name you entered already exists or is invalid !");
             return;
         }
-
-        m_Platform = &ptr->GetData();
     }
 
     accept();
@@ -301,7 +299,7 @@ void EditPlatformDialog::base_type::ui_type::RetranslateLabel(EditPlatformDialog
 //==============================================================================
 // Implementation of EditAccountDialog
 //==============================================================================
-EditAccountDialog::EditAccountDialog(bnb::platform_node& pp, const bnb::account_type* pa, QWidget * parent)
+EditAccountDialog::EditAccountDialog(bnb::platform_node& pp, const bnb::account_node* pa, QWidget * parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Platform(pp)
     , m_Account(pa)
@@ -317,11 +315,11 @@ EditAccountDialog::EditAccountDialog(bnb::platform_node& pp, const bnb::account_
 
     if (m_Account)
     {
-        if (!m_Account->GetName().empty())
-            _ui.m_editText[1]->setText(To_QString(m_Account->GetName()));
+        if (!m_Account->GetData().GetName().empty())
+            _ui.m_editText[1]->setText(To_QString(m_Account->GetData().GetName()));
 
-        if (!m_Account->GetComment().empty())
-            _ui.m_editText[2]->setText(To_QString(m_Account->GetComment()));
+        if (!m_Account->GetData().GetComment().empty())
+            _ui.m_editText[2]->setText(To_QString(m_Account->GetData().GetComment()));
 
         setWindowTitle("Edit Account");
     }
@@ -331,7 +329,7 @@ EditAccountDialog::EditAccountDialog(bnb::platform_node& pp, const bnb::account_
     }
 }
 
-const bnb::account_type * EditAccountDialog::GetAccount() const
+const bnb::account_node * EditAccountDialog::GetAccount() const
 {
     return m_Account;
 }
@@ -356,13 +354,13 @@ void EditAccountDialog::OnClickedOK()
 
     if (m_Account)
     {
-        if (IsEqual(m_Account->GetName(), strAccount) && IsEqual(m_Account->GetComment(), strComment))
+        if (IsEqual(m_Account->GetData().GetName(), strAccount) && IsEqual(m_Account->GetData().GetComment(), strComment))
         {
             reject();
             return;
         }
 
-        if (!m_Platform.Update(*m_Account, account))
+        if (!m_Platform.Update(m_Account->GetData(), account))
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
             return;
@@ -370,14 +368,12 @@ void EditAccountDialog::OnClickedOK()
     }
     else
     {
-        auto ptr = m_Platform.PushBack(account);
-        if (nullptr == ptr)
+        m_Account = m_Platform.PushBack(account);
+        if (nullptr == m_Account)
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
             return;
         }
-
-        m_Account = &ptr->GetData();
     }
 
     accept();
@@ -419,7 +415,7 @@ void EditAccountDialog::base_type::ui_type::RetranslateLabel(EditAccountDialog::
 //==============================================================================
 // Implementation of EditPropertyDialog
 //==============================================================================
-EditPropertyDialog::EditPropertyDialog(bnb::account_node & pa, const bnb::property_type * pp, QWidget * parent)
+EditPropertyDialog::EditPropertyDialog(bnb::account_node & pa, const bnb::property_node * pp, QWidget * parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Account(pa)
     , m_Property(pp)
@@ -435,11 +431,11 @@ EditPropertyDialog::EditPropertyDialog(bnb::account_node & pa, const bnb::proper
 
     if (m_Property)
     {
-        if (!m_Property->GetKey().empty())
-            _ui.m_editText[1]->setText(To_QString(m_Property->GetKey()));
+        if (!m_Property->GetData().GetKey().empty())
+            _ui.m_editText[1]->setText(To_QString(m_Property->GetData().GetKey()));
 
-        if (!m_Property->GetValue().empty())
-            _ui.m_editText[2]->setText(To_QString(m_Property->GetValue()));
+        if (!m_Property->GetData().GetValue().empty())
+            _ui.m_editText[2]->setText(To_QString(m_Property->GetData().GetValue()));
 
         setWindowTitle("Edit Property");
     }
@@ -449,7 +445,7 @@ EditPropertyDialog::EditPropertyDialog(bnb::account_node & pa, const bnb::proper
     }
 }
 
-const bnb::property_type * EditPropertyDialog::GetProperty() const
+const bnb::property_node * EditPropertyDialog::GetProperty() const
 {
     return m_Property;
 }
@@ -474,13 +470,13 @@ void EditPropertyDialog::OnClickedOK()
 
     if (m_Property)
     {
-        if (IsEqual(m_Property->GetKey(), key) && IsEqual(m_Property->GetValue(), value))
+        if (IsEqual(m_Property->GetData().GetKey(), key) && IsEqual(m_Property->GetData().GetValue(), value))
         {
             reject();
             return;
         }
 
-        if (!m_Account.Update(*m_Property, property))
+        if (!m_Account.Update(m_Property->GetData(), property))
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
             return;
@@ -488,14 +484,12 @@ void EditPropertyDialog::OnClickedOK()
     }
     else
     {
-        auto ptr = m_Account.PushBack(property);
-        if (nullptr == ptr)
+        m_Property = m_Account.PushBack(property);
+        if (nullptr == m_Property)
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
             return;
         }
-
-        m_Property = &ptr->GetData();
     }
 
     accept();
