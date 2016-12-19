@@ -28,7 +28,7 @@ private:
 
 public:
 
-	TreeView(delegate_model_type* pDelegate = nullptr, QWidget * parent = nullptr);
+	TreeView(delegate_type* pDelegate = nullptr, QWidget * parent = nullptr);
 
 	void ClearCredential();
 
@@ -83,7 +83,7 @@ private:
 
     ui_type _ui;
 
-    delegate_model_type* _delegate;
+    delegate_type* _delegate;
 };
 
 QT_END_NAMESPACE

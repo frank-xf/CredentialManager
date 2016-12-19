@@ -3,19 +3,44 @@
 #include <QtWidgets/QLineEdit>
 
 #include "credential_qt_utils.h"
+#include "credential_qt_delegate.h"
 
 #include "Major/ToolBar.h"
 
 QT_BEGIN_NAMESPACE
 
-ToolBar::ToolBar(QWidget * parent) : QWidget(parent)
+ToolBar::ToolBar(delegate_type* pDelegate, QWidget * parent)
+    : QWidget(parent)
+    , _delegate(pDelegate)
 {
     _ui.SetupUI(this);
+
+    QObject::connect(_ui.m_btnNew, &QPushButton::clicked, this, &ToolBar::OnClickedNew);
+    QObject::connect(_ui.m_btnOpen, &QPushButton::clicked, this, &ToolBar::OnClickedOpen);
+    QObject::connect(_ui.m_btnAbout, &QPushButton::clicked, this, &ToolBar::OnClickedAbout);
 }
 
 void ToolBar::UpdatePath(const QString & strPath)
 {
     _ui.m_editPath->setText(strPath);
+}
+
+void ToolBar::OnClickedNew()
+{
+    if (_delegate)
+        _delegate->OnClickedNew();
+}
+
+void ToolBar::OnClickedOpen()
+{
+    if (_delegate)
+        _delegate->OnClickedOpen();
+}
+
+void ToolBar::OnClickedAbout()
+{
+    if (_delegate)
+        _delegate->OnClickedAbout();
 }
 
 void ToolBar::ui_type::SetupUI(QWidget * pView)

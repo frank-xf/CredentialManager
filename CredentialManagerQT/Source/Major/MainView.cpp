@@ -6,8 +6,6 @@
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QSplitter>
 
-#include<iostream>
-
 #include "Credential/Credential.h"
 
 #include "credential_qt_string.h"
@@ -25,8 +23,6 @@
 #include "Major/TreeView.h"
 #include "Major/MainView.h"
 
-void UTF8toANSI(std::string &strUTF8);
-
 bnb::Credential& g_Credential()
 {
     static bnb::Credential _just_a_credential_;
@@ -42,25 +38,10 @@ MainView::MainView(QWidget *parent)
     setWindowOpacity(0.96);
 
     _ui.SetupUI(this);
-
-    QObject::connect(_ui.m_viewToolBar->UI().m_btnNew, &QPushButton::clicked, this, &MainView::OnClickedNew);
-    QObject::connect(_ui.m_viewToolBar->UI().m_btnOpen, &QPushButton::clicked, this, &MainView::OnClickedOpen);
-    QObject::connect(_ui.m_viewToolBar->UI().m_btnAbout, &QPushButton::clicked, this, &MainView::OnClickedAbout);
-
 }
 
 bool MainView::SaveCredential()
 {
-    // g_Credential().UpdateTime();
-
-    bnb::memory_type xml;
-
-    g_Credential().ToXml(xml);
-    std::string _xml((char*)xml.c_str(), xml.size());
-    UTF8toANSI(_xml);
-
-    printf(_xml.c_str());
-
     return g_Credential().Save(m_strFile.toStdString().c_str());
 }
 
@@ -129,6 +110,8 @@ void MainView::OnClickedOpen()
                 return;
             }
 
+            g_Credential().SetWord(password);
+
             if (!g_Credential().FromXml(_xml))
             {
                 HintDialog(hint_type::ht_error, "Anaylze file failed !", this).exec();
@@ -136,8 +119,6 @@ void MainView::OnClickedOpen()
             }
 
             m_strFile = strFile;
-
-            g_Credential().SetWord(password);
 
             ClearCredential();
             AddCredential();
@@ -150,40 +131,9 @@ void MainView::OnClickedAbout()
     AboutDialog().exec();
 }
 
-bool MainView::OnUpdatePassword(unsigned int id1)
+bool MainView::SwitchNode(unsigned int eType, unsigned int id)
 {
-    if (id1 == g_Credential().GetID())
-    {
-        EditPasswordDialog dlg(g_Credential(), this);
-        if (QDialog::Accepted == dlg.exec())
-        {
-            SaveCredential();
-
-            _ui.m_viewStack->UpdateCredential(id1);
-        }
-
-        return true;
-    }
-
-    return false;
-}
-
-bool MainView::OnUpdateCredential(unsigned int id1)
-{
-    if (id1 == g_Credential().GetID())
-    {
-        EditCredentialDialog dlg(g_Credential(), this);
-        if (QDialog::Accepted == dlg.exec())
-        {
-            SaveCredential();
-
-            _ui.m_viewStack->UpdateCredential(id1);
-        }
-
-        return true;
-    }
-
-    return false;
+    return (_ui.m_viewStack->SwitchToView(static_cast<bnb::credential_enum>(eType), id));
 }
 
 bool MainView::OnAddPlatform(unsigned int id1)
@@ -249,12 +199,29 @@ bool MainView::OnAddProperty(unsigned int id1, unsigned int id2, unsigned int id
     return false;
 }
 
+bool MainView::OnUpdatePassword(unsigned int id1)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        EditPasswordDialog dlg(g_Credential(), this);
+        if (QDialog::Accepted == dlg.exec())
+        {
+            SaveCredential();
+
+            _ui.m_viewStack->UpdateCredential(id1);
+        }
+
+        return true;
+    }
+
+    return false;
+}
+
 bool MainView::OnUpdateCredential(unsigned int id1)
 {
     if (id1 == g_Credential().GetID())
     {
         EditCredentialDialog dlg(g_Credential(), this);
-
         if (QDialog::Accepted == dlg.exec())
         {
             SaveCredential();
@@ -280,14 +247,139 @@ bool MainView::OnUpdatePlatform(unsigned int id1, unsigned int id2)
             {
                 SaveCredential();
 
-                _ui.m_viewStack->UpdatePlatform(g_Credential().GetID(), id2);
-                _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
+                _ui.m_treeView->UpdatePlatform(*dlg.GetPlatform());
+                _ui.m_viewStack->UpdatePlatform(id1, id2);
             }
 
             return true;
         }
     }
-    
+
+    return false;
+}
+
+bool MainView::OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int id3)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_platform = g_Credential().FindByID(id2))
+        {
+            if (auto ptr_account = ptr_platform->FindByID(id3))
+            {
+                EditAccountDialog dlg(*ptr_platform, ptr_account, this);
+                if (QDialog::Accepted == dlg.exec())
+                {
+                    SaveCredential();
+
+                    _ui.m_treeView->UpdateAccount(*dlg.GetAccount());
+                    _ui.m_viewStack->UpdateAccount(id1, id2, id3);
+                }
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool MainView::OnUpdateProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_account = g_Credential().FindByID(id2, id3))
+        {
+            if (auto ptr_property = ptr_account->FindByID(id4))
+            {
+                EditPropertyDialog dlg(*ptr_account, ptr_property, this);
+                if (QDialog::Accepted == dlg.exec())
+                {
+                    SaveCredential();
+
+                    _ui.m_treeView->UpdateProperty(*dlg.GetProperty());
+                    _ui.m_viewStack->UpdateProperty(id1, id3, id4);
+                }
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool MainView::OnRemovePlatform(unsigned int id1, unsigned int id2)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_platform = g_Credential().FindByID(id2))
+        {
+            std::vector<unsigned int> vtrIds{ ptr_platform->GetID() };
+            ptr_platform->PreorderTraversal([&vtrIds](const bnb::account_node& account) mutable {
+                vtrIds.push_back(account.GetID());
+            });
+
+            if (g_Credential().Remove(id2))
+            {
+                SaveCredential();
+
+                _ui.m_treeView->RemovePlatform(id1, id2);
+                _ui.m_viewStack->RemovePlatform(id1, id2, vtrIds);
+
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+bool MainView::OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_platform = g_Credential().FindByID(id2))
+        {
+            if (auto ptr_account = ptr_platform->FindByID(id3))
+            {
+                std::vector<unsigned int> vtrIds{ ptr_account->GetID() };
+                ptr_account->PreorderTraversal([&vtrIds](const bnb::property_node& property) mutable {
+                    vtrIds.push_back(property.GetID());
+                });
+
+                if (ptr_platform->Remove(id3))
+                {
+                    SaveCredential();
+
+                    _ui.m_treeView->RemoveAccount(id1, id2, id3);
+                    _ui.m_viewStack->RemoveAccount(id1, id2, id3, vtrIds);
+
+                    return true;
+                }
+            }
+        }
+    }
+
+    return false;
+}
+
+bool MainView::OnRemoveProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_account = g_Credential().FindByID(id2, id3))
+        {
+            if (ptr_account->Remove(id4))
+            {
+                SaveCredential();
+
+                _ui.m_treeView->RemoveProperty(id1, id2, id3, id4);
+                _ui.m_viewStack->RemoveProperty(id1, id3, id4);
+
+                return true;
+            }
+        }
+    }
+
     return false;
 }
 
@@ -303,11 +395,11 @@ void MainView::ui_type::SetupUI(MainView* pView)
     phSplitter->setOpaqueResize(true);
     phSplitter->setChildrenCollapsible(false);
 
-    m_treeView = new TreeView(this, phSplitter);
+    m_treeView = new TreeView(pView, phSplitter);
 
     m_viewStack = new StackView(phSplitter);
 
-    m_viewToolBar = new ToolBar(pView);
+    m_viewToolBar = new ToolBar(pView, pView);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
     pMainLayout->setMargin(0);
@@ -341,25 +433,4 @@ bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str)
 QT_PREPEND_NAMESPACE(QString) To_QString(const bnb::string_type& str)
 {
     return QT_PREPEND_NAMESPACE(QString)::fromStdWString(str);
-}
-
-#include <windows.h>
-
-void UTF8toANSI(std::string &strUTF8)
-{
-    //获取转换为多字节后需要的缓冲区大小，创建多字节缓冲区  
-    unsigned int nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, NULL, NULL);
-    wchar_t *wszBuffer = new wchar_t[nLen + 1];
-    nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, wszBuffer, nLen);
-    wszBuffer[nLen] = 0;
-
-    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, NULL, NULL, NULL, NULL);
-    char *szBuffer = new char[nLen + 1];
-    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, szBuffer, nLen, NULL, NULL);
-    szBuffer[nLen] = 0;
-
-    strUTF8 = szBuffer;
-    //清理内存  
-    delete[]szBuffer;
-    delete[]wszBuffer;
 }

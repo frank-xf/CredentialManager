@@ -3,16 +3,16 @@
 
 QT_BEGIN_NAMESPACE
 
-class delegate_model_type
+class delegate_type
 {
 private:
 
-    delegate_model_type(const delegate_model_type&) = delete;
-    delegate_model_type& operator=(const delegate_model_type&) = delete;
+    delegate_type(const delegate_type&) = delete;
+    delegate_type& operator=(const delegate_type&) = delete;
 
 protected:
 
-    delegate_model_type() = default;
+    delegate_type() = default;
 
 public:
 
@@ -34,31 +34,13 @@ public:
     virtual bool OnRemoveProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) { return false; }
 
     virtual bool SwitchNode(unsigned int eType, unsigned int id) { return false; }
+    virtual void OnClickedNew() { }
+    virtual void OnClickedOpen() { }
+    virtual void OnClickedAbout() { }
 
-    virtual ~delegate_model_type() = 0 { }
+    virtual ~delegate_type() = 0 { }
 
-};  // class delegate_model_type
-
-class delegate_ui_type
-{
-private:
-
-    delegate_ui_type(const delegate_ui_type&) = delete;
-    delegate_ui_type& operator=(const delegate_ui_type&) = delete;
-
-protected:
-
-    delegate_ui_type() = default;
-
-public:
-
-    virtual bool OnClickedNew() { return false; }
-    virtual bool OnClickedOpen(unsigned int id1) { return false; }
-    virtual bool OnClickedAbout(unsigned int id1, unsigned int id2) { return false; }
-
-    virtual ~delegate_ui_type() = 0 { }
-
-};  // class delegate_ui_type
+};  // class delegate_type
 
 QT_END_NAMESPACE
 

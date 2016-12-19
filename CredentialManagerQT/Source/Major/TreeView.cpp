@@ -32,7 +32,7 @@ static inline unsigned int GetItemID(const QTreeWidgetItem* item)
 
 static inline unsigned long long MakeItemData(bnb::credential_enum t, unsigned int id)
 {
-    return (static_cast<unsigned int>(t) << 32) | (id & 0xffffffff);
+    return (static_cast<unsigned long long>(t) << 32) | (id & 0xffffffff);
 }
 
 static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& strText, bnb::credential_enum t, unsigned int id, const QColor& c)
@@ -49,10 +49,12 @@ static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& s
 //==============================================================================
 // Implementation of TreeView
 //==============================================================================
-TreeView::TreeView(delegate_model_type* pDelegate = nullptr, QWidget * parent)
+TreeView::TreeView(delegate_type* pDelegate, QWidget * parent)
     : QTreeWidget(parent)
     , _delegate(pDelegate)
 {
+    _ui.SetupUI(this);
+
     setItemDelegate(new NoFocusDelegate);
 
     setMinimumWidth(ui_utils::tree_view_min_w);
@@ -157,6 +159,8 @@ QTreeWidgetItem* TreeView::UpdateCredential(unsigned int id, const bnb::Credenti
         item_credential->setText(0, '[' + To_QString(pc.GetData().GetUser()) + ']');
         return item_credential;
     }
+
+    return nullptr;
 }
 
 QTreeWidgetItem * TreeView::UpdatePlatform(const bnb::platform_node & pp)
@@ -309,16 +313,16 @@ void TreeView::mouseDoubleClickEvent(QMouseEvent * event)
         {
             switch (GetItemType(pItem))
             {
-            case bnb::credential_enum::ct_credential:
+            case bnb::credential_enum::credential:
                 _EditCredential(pItem);
                 break;
-            case bnb::credential_enum::ct_platform:
+            case bnb::credential_enum::platform:
                 _EditPlatform(pItem);
                 break;
-            case bnb::credential_enum::ct_account:
+            case bnb::credential_enum::account:
                 _EditAccount(pItem);
                 break;
-            case bnb::credential_enum::ct_property:
+            case bnb::credential_enum::property:
                 _EditProperty(pItem);
                 break;
             default:
@@ -347,23 +351,23 @@ void TreeView::OnTreeContextMenu(const QPoint & pos)
     {
         switch (GetItemType(pItem))
         {
-        case bnb::credential_enum::ct_credential:
+        case bnb::credential_enum::credential:
             treeMenu.addAction(_ui.m_actEditCredential);
             treeMenu.addAction(_ui.m_actModifyPassword);
             treeMenu.addSeparator();
             treeMenu.addAction(_ui.m_actAddPlatform);
             break;
-        case bnb::credential_enum::ct_property:
+        case bnb::credential_enum::property:
             treeMenu.addAction(_ui.m_actEditProperty);
             treeMenu.addAction(_ui.m_actDelProperty);
             break;
-        case bnb::credential_enum::ct_account:
+        case bnb::credential_enum::account:
             treeMenu.addAction(_ui.m_actEditAccount);
             treeMenu.addAction(_ui.m_actDelAccount);
             treeMenu.addSeparator();
             treeMenu.addAction(_ui.m_actAddProperty);
             break;
-        case bnb::credential_enum::ct_platform:
+        case bnb::credential_enum::platform:
             treeMenu.addAction(_ui.m_actEditPlatform);
             treeMenu.addAction(_ui.m_actDelPlatform);
             treeMenu.addSeparator();
@@ -386,13 +390,13 @@ void TreeView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 
         switch (eType)
         {
-        case bnb::credential_enum::ct_property:
+        case bnb::credential_enum::property:
         {
             if (auto item_account = cur->parent())
             {
-                if (bnb::credential_enum::ct_account == GetItemType(item_account))
+                if (bnb::credential_enum::account == GetItemType(item_account))
                 {
-                    eType = bnb::credential_enum::ct_account;
+                    eType = bnb::credential_enum::account;
                     id = GetItemID(item_account);
 
                     break;
@@ -401,9 +405,9 @@ void TreeView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 
             return;
         }
-        case bnb::credential_enum::ct_account:
-        case bnb::credential_enum::ct_platform:
-        case bnb::credential_enum::ct_credential:
+        case bnb::credential_enum::account:
+        case bnb::credential_enum::platform:
+        case bnb::credential_enum::credential:
             break;
         default:
             return;
@@ -417,7 +421,7 @@ void TreeView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 void TreeView::OnAddPlatform()
 {
     if (QTreeWidgetItem* item_credential = currentItem())
-        if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+        if (bnb::credential_enum::credential == GetItemType(item_credential))
             if (_delegate)
                 _delegate->OnAddPlatform(GetItemID(item_credential));
 }
@@ -425,9 +429,9 @@ void TreeView::OnAddPlatform()
 void TreeView::OnAddAccount()
 {
     if (QTreeWidgetItem* item_platform = currentItem())
-        if (bnb::credential_enum::ct_platform == GetItemType(item_platform))
+        if (bnb::credential_enum::platform == GetItemType(item_platform))
             if (QTreeWidgetItem* item_credential = item_platform->parent())
-                if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+                if (bnb::credential_enum::credential == GetItemType(item_credential))
                     if (_delegate)
                         _delegate->OnAddAccount(GetItemID(item_credential), GetItemID(item_platform));
 }
@@ -435,11 +439,11 @@ void TreeView::OnAddAccount()
 void TreeView::OnAddProperty()
 {
     if (QTreeWidgetItem* item_account = currentItem())
-        if (bnb::credential_enum::ct_account == GetItemType(item_account))
+        if (bnb::credential_enum::account == GetItemType(item_account))
             if (QTreeWidgetItem* item_platform = item_account->parent())
-                if (bnb::credential_enum::ct_platform == GetItemType(item_platform))
+                if (bnb::credential_enum::platform == GetItemType(item_platform))
                     if (QTreeWidgetItem* item_credential = item_platform->parent())
-                        if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+                        if (bnb::credential_enum::credential == GetItemType(item_credential))
                             if (_delegate)
                                 _delegate->OnAddProperty(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account));
 }
@@ -447,7 +451,7 @@ void TreeView::OnAddProperty()
 void TreeView::OnMotifyPassword()
 {
     if (QTreeWidgetItem* item_credential = currentItem())
-        if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+        if (bnb::credential_enum::credential == GetItemType(item_credential))
             if (_delegate)
                 _delegate->OnUpdatePassword(GetItemID(item_credential));
 }
@@ -455,37 +459,37 @@ void TreeView::OnMotifyPassword()
 void TreeView::OnEditCredential()
 {
     if (QTreeWidgetItem* item_credential = currentItem())
-        if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+        if (bnb::credential_enum::credential == GetItemType(item_credential))
             _EditCredential(item_credential);
 }
 
 void TreeView::OnEditPlatform()
 {
     if (QTreeWidgetItem* item_platform = currentItem())
-        if (bnb::credential_enum::ct_platform == GetItemType(item_platform))
+        if (bnb::credential_enum::platform == GetItemType(item_platform))
             _EditPlatform(item_platform);
 }
 
 void TreeView::OnEditAccount()
 {
     if (QTreeWidgetItem* item_account = currentItem())
-        if (bnb::credential_enum::ct_account == GetItemType(item_account))
+        if (bnb::credential_enum::account == GetItemType(item_account))
             _EditAccount(item_account);
 }
 
 void TreeView::OnEditProperty()
 {
     if (QTreeWidgetItem* item_property = currentItem())
-        if (bnb::credential_enum::ct_property == GetItemType(item_property))
+        if (bnb::credential_enum::property == GetItemType(item_property))
             _EditProperty(item_property);
 }
 
 void TreeView::OnRemovePlatform()
 {
     if (QTreeWidgetItem* item_platform = currentItem())
-        if (bnb::credential_enum::ct_platform == GetItemType(item_platform))
+        if (bnb::credential_enum::platform == GetItemType(item_platform))
             if (QTreeWidgetItem* item_credential = item_platform->parent())
-                if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+                if (bnb::credential_enum::credential == GetItemType(item_credential))
                     if (_delegate)
                         _delegate->OnRemovePlatform(GetItemID(item_credential), GetItemID(item_platform));
 }
@@ -493,11 +497,11 @@ void TreeView::OnRemovePlatform()
 void TreeView::OnRemoveAccount()
 {
     if (QTreeWidgetItem* item_account = currentItem())
-        if (bnb::credential_enum::ct_account == GetItemType(item_account))
+        if (bnb::credential_enum::account == GetItemType(item_account))
             if (QTreeWidgetItem* item_platform = item_account->parent())
-                if (bnb::credential_enum::ct_platform == GetItemType(item_platform))
+                if (bnb::credential_enum::platform == GetItemType(item_platform))
                     if (QTreeWidgetItem* item_credential = item_platform->parent())
-                        if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+                        if (bnb::credential_enum::credential == GetItemType(item_credential))
                             if (_delegate)
                                 _delegate->OnRemoveAccount(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account));
 }
@@ -505,13 +509,13 @@ void TreeView::OnRemoveAccount()
 void TreeView::OnRemoveProperty()
 {
     if (QTreeWidgetItem* item_property = currentItem())
-        if (bnb::credential_enum::ct_property == GetItemType(item_property))
+        if (bnb::credential_enum::property == GetItemType(item_property))
             if (QTreeWidgetItem* item_account = item_property->parent())
-                if (bnb::credential_enum::ct_account == GetItemType(item_account))
+                if (bnb::credential_enum::account == GetItemType(item_account))
                     if (QTreeWidgetItem* item_platform = item_account->parent())
-                        if (bnb::credential_enum::ct_platform == GetItemType(item_platform))
+                        if (bnb::credential_enum::platform == GetItemType(item_platform))
                             if (QTreeWidgetItem* item_credential = item_platform->parent())
-                                if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+                                if (bnb::credential_enum::credential == GetItemType(item_credential))
                                     if (_delegate)
                                         _delegate->OnRemoveProperty(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_property));
 }
@@ -576,7 +580,7 @@ void TreeView::_EditCredential(QTreeWidgetItem * item_credential)
 void TreeView::_EditPlatform(QTreeWidgetItem * item_platform)
 {
     if (QTreeWidgetItem* item_credential = item_platform->parent())
-        if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+        if (bnb::credential_enum::credential == GetItemType(item_credential))
             if (_delegate)
                 _delegate->OnUpdatePlatform(GetItemID(item_credential), GetItemID(item_platform));
 }
@@ -584,9 +588,9 @@ void TreeView::_EditPlatform(QTreeWidgetItem * item_platform)
 void TreeView::_EditAccount(QTreeWidgetItem * item_account)
 {
     if (QTreeWidgetItem* item_platform = item_account->parent())
-        if (bnb::credential_enum::ct_platform == GetItemType(item_platform))
+        if (bnb::credential_enum::platform == GetItemType(item_platform))
             if (QTreeWidgetItem* item_credential = item_platform->parent())
-                if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+                if (bnb::credential_enum::credential == GetItemType(item_credential))
                     if (_delegate)
                         _delegate->OnUpdateAccount(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account));
 }
@@ -594,11 +598,11 @@ void TreeView::_EditAccount(QTreeWidgetItem * item_account)
 void TreeView::_EditProperty(QTreeWidgetItem * item_property)
 {
     if (QTreeWidgetItem* item_account = item_property->parent())
-        if (bnb::credential_enum::ct_account == GetItemType(item_account))
+        if (bnb::credential_enum::account == GetItemType(item_account))
             if (QTreeWidgetItem* item_platform = item_account->parent())
-                if (bnb::credential_enum::ct_platform == GetItemType(item_platform))
+                if (bnb::credential_enum::platform == GetItemType(item_platform))
                     if (QTreeWidgetItem* item_credential = item_platform->parent())
-                        if (bnb::credential_enum::ct_credential == GetItemType(item_credential))
+                        if (bnb::credential_enum::credential == GetItemType(item_credential))
                             if (_delegate)
                                 _delegate->OnUpdateProperty(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_property));
 }

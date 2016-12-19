@@ -2,11 +2,15 @@
 #include <string>
 #include <fstream>
 
+#include<iostream>
+
 #include "encrypt/RC4.h"
 #include "encrypt/sha256.h"
 #include "pugixml/pugixml.hpp"
 
 #include "Credential.h"
+
+void UTF8toANSI(std::string &strUTF8);
 
 namespace bnb
 {
@@ -93,14 +97,14 @@ namespace bnb
     void account_node::Updated(param_type aType)
     {
         if (platform_node* ptr = dynamic_cast<platform_node*>(GetParent()))
-            ptr->Updated(aType, static_cast<param_type>(credential_enum::ct_property));
+            ptr->Updated(aType, static_cast<param_type>(credential_enum::property));
     }
 
 //------------------------------------------------------------------------------
 
     void platform_node::Updated(param_type aType)
     {
-        Updated(aType, static_cast<param_type>(credential_enum::ct_account));
+        Updated(aType, static_cast<param_type>(credential_enum::account));
     }
 
     void platform_node::Updated(param_type aType, param_type cType)
@@ -139,19 +143,19 @@ namespace bnb
     void Credential::SetWord(const string_type& strWord)
     {
         _data.m_strWord = strWord;
-        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::ct_credential));
+        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::credential));
     }
 
     void Credential::SetUser(const string_type& strUser)
     {
         _data.m_strUser = strUser;
-        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::ct_credential));
+        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::credential));
     }
 
     void Credential::SetComment(const string_type& strComment)
     {
         _data.m_strComment = strComment;
-        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::ct_credential));
+        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::credential));
     }
 
     void Credential::Clear()
@@ -161,12 +165,12 @@ namespace bnb
         _data.m_strWord.clear();
         _data.m_strUser.clear();
         _data.m_strComment.clear();
-        Updated(static_cast<param_type>(action_type::at_clear), static_cast<param_type>(credential_enum::ct_credential));
+        Updated(static_cast<param_type>(action_type::at_clear), static_cast<param_type>(credential_enum::credential));
     }
 
     void Credential::Updated(param_type aType)
     {
-        Updated(aType, static_cast<param_type>(credential_enum::ct_platform));
+        Updated(aType, static_cast<param_type>(credential_enum::platform));
     }
 
     void Credential::Updated(param_type aType, param_type cType)
@@ -185,6 +189,19 @@ namespace bnb
         default:
             break;
         }
+
+        const char* str1[] = { "none", "insert" , "delete" , "update" , "move" , "sort", "clear" };
+        const char* str2[] = { "credential", "platform" , "account" , "property" };
+
+        memory_type xml;
+
+        ToXml(xml);
+        std::string _xml((char*)xml.c_str(), xml.size());
+        UTF8toANSI(_xml);
+
+        std::cout << str1[aType] << ": " << str2[cType] << std::endl;
+        std::cout << _xml << std::endl;
+        std::cout << "-------------------------------------------" << std::endl << std::endl;
     }
 
     account_node* Credential::FindByID(id_type id1, id_type id2)
@@ -229,10 +246,6 @@ namespace bnb
 
         list_base::Clear();
 
-        _data.m_ullTime = node_credential.attribute(_sKey(sk_time)).as_ullong();
-        _data.m_strUser = node_credential.attribute(_sKey(sk_user)).value();
-        _data.m_strComment = node_credential.attribute(_sKey(sk_comment)).value();
-
         for (auto node_platform : node_credential.children(_sKey(sk_platform)))
         {
             auto name_attr_platform = node_platform.attribute(_sKey(sk_name));
@@ -264,6 +277,10 @@ namespace bnb
                 }
             }
         }
+
+        _data.m_ullTime = node_credential.attribute(_sKey(sk_time)).as_ullong();
+        _data.m_strUser = node_credential.attribute(_sKey(sk_user)).value();
+        _data.m_strComment = node_credential.attribute(_sKey(sk_comment)).value();
 
         return true;
     }
@@ -417,4 +434,25 @@ namespace bnb
         return result;
     }
 
+}
+
+#include <windows.h>
+
+void UTF8toANSI(std::string &strUTF8)
+{
+    //获取转换为多字节后需要的缓冲区大小，创建多字节缓冲区  
+    unsigned int nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, NULL, NULL);
+    wchar_t *wszBuffer = new wchar_t[nLen + 1];
+    nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, wszBuffer, nLen);
+    wszBuffer[nLen] = 0;
+
+    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, NULL, NULL, NULL, NULL);
+    char *szBuffer = new char[nLen + 1];
+    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, szBuffer, nLen, NULL, NULL);
+    szBuffer[nLen] = 0;
+
+    strUTF8 = szBuffer;
+    //清理内存  
+    delete[]szBuffer;
+    delete[]wszBuffer;
 }
