@@ -33,7 +33,7 @@ public:
     virtual bool OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3) { return false; }
     virtual bool OnRemoveProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) { return false; }
 
-    virtual bool SwitchNode(unsigned int id) { return false; }
+    virtual bool SwitchNode(unsigned int eType, unsigned int id) { return false; }
 
     virtual ~delegate_model_type() = 0 { }
 

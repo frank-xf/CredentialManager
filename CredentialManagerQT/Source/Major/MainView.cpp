@@ -64,11 +64,11 @@ bool MainView::SaveCredential()
     return g_Credential().Save(m_strFile.toStdString().c_str());
 }
 
-void MainView::InitCredential()
+void MainView::AddCredential()
 {
-    _ui.m_treeView->InitCredential(g_Credential());
+    _ui.m_treeView->AddCredential(g_Credential());
 
-    _ui.m_viewStack->InitCredential(g_Credential());
+    _ui.m_viewStack->AddCredential(g_Credential());
 
     _ui.m_viewToolBar->UpdatePath(m_strFile);
 }
@@ -94,7 +94,7 @@ void MainView::OnClickedNew()
         
         SaveCredential();
         ClearCredential();
-        InitCredential();
+        AddCredential();
     }
 }
 
@@ -140,7 +140,7 @@ void MainView::OnClickedOpen()
             g_Credential().SetWord(password);
 
             ClearCredential();
-            InitCredential();
+            AddCredential();
         }
     }
 }
@@ -249,197 +249,45 @@ bool MainView::OnAddProperty(unsigned int id1, unsigned int id2, unsigned int id
     return false;
 }
 
-bool MainView::EditCredential(QTreeWidgetItem * item_credential)
+bool MainView::OnUpdateCredential(unsigned int id1)
 {
-    EditCredentialDialog dlg(g_Credential(), this);
-
-    if (QDialog::Accepted == dlg.exec())
+    if (id1 == g_Credential().GetID())
     {
-        SaveCredential();
+        EditCredentialDialog dlg(g_Credential(), this);
 
-        _ui.m_treeView->UpdateHeader(To_QString(g_Credential().GetUser()));
-        _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
-    }
-
-    return true;
-}
-
-bool MainView::EditPlatform(QTreeWidgetItem * item_platform)
-{/*
-    auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) });
-    if (ptr_platform)
-    {
-        EditPlatformDialog dlg(g_Credential(), ptr_platform, this);
         if (QDialog::Accepted == dlg.exec())
         {
             SaveCredential();
 
-            item_platform->setText(0, To_QString(ptr_platform->m_Key.m_strName));
-            _ui.m_viewStack->UpdatePlatform(g_Credential().GetID(), ptr_platform->m_Key.GetID());
-            _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
+            _ui.m_treeView->UpdateCredential(id1, g_Credential());
+            _ui.m_viewStack->UpdateCredential(id1);
         }
 
         return true;
     }
-    */
+
     return false;
 }
 
-bool MainView::EditAccount(QTreeWidgetItem * item_account)
-{/*
-    QTreeWidgetItem* item_platform = item_account->parent();
-    if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
+bool MainView::OnUpdatePlatform(unsigned int id1, unsigned int id2)
+{
+    if (id1 == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
+        if (auto ptr_platform = g_Credential().FindByID(id2))
         {
-            if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
+            EditPlatformDialog dlg(g_Credential(), ptr_platform, this);
+            if (QDialog::Accepted == dlg.exec())
             {
-                EditAccountDialog dlg(*ptr_platform, ptr_account, this);
-                if (QDialog::Accepted == dlg.exec())
-                {
-                    SaveCredential();
+                SaveCredential();
 
-                    item_account->setText(0, To_QString(ptr_account->m_Key.m_strName));
-                    _ui.m_viewStack->UpdateAccount(ptr_platform->m_Key.GetID(), ptr_account->m_Key.GetID());
-                    _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
-                }
-
-                return true;
+                _ui.m_viewStack->UpdatePlatform(g_Credential().GetID(), id2);
+                _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
             }
-        }
-    }
-    */
-    return false;
-}
-
-bool MainView::EditProperty(QTreeWidgetItem * item_property)
-{/*
-    QTreeWidgetItem* item_account = item_property->parent();
-    if (item_account && bnb::credential_enum::ct_account == GetItemType(*item_account))
-    {
-        QTreeWidgetItem* item_platform = item_account->parent();
-        if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
-        {
-            if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
-            {
-                if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
-                {
-                    if (auto ptr_property = ptr_account->m_Value.Find({ From_QString(item_property->text(0)) }))
-                    {
-                        EditPropertyDialog dlg(*ptr_account, ptr_property, this);
-                        if (QDialog::Accepted == dlg.exec())
-                        {
-                            SaveCredential();
-
-                            item_property->setText(0, To_QString(ptr_property->m_Key.m_strName));
-                            _ui.m_viewStack->UpdateProperty(ptr_account->m_Key.GetID(), ptr_property->m_Key.GetID());
-                            _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
-                        }
-
-                        return true;
-                    }
-                }
-            }
-        }
-    }
-    */
-    return false;
-}
-
-bool MainView::RemovePlatform(QTreeWidgetItem * item_platform)
-{/*
-    auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) });
-    if (ptr_platform)
-    {
-        std::vector<unsigned int> vtrIds{ ptr_platform->m_Key.GetID() };
-        ptr_platform->m_Value.PreorderTraversal([&vtrIds](const bnb::account_list::data_type& account) mutable {
-            vtrIds.push_back(account.m_Key.GetID());
-        });
-
-        if (g_Credential().List().Remove(ptr_platform->m_Key))
-        {
-            SaveCredential();
-
-            auto ptr_parent = item_platform->parent();
-            if (ptr_parent)
-                ptr_parent->removeChild(item_platform);
-            else
-                _ui.m_treeView->takeTopLevelItem(_ui.m_treeView->indexOfTopLevelItem(item_platform));
-
-            delete item_platform;
-
-            _ui.m_viewStack->RemovePlatform(g_Credential().GetID(), vtrIds);
-            _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
 
             return true;
         }
     }
-    */
-    return false;
-}
-
-bool MainView::RemoveAccount(QTreeWidgetItem * item_account)
-{/*
-    QTreeWidgetItem* item_platform = item_account->parent();
-    if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
-    {
-        if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
-        {
-            if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
-            {
-                std::vector<unsigned int> vtrIds{ ptr_account->m_Key.GetID() };
-                if (ptr_platform->m_Value.Remove(ptr_account->m_Key))
-                {
-                    SaveCredential();
-
-                    item_platform->removeChild(item_account);
-                    delete item_account;
-
-                    _ui.m_viewStack->RemoveAccount(ptr_platform->m_Key.GetID(), vtrIds);
-                    _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
-
-                    return true;
-                }
-            }
-        }
-    }
-    */
-    return false;
-}
-
-bool MainView::RemoveProperty(QTreeWidgetItem* item_property)
-{/*
-    QTreeWidgetItem* item_account = item_property->parent();
-    if (item_account && bnb::credential_enum::ct_account == GetItemType(*item_account))
-    {
-        QTreeWidgetItem* item_platform = item_account->parent();
-        if (item_platform && bnb::credential_enum::ct_platform == GetItemType(*item_platform))
-        {
-            if (auto ptr_platform = g_Credential().List().Find({ From_QString(item_platform->text(0)) }))
-            {
-                if (auto ptr_account = ptr_platform->m_Value.Find({ From_QString(item_account->text(0)) }))
-                {
-                    if (auto ptr_property = ptr_account->m_Value.Find({ From_QString(item_property->text(0)) }))
-                    {
-                        std::vector<unsigned int> vtrIds{ ptr_property->m_Key.GetID() };
-                        if (ptr_account->m_Value.Remove(ptr_property->m_Key))
-                        {
-                            SaveCredential();
-
-                            item_account->removeChild(item_property);
-                            delete item_property;
-
-                            _ui.m_viewStack->RemoveProperty(ptr_account->m_Key.GetID(), vtrIds);
-                            _ui.m_viewStack->UpdateCredential(g_Credential().GetID());
-
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-    }
-    */
+    
     return false;
 }
 
@@ -455,7 +303,7 @@ void MainView::ui_type::SetupUI(MainView* pView)
     phSplitter->setOpaqueResize(true);
     phSplitter->setChildrenCollapsible(false);
 
-    m_treeView = new TreeView(phSplitter);
+    m_treeView = new TreeView(this, phSplitter);
 
     m_viewStack = new StackView(phSplitter);
 
@@ -469,34 +317,12 @@ void MainView::ui_type::SetupUI(MainView* pView)
 
     pView->setLayout(pMainLayout);
 
-    m_actAddAccount = new QAction(pView);
-    m_actAddPlatform = new QAction(pView);
-    m_actAddProperty = new QAction(pView);
-    m_actDelAccount = new QAction(pView);
-    m_actDelPlatform = new QAction(pView);
-    m_actDelProperty = new QAction(pView);
-    m_actEditAccount = new QAction(pView);
-    m_actEditPlatform = new QAction(pView);
-    m_actEditProperty = new QAction(pView);
-    m_actModifyPassword = new QAction(pView);
-    m_actEditCredential = new QAction(pView);
-
     RetranslateUI(pView);
 }
 
 void MainView::ui_type::RetranslateUI(MainView * pView)
 {
-    m_actAddAccount->setText("PushBack Account");
-    m_actAddPlatform->setText("PushBack Platform");
-    m_actAddProperty->setText("PushBack Property");
-    m_actDelAccount->setText("Remove Account");
-    m_actDelPlatform->setText("Remove Platform");
-    m_actDelProperty->setText("Remove Property");
-    m_actEditAccount->setText("Edit Account");
-    m_actEditPlatform->setText("Edit Platform");
-    m_actEditProperty->setText("Edit Property");
-    m_actModifyPassword->setText("Modify Password");
-    m_actEditCredential->setText("Edit Credential");
+
 }
 
 void Init()

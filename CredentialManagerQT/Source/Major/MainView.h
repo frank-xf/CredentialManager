@@ -27,7 +27,7 @@ public:
 private:
 
     bool SaveCredential();
-    void InitCredential();
+    void AddCredential();
     void ClearCredential();
 
     void OnClickedNew();

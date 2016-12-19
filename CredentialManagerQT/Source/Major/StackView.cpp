@@ -25,7 +25,7 @@ StackView::StackView(QWidget * parent) : QStackedWidget(parent)
     addWidget(m_labHint);
 }
 
-void StackView::InitCredential(const bnb::Credential & credential)
+void StackView::AddCredential(const bnb::Credential & credential)
 {
     auto view_credential = new CredentialView(credential, this);
     addWidget(view_credential);
