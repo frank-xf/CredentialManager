@@ -46,28 +46,45 @@ protected:
 
             m_btnOK->setDefault(true);
 
+            QVBoxLayout* pvLayout1 = new QVBoxLayout;
+            QVBoxLayout* pvLayout2 = new QVBoxLayout;
+            pvLayout1->setMargin(0);
+            pvLayout2->setMargin(0);
+            pvLayout1->setSpacing(2);
+            pvLayout2->setSpacing(2);
+            for (unsigned int i = 0; i < n; ++i)
+            {
+                pvLayout1->addWidget(_labText[i]);
+                pvLayout2->addWidget(m_editText[i]);
+            }
+
+            QHBoxLayout* phLayout1 = new QHBoxLayout;
+            phLayout1->setMargin(0);
+            phLayout1->setSpacing(0);
+            phLayout1->addLayout(pvLayout1);
+            phLayout1->addLayout(pvLayout2);
+            phLayout1->addLayout(LayoutCentral(pView));
+
+            QHBoxLayout* phLayout2 = new QHBoxLayout;
+            phLayout2->setContentsMargins(0, 12, 0, 12);
+            phLayout2->setSpacing(0);
+            phLayout2->addStretch(1);
+            phLayout2->addWidget(m_btnOK);
+            phLayout2->addStretch(1);
+            phLayout2->addWidget(m_btnCancel);
+            phLayout2->addStretch(1);
+
             QVBoxLayout* pMainLayout = new QVBoxLayout;
             pMainLayout->setMargin(4);
             pMainLayout->setSpacing(4);
             pMainLayout->addWidget(m_labHint);
+            pMainLayout->addLayout(phLayout1);
+            pMainLayout->addLayout(phLayout2);
 
-            LayoutCentral(pView, pMainLayout);
-
-            QHBoxLayout* phLayout = new QHBoxLayout;
-            phLayout->setContentsMargins(0, 12, 0, 12);
-            phLayout->setSpacing(0);
-            phLayout->addStretch(1);
-            phLayout->addWidget(m_btnOK);
-            phLayout->addStretch(1);
-            phLayout->addWidget(m_btnCancel);
-            phLayout->addStretch(1);
-
-            pMainLayout->addLayout(phLayout);
+            RetranslateUI(pView);
 
             pView->setLayout(pMainLayout);
             pView->setFixedSize(pView->sizeHint());
-
-            RetranslateUI(pView);
         }
 
         void RetranslateUI(EditDialog* pView)
@@ -87,8 +104,9 @@ protected:
             }
         }
 
-        void LayoutCentral(EditDialog* pView, QBoxLayout* pMainLayout)
+        QVBoxLayout* LayoutCentral(EditDialog* pView)
         {
+            /*
             for (unsigned int i = 0; i < n; ++i)
             {
                 QHBoxLayout* phLayout = new QHBoxLayout;
@@ -99,6 +117,8 @@ protected:
 
                 pMainLayout->addLayout(phLayout);
             }
+            */
+            return new QVBoxLayout;
         }
 
         void RetranslateLabel(EditDialog* pView)

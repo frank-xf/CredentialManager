@@ -10,18 +10,6 @@ QT_BEGIN_NAMESPACE
 namespace ui_utils
 {
 
-    static inline void SetLabel(QLabel* lab, unsigned int w, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size)
-    {
-        lab->setAlignment(align);
-        lab->setFixedSize(w, h);
-        lab->setStyleSheet("QLabel{ background:transparent; color:" + clr.name() + "; }");
-
-        QFont font = QGuiApplication::font();
-        font.setBold(bold);
-        font.setPointSize(size);
-        lab->setFont(font);
-    }
-
     void SetBackgroundColor(QWidget * pView, const QColor & color)
     {
         pView->setAutoFillBackground(true);
@@ -31,28 +19,7 @@ namespace ui_utils
         pView->setPalette(palette);
     }
 
-    QLabel* MakeLabel(QWidget* parent, unsigned int w, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size)
-    {
-        QLabel* lab = new QLabel(parent);
-        SetLabel(lab, w, h, align, clr, bold, size);
-
-        return lab;
-    }
-
-    QLabel * MakeMarkLabel(QWidget * parent, unsigned int w)
-    {
-        QLabel* lab = new QLabel("*", parent);
-        SetLabel(lab, w, def_widget_h, Qt::AlignCenter, Qt::red, false, def_text_size);
-
-        return lab;
-    }
-
-    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w, const QColor& clr)
-    {
-        return MakeLabel(parent, w, def_widget_h, Qt::AlignVCenter | Qt::AlignRight, clr, false, def_text_size);
-    }
-
-    QLabel * MakeDynamicLabel(QWidget * parent, const QColor& clr, Qt::Alignment align)
+    QLabel* MakeLabel(QWidget* parent, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size)
     {
         QLabel* lab = new QLabel(parent);
         lab->setAlignment(align);
@@ -60,11 +27,35 @@ namespace ui_utils
         lab->setStyleSheet("QLabel{ background:transparent; color:" + clr.name() + "; }");
 
         QFont font = QGuiApplication::font();
-        font.setBold(false);
+        font.setBold(bold);
         font.setPointSize(def_text_size);
         lab->setFont(font);
 
         return lab;
+    }
+
+    QLabel * MakeMarkLabel(QWidget * parent, unsigned int w)
+    {
+        QLabel* lab = new QLabel("*", parent);
+        lab->setAlignment(Qt::AlignCenter);
+        lab->setFixedSize(w, def_widget_h);
+        lab->setStyleSheet("QLabel{ background:transparent; color:red; }");
+
+        QFont font = QGuiApplication::font();
+        font.setPointSize(def_text_size);
+        lab->setFont(font);
+
+        return lab;
+    }
+
+    QLabel* MakeStaticLabel(QWidget* parent, const QColor& clr)
+    {
+        return MakeLabel(parent, def_widget_h, Qt::AlignVCenter | Qt::AlignRight, clr, false, def_text_size);
+    }
+
+    QLabel * MakeDynamicLabel(QWidget * parent, const QColor& clr, Qt::Alignment align)
+    {
+        return MakeLabel(parent, def_widget_h, align, clr, false, def_text_size);
     }
 
     QLineEdit * MakeLineEdit(QWidget * parent, unsigned int w, const QColor& clr)

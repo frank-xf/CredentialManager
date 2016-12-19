@@ -42,9 +42,9 @@ namespace ui_utils
 
     QFont MakeFont(unsigned int size = def_text_size, bool bold = false);
 
-    QLabel* MakeLabel(QWidget* parent, unsigned int w, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size);
-    QLabel* MakeStaticLabel(QWidget* parent, unsigned int w = lab_text_w, const QColor& clr = g_clrLabel);
-    QLabel* MakeDynamicLabel(QWidget * parent, const QColor& clr, Qt::Alignment align);
+    QLabel* MakeLabel(QWidget* parent, unsigned int h, Qt::Alignment align, QColor clr, bool bold, unsigned int size);
+    QLabel* MakeStaticLabel(QWidget* parent, const QColor& clr = g_clrLabel);
+    QLabel* MakeDynamicLabel(QWidget* parent, const QColor& clr, Qt::Alignment align);
     QLabel* MakeMarkLabel(QWidget* parent, unsigned int w = lab_mark_w);
 
     QLineEdit* MakeLineEdit(QWidget* parent, unsigned int w = edit_default_w, const QColor& clr = Qt::black);
