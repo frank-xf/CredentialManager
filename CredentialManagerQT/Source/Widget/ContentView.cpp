@@ -6,6 +6,7 @@
 
 #include "Credential/Credential.h"
 
+#include "credential_qt_delegate.h"
 #include "credential_qt_string.h"
 #include "credential_qt_utils.h"
 

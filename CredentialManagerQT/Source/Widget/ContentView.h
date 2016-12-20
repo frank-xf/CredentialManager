@@ -28,7 +28,7 @@ public:
 //------------------------------------------------------------------------------
 
 template<typename _Ty, unsigned int n>
-class ContentView : public BaseView
+class ContentView : public BaseView, public delegate_table
 {
     static_assert(0 < n, R"(the template parameter 'n' must be greater than 0)");
 
@@ -52,7 +52,7 @@ protected:
         {
             CreateLabel(pView);
 
-            m_tabView = new DropTable(pView);
+            m_tabView = new DropTable(pView, pView);
 
             QVBoxLayout* pvLayout1 = new QVBoxLayout;
             QVBoxLayout* pvLayout2 = new QVBoxLayout;

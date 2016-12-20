@@ -337,16 +337,14 @@ void TreeView::mouseDoubleClickEvent(QMouseEvent * event)
 
 void TreeView::OnTreeContextMenu(const QPoint & pos)
 {
-    QTreeWidgetItem* pItem = itemAt(pos);
-
-    QMenu treeMenu(this);
-    treeMenu.setStyleSheet("QMenu{ border: 1px solid gray; background-color: white; }"
-        "QMenu::item{ padding: 8px 20px 8px 20px; }"
-        "QMenu::item:selected{ background:#C0F0C0;}"
-        "QMenu::separator{ height: 1px; background: gray; margin-left: 2px; margin-right: 2px;}");
-
-    if (pItem)
+    if (QTreeWidgetItem* pItem = itemAt(pos))
     {
+        QMenu treeMenu(this);
+        treeMenu.setStyleSheet("QMenu{ border: 1px solid gray; background-color: white; }"
+            "QMenu::item{ padding: 4px 20px 4px 20px; }"
+            "QMenu::item:selected{ background:#C0F0C0;}"
+            "QMenu::separator{ height: 1px; background: gray; margin-left: 2px; margin-right: 2px;}");
+
         switch (GetItemType(pItem))
         {
         case bnb::credential_enum::credential:
@@ -374,9 +372,9 @@ void TreeView::OnTreeContextMenu(const QPoint & pos)
         default:
             break;
         }
-    }
 
-    treeMenu.exec(QCursor::pos());
+        treeMenu.exec(QCursor::pos());
+    }
 }
 
 void TreeView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
@@ -604,6 +602,8 @@ void TreeView::_EditPair(QTreeWidgetItem * item_pair)
                             if (_delegate)
                                 _delegate->OnUpdatePair(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_pair));
 }
+
+//------------------------------------------------------------------------------
 
 void TreeView::ui_type::SetupUI(TreeView* pView)
 {

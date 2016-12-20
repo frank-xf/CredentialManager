@@ -42,6 +42,27 @@ public:
 
 };  // class delegate_type
 
+class delegate_table
+{
+private:
+
+    delegate_table(const delegate_table&) = delete;
+    delegate_table& operator=(const delegate_table&) = delete;
+
+protected:
+
+    delegate_table() = default;
+
+public:
+
+    virtual void OnAdd() = 0;
+    virtual void OnEdit(unsigned int id) = 0;
+    virtual void OnRemove(unsigned int id) = 0;
+    virtual void OnMove(unsigned int id, int offset) = 0;
+
+    virtual ~delegate_table() = 0 { }
+};
+
 QT_END_NAMESPACE
 
 #endif // _bnb_Credential_Delegate_H_
