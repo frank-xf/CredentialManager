@@ -99,9 +99,9 @@ bool StackView::AddAccount(const bnb::account_node & account)
     return false;
 }
 
-bool StackView::AddProperty(const bnb::property_node & property)
+bool StackView::AddPair(const bnb::pair_node & pair)
 {
-    if (auto ptr_account = dynamic_cast<bnb::account_node*>(property.GetParent()))
+    if (auto ptr_account = dynamic_cast<bnb::account_node*>(pair.GetParent()))
         if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(ptr_account->GetParent()))
             if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
                 return UpdateView<AccountView>(ptr_credential->GetID(), ptr_account->GetID());
@@ -196,7 +196,7 @@ bool StackView::UpdateAccount(unsigned int credential_id, unsigned int platform_
     return false;
 }
 
-bool StackView::UpdateProperty(unsigned int credential_id, unsigned int account_id, unsigned int property_id)
+bool StackView::UpdatePair(unsigned int credential_id, unsigned int account_id, unsigned int pair_id)
 {
     bool bResult1 = false, bResult2 = false;
 
@@ -207,7 +207,7 @@ bool StackView::UpdateProperty(unsigned int credential_id, unsigned int account_
             AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
             if (ptr && ptr->GetID() == account_id)
             {
-                ptr->UpdateTable(property_id);
+                ptr->UpdateTable(pair_id);
                 bResult1 = true;
             }
         }
@@ -252,7 +252,7 @@ bool StackView::RemoveAccount(unsigned int credential_id, unsigned int platform_
     return UpdateView<PlatformView>(credential_id, platform_id);
 }
 
-bool StackView::RemoveProperty(unsigned int credential_id, unsigned int account_id, unsigned int property_id)
+bool StackView::RemovePair(unsigned int credential_id, unsigned int account_id, unsigned int pair_id)
 {
     return UpdateView<AccountView>(credential_id, account_id);
 }

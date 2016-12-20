@@ -81,38 +81,38 @@ void fun1()
 <credential user="just a name" time="1466185402" comment="just a comment">
     <platform name="platform1" url="http://" comment="">
         <account name="account2" display="">
-            <property name="k1"><![CDATA[v1]]></property>
-            <property name="k4"><![CDATA[v4]]></property>
-            <property name="k3"><![CDATA[v3]]></property>
+            <pair name="k1"><![CDATA[v1]]></pair>
+            <pair name="k4"><![CDATA[v4]]></pair>
+            <pair name="k3"><![CDATA[v3]]></pair>
         </account>
         <account name="account3" comment="">
-            <property name="k1"><![CDATA[v1]]></property>
-            <property name="k2"><![CDATA[v2]]></property>
+            <pair name="k1"><![CDATA[v1]]></pair>
+            <pair name="k2"><![CDATA[v2]]></pair>
         </account>
     </platform>
     <platform name="platform2" url="http://" comment="">
         <account name="account5" comment="">
-            <property name="k7"><![CDATA[v7]]></property>
-            <property name="k2"><![CDATA[v2]]></property>
+            <pair name="k7"><![CDATA[v7]]></pair>
+            <pair name="k2"><![CDATA[v2]]></pair>
         </account>
         <account name="account6" comment="">
-            <property name="k1"><![CDATA[v1]]></property>
+            <pair name="k1"><![CDATA[v1]]></pair>
         </account>
         <account name="account9" comment="">
-            <property name="k4"><![CDATA[v4]]></property>
-            <property name="k5"><![CDATA[v5]]></property>
-            <property name="k3"><![CDATA[v3]]></property>
+            <pair name="k4"><![CDATA[v4]]></pair>
+            <pair name="k5"><![CDATA[v5]]></pair>
+            <pair name="k3"><![CDATA[v3]]></pair>
         </account>
         </platform>
     <platform name="platform4" url="http://" comment="">
         <account name="account5" comment=""/>
         <account name="account6" comment="">
-            <property name="k1"><![CDATA[v1]]></property>
+            <pair name="k1"><![CDATA[v1]]></pair>
         </account>
         <account name="account9" comment="">
-            <property name="k8"><![CDATA[v8]]></property>
-            <property name="k6"><![CDATA[v6]]></property>
-            <property name="k9"><![CDATA[v9]]></property>
+            <pair name="k8"><![CDATA[v8]]></pair>
+            <pair name="k6"><![CDATA[v6]]></pair>
+            <pair name="k9"><![CDATA[v9]]></pair>
         </account>
     </platform>
     <platform name="platform7" url="http://" comment=""/>

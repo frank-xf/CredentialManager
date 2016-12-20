@@ -107,7 +107,7 @@ void NewDialog::ui_type::SetupUI(NewDialog * pView)
     m_editFilePath = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
 
     m_btnBrowse = new QPushButton(pView);
-    m_btnBrowse->setFixedSize(ui_utils::lab_text_w, ui_utils::def_widget_h);
+    m_btnBrowse->setFixedHeight(ui_utils::def_widget_h);
     m_btnBrowse->setFont(ui_utils::MakeFont());
     m_btnBrowse->setStyleSheet(
         "QPushButton{ background-color:transparent; border:none; color:#FF4000; text-align:right; }\n"
@@ -124,49 +124,46 @@ void NewDialog::ui_type::SetupUI(NewDialog * pView)
     m_editFilePath->setReadOnly(true);
     m_btnOK->setDefault(true);
 
+    QVBoxLayout* pvLayout1 = new QVBoxLayout;
+    QVBoxLayout* pvLayout2 = new QVBoxLayout;
+    QVBoxLayout* pvLayout3 = new QVBoxLayout;
+    pvLayout1->setMargin(0);
+    pvLayout2->setMargin(0);
+    pvLayout3->setMargin(0);
+    pvLayout1->setSpacing(2);
+    pvLayout2->setSpacing(2);
+    pvLayout3->setSpacing(2);
+    pvLayout1->addWidget(_labUserName);
+    pvLayout1->addWidget(_labPassword);
+    pvLayout1->addWidget(_labValidate);
+    pvLayout1->addWidget(_labComment);
+    pvLayout1->addWidget(m_btnBrowse);
+    pvLayout2->addWidget(m_editUserName);
+    pvLayout2->addWidget(m_editPassword);
+    pvLayout2->addWidget(m_editValidate);
+    pvLayout2->addWidget(m_editComment);
+    pvLayout2->addWidget(m_editFilePath);
+    pvLayout3->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout3->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout3->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout3->addStretch(1);
+    pvLayout3->addWidget(ui_utils::MakeMarkLabel(pView));
+
     QHBoxLayout* phLayout1 = new QHBoxLayout;
     phLayout1->setSpacing(0);
     phLayout1->setMargin(0);
-    phLayout1->addWidget(_labUserName);
-    phLayout1->addWidget(m_editUserName);
-    phLayout1->addWidget(ui_utils::MakeMarkLabel(pView));
+    phLayout1->addLayout(pvLayout1);
+    phLayout1->addLayout(pvLayout2);
+    phLayout1->addLayout(pvLayout3);
 
     QHBoxLayout* phLayout2 = new QHBoxLayout;
+    phLayout2->setContentsMargins(0, 12, 0, 12);
     phLayout2->setSpacing(0);
-    phLayout2->setMargin(0);
-    phLayout2->addWidget(_labPassword);
-    phLayout2->addWidget(m_editPassword);
-    phLayout2->addWidget(ui_utils::MakeMarkLabel(pView));
-
-    QHBoxLayout* phLayout3 = new QHBoxLayout;
-    phLayout3->setSpacing(0);
-    phLayout3->setMargin(0);
-    phLayout3->addWidget(_labValidate);
-    phLayout3->addWidget(m_editValidate);
-    phLayout3->addWidget(ui_utils::MakeMarkLabel(pView));
-
-    QHBoxLayout* phLayout4 = new QHBoxLayout;
-    phLayout4->setSpacing(0);
-    phLayout4->setMargin(0);
-    phLayout4->addWidget(_labComment);
-    phLayout4->addWidget(m_editComment);
-    phLayout4->addStretch(1);
-
-    QHBoxLayout* phLayout5 = new QHBoxLayout;
-    phLayout5->setSpacing(0);
-    phLayout5->setMargin(0);
-    phLayout5->addWidget(m_btnBrowse);
-    phLayout5->addWidget(m_editFilePath);
-    phLayout5->addWidget(ui_utils::MakeMarkLabel(pView));
-
-    QHBoxLayout* phLayout6 = new QHBoxLayout;
-    phLayout6->setContentsMargins(0, 12, 0, 12);
-    phLayout6->setSpacing(0);
-    phLayout6->addStretch(1);
-    phLayout6->addWidget(m_btnOK);
-    phLayout6->addStretch(1);
-    phLayout6->addWidget(m_btnCancel);
-    phLayout6->addStretch(1);
+    phLayout2->addStretch(1);
+    phLayout2->addWidget(m_btnOK);
+    phLayout2->addStretch(1);
+    phLayout2->addWidget(m_btnCancel);
+    phLayout2->addStretch(1);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
     pMainLayout->setMargin(2);
@@ -174,15 +171,11 @@ void NewDialog::ui_type::SetupUI(NewDialog * pView)
     pMainLayout->addWidget(m_labHint);
     pMainLayout->addLayout(phLayout1);
     pMainLayout->addLayout(phLayout2);
-    pMainLayout->addLayout(phLayout3);
-    pMainLayout->addLayout(phLayout4);
-    pMainLayout->addLayout(phLayout5);
-    pMainLayout->addLayout(phLayout6);
-    
-    pView->setLayout(pMainLayout);
-    pView->setFixedSize(pView->sizeHint());
 
     RetranslateUI(pView);
+
+    pView->setLayout(pMainLayout);
+    pView->setFixedSize(pView->sizeHint());
 }
 
 void NewDialog::ui_type::RetranslateUI(NewDialog * pView)

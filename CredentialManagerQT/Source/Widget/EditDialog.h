@@ -63,7 +63,7 @@ protected:
             phLayout1->setSpacing(0);
             phLayout1->addLayout(pvLayout1);
             phLayout1->addLayout(pvLayout2);
-            phLayout1->addLayout(LayoutCentral(pView));
+            phLayout1->addLayout(LayoutLayoutMarkLabel(pView));
 
             QHBoxLayout* phLayout2 = new QHBoxLayout;
             phLayout2->setContentsMargins(0, 12, 0, 12);
@@ -104,20 +104,8 @@ protected:
             }
         }
 
-        QVBoxLayout* LayoutCentral(EditDialog* pView)
+        QVBoxLayout* LayoutLayoutMarkLabel(EditDialog* pView)
         {
-            /*
-            for (unsigned int i = 0; i < n; ++i)
-            {
-                QHBoxLayout* phLayout = new QHBoxLayout;
-                phLayout->setMargin(0);
-                phLayout->setSpacing(0);
-                phLayout->addWidget(_labText[i]);
-                phLayout->addWidget(m_editText[i]);
-
-                pMainLayout->addLayout(phLayout);
-            }
-            */
             return new QVBoxLayout;
         }
 
@@ -145,7 +133,7 @@ protected:
 
 };	// class EditDialog
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class EditCredentialDialog : public EditDialog<EditCredentialDialog, 2>
 {
@@ -181,7 +169,7 @@ private:
 
 };  // class EditPasswordDialog
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class EditPlatformDialog : public EditDialog<EditPlatformDialog, 3>
 {
@@ -201,7 +189,7 @@ private:
 
 };  // class EditPlatformDialog
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 class EditAccountDialog : public EditDialog<EditAccountDialog, 3>
 {
@@ -221,14 +209,14 @@ private:
 
 };  // class EditAccountDialog
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-class EditPropertyDialog : public EditDialog<EditPropertyDialog, 3>
+class EditPairDialog : public EditDialog<EditPairDialog, 3>
 {
 public:
 
-    EditPropertyDialog(bnb::account_node& pa, const bnb::property_node* pp, QWidget * parent);
-    const bnb::property_node* GetProperty() const;
+    EditPairDialog(bnb::account_node& pa, const bnb::pair_node* pp, QWidget * parent);
+    const bnb::pair_node* GetPair() const;
 
 private:
 
@@ -237,9 +225,9 @@ private:
 private:
 
     bnb::account_node& m_Account;
-    const bnb::property_node* m_Property;
+    const bnb::pair_node* m_Pair;
 
-};  // class EditPropertyDialog
+};  // class EditPairDialog
 
 QT_END_NAMESPACE
 

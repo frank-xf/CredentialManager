@@ -54,25 +54,28 @@ protected:
 
             m_tabView = new DropTable(pView);
 
-            QVBoxLayout* pvLayout = new QVBoxLayout;
-            pvLayout->setMargin(0);
-            pvLayout->setSpacing(0);
-
+            QVBoxLayout* pvLayout1 = new QVBoxLayout;
+            QVBoxLayout* pvLayout2 = new QVBoxLayout;
+            pvLayout1->setMargin(0);
+            pvLayout2->setMargin(0);
+            pvLayout1->setSpacing(2);
+            pvLayout2->setSpacing(2);
             for (unsigned int i = 0; i < n; ++i)
             {
-                QHBoxLayout* phLayout = new QHBoxLayout;
-                phLayout->setMargin(0);
-                phLayout->setSpacing(0);
-                phLayout->addWidget(_labText[i]);
-                phLayout->addWidget(m_editText[i], 1);
-
-                pvLayout->addLayout(phLayout);
+                pvLayout1->addWidget(_labText[i]);
+                pvLayout2->addWidget(m_editText[i]);
             }
+
+            QHBoxLayout* phLayout = new QHBoxLayout;
+            phLayout->setMargin(0);
+            phLayout->setSpacing(0);
+            phLayout->addLayout(pvLayout1);
+            phLayout->addLayout(pvLayout2);
 
             QVBoxLayout* pvMainLayout = new QVBoxLayout;
             pvMainLayout->setMargin(0);
             pvMainLayout->setSpacing(16);
-            pvMainLayout->addLayout(pvLayout);
+            pvMainLayout->addLayout(phLayout);
             pvMainLayout->addWidget(m_tabView, 1);
 
             QHBoxLayout* phMainLayout = new QHBoxLayout;
@@ -93,7 +96,7 @@ protected:
         {
             for (unsigned int i = 0; i < n; ++i)
             {
-                _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_text_w, ui_utils::g_clrLabel);
+                _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::g_clrLabel);
                 m_editText[i] = ui_utils::MakeShowLine(pView);
             }
         }
@@ -104,9 +107,6 @@ protected:
     {
         _ui.SetupUI(this);
     }
-
-
-
 
     ui_type _ui;
 

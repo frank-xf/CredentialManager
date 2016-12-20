@@ -24,7 +24,7 @@ namespace bnb
         sk_credential,
         sk_platform,
         sk_account,
-        sk_property,
+        sk_pair,
         sk_user,
         sk_time,
         sk_name,
@@ -42,7 +42,7 @@ namespace bnb
         L"credential",
         L"platform",
         L"account",
-        L"property",
+        L"pair",
         L"user",
         L"time",
         L"name",
@@ -97,7 +97,7 @@ namespace bnb
     void account_node::Updated(param_type aType)
     {
         if (platform_node* ptr = dynamic_cast<platform_node*>(GetParent()))
-            ptr->Updated(aType, static_cast<param_type>(credential_enum::property));
+            ptr->Updated(aType, static_cast<param_type>(credential_enum::pair));
     }
 
 //------------------------------------------------------------------------------
@@ -191,7 +191,7 @@ namespace bnb
         }
 
         const char* str1[] = { "none", "insert" , "delete" , "update" , "move" , "sort", "clear" };
-        const char* str2[] = { "credential", "platform" , "account" , "property" };
+        const char* str2[] = { "credential", "platform" , "account" , "pair" };
 
         memory_type xml;
 
@@ -220,7 +220,7 @@ namespace bnb
         return nullptr;
     }
 
-    property_node* Credential::FindByID(id_type id1, id_type id2, id_type id3)
+    pair_node* Credential::FindByID(id_type id1, id_type id2, id_type id3)
     {
         if (account_node* account_ptr = FindByID(id1, id2))
             return account_ptr->FindByID(id3);
@@ -228,7 +228,7 @@ namespace bnb
         return nullptr;
     }
 
-    const property_node* Credential::FindByID(id_type id1, id_type id2, id_type id3) const
+    const pair_node* Credential::FindByID(id_type id1, id_type id2, id_type id3) const
     {
         if (const account_node* account_ptr = FindByID(id1, id2))
             return account_ptr->FindByID(id3);
@@ -262,17 +262,17 @@ namespace bnb
 
                 auto ptr_account = ptr_platform->PushBack({ name_attr_account.value(), node_account.attribute(_sKey(sk_comment)).value() });
 
-                for (auto node_property : node_account.children(_sKey(sk_property)))
+                for (auto node_pair : node_account.children(_sKey(sk_pair)))
                 {
-                    auto name_attr_property = node_property.attribute(_sKey(sk_name));
-                    if (name_attr_property.empty()) return false;
+                    auto name_attr_pair = node_pair.attribute(_sKey(sk_name));
+                    if (name_attr_pair.empty()) return false;
 
-                    auto node_value = node_property.first_child();
+                    auto node_value = node_pair.first_child();
                     if (!node_value.empty())
                     {
                         if (pugi::node_cdata != node_value.type()) return false;
 
-                        ptr_account->PushBack({ name_attr_property.value(), node_value.value() });
+                        ptr_account->PushBack({ name_attr_pair.value(), node_value.value() });
                     }
                 }
             }
@@ -309,10 +309,10 @@ namespace bnb
                 node_account.append_attribute(_sKey(sk_name)).set_value(account.GetData().GetName().c_str());
                 node_account.append_attribute(_sKey(sk_comment)).set_value(account.GetData().GetComment().c_str());
 
-                account.PreorderTraversal([&node_account](const property_node& property) {
-                    auto node_property = node_account.append_child(_sKey(sk_property));
-                    node_property.append_attribute(_sKey(sk_name)).set_value(property.GetData().GetKey().c_str());
-                    node_property.append_child(pugi::node_cdata).set_value(property.GetData().GetValue().c_str());
+                account.PreorderTraversal([&node_account](const pair_node& pair) {
+                    auto node_pair = node_account.append_child(_sKey(sk_pair));
+                    node_pair.append_attribute(_sKey(sk_name)).set_value(pair.GetData().GetKey().c_str());
+                    node_pair.append_child(pugi::node_cdata).set_value(pair.GetData().GetValue().c_str());
                 });
             });
         });

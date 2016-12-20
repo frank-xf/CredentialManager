@@ -1,7 +1,6 @@
 #include <QtWidgets/QBoxLayout>
-#include <QtWidgets/QPushButton>
-#include <QtWidgets/QFileDialog>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QFileDialog>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QSplitter>
@@ -40,11 +39,6 @@ MainView::MainView(QWidget *parent)
     _ui.SetupUI(this);
 }
 
-bool MainView::SaveCredential()
-{
-    return g_Credential().Save(m_strFile.toStdString().c_str());
-}
-
 void MainView::AddCredential()
 {
     _ui.m_treeView->AddCredential(g_Credential());
@@ -71,9 +65,9 @@ void MainView::OnClickedNew()
         g_Credential().Clear();
         g_Credential().SetWord(From_QString(dlg.GetPassword()));
         g_Credential().SetUser(From_QString(dlg.GetUserName()));
-        g_Credential().SetComment(From_QString(dlg.GetComment()));
-        
-        SaveCredential();
+        g_Credential().SetComment(From_QString(dlg.GetComment()));        
+        g_Credential().Save(m_strFile.toStdString().c_str());
+
         ClearCredential();
         AddCredential();
     }
@@ -143,7 +137,7 @@ bool MainView::OnAddPlatform(unsigned int id1)
         EditPlatformDialog dlg(g_Credential(), nullptr, this);
         if (QDialog::Accepted == dlg.exec())
         {
-            SaveCredential();
+            g_Credential().Save(m_strFile.toStdString().c_str());
 
             _ui.m_treeView->AddPlatform(*dlg.GetPlatform());
             _ui.m_viewStack->AddPlatform(*dlg.GetPlatform());
@@ -164,7 +158,7 @@ bool MainView::OnAddAccount(unsigned int id1, unsigned int id2)
             EditAccountDialog dlg(*ptr_platform, nullptr, this);
             if (QDialog::Accepted == dlg.exec())
             {
-                SaveCredential();
+                g_Credential().Save(m_strFile.toStdString().c_str());
 
                 _ui.m_treeView->AddAccount(*dlg.GetAccount());
                 _ui.m_viewStack->AddAccount(*dlg.GetAccount());
@@ -177,19 +171,19 @@ bool MainView::OnAddAccount(unsigned int id1, unsigned int id2)
     return false;
 }
 
-bool MainView::OnAddProperty(unsigned int id1, unsigned int id2, unsigned int id3)
+bool MainView::OnAddPair(unsigned int id1, unsigned int id2, unsigned int id3)
 {
     if (id1 == g_Credential().GetID())
     {
         if (auto ptr_account = g_Credential().FindByID(id2, id3))
         {
-            EditPropertyDialog dlg(*ptr_account, nullptr, this);
+            EditPairDialog dlg(*ptr_account, nullptr, this);
             if (QDialog::Accepted == dlg.exec())
             {
-                SaveCredential();
+                g_Credential().Save(m_strFile.toStdString().c_str());
 
-                _ui.m_treeView->AddProperty(*dlg.GetProperty());
-                _ui.m_viewStack->AddProperty(*dlg.GetProperty());
+                _ui.m_treeView->AddPair(*dlg.GetPair());
+                _ui.m_viewStack->AddPair(*dlg.GetPair());
             }
 
             return true;
@@ -206,7 +200,7 @@ bool MainView::OnUpdatePassword(unsigned int id1)
         EditPasswordDialog dlg(g_Credential(), this);
         if (QDialog::Accepted == dlg.exec())
         {
-            SaveCredential();
+            g_Credential().Save(m_strFile.toStdString().c_str());
 
             _ui.m_viewStack->UpdateCredential(id1);
         }
@@ -224,7 +218,7 @@ bool MainView::OnUpdateCredential(unsigned int id1)
         EditCredentialDialog dlg(g_Credential(), this);
         if (QDialog::Accepted == dlg.exec())
         {
-            SaveCredential();
+            g_Credential().Save(m_strFile.toStdString().c_str());
 
             _ui.m_treeView->UpdateCredential(id1, g_Credential());
             _ui.m_viewStack->UpdateCredential(id1);
@@ -245,7 +239,7 @@ bool MainView::OnUpdatePlatform(unsigned int id1, unsigned int id2)
             EditPlatformDialog dlg(g_Credential(), ptr_platform, this);
             if (QDialog::Accepted == dlg.exec())
             {
-                SaveCredential();
+                g_Credential().Save(m_strFile.toStdString().c_str());
 
                 _ui.m_treeView->UpdatePlatform(*dlg.GetPlatform());
                 _ui.m_viewStack->UpdatePlatform(id1, id2);
@@ -269,7 +263,7 @@ bool MainView::OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int 
                 EditAccountDialog dlg(*ptr_platform, ptr_account, this);
                 if (QDialog::Accepted == dlg.exec())
                 {
-                    SaveCredential();
+                    g_Credential().Save(m_strFile.toStdString().c_str());
 
                     _ui.m_treeView->UpdateAccount(*dlg.GetAccount());
                     _ui.m_viewStack->UpdateAccount(id1, id2, id3);
@@ -282,21 +276,21 @@ bool MainView::OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int 
     return false;
 }
 
-bool MainView::OnUpdateProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
+bool MainView::OnUpdatePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
 {
     if (id1 == g_Credential().GetID())
     {
         if (auto ptr_account = g_Credential().FindByID(id2, id3))
         {
-            if (auto ptr_property = ptr_account->FindByID(id4))
+            if (auto ptr_pair = ptr_account->FindByID(id4))
             {
-                EditPropertyDialog dlg(*ptr_account, ptr_property, this);
+                EditPairDialog dlg(*ptr_account, ptr_pair, this);
                 if (QDialog::Accepted == dlg.exec())
                 {
-                    SaveCredential();
+                    g_Credential().Save(m_strFile.toStdString().c_str());
 
-                    _ui.m_treeView->UpdateProperty(*dlg.GetProperty());
-                    _ui.m_viewStack->UpdateProperty(id1, id3, id4);
+                    _ui.m_treeView->UpdatePair(*dlg.GetPair());
+                    _ui.m_viewStack->UpdatePair(id1, id3, id4);
                 }
 
                 return true;
@@ -313,19 +307,27 @@ bool MainView::OnRemovePlatform(unsigned int id1, unsigned int id2)
     {
         if (auto ptr_platform = g_Credential().FindByID(id2))
         {
-            std::vector<unsigned int> vtrIds{ ptr_platform->GetID() };
-            ptr_platform->PreorderTraversal([&vtrIds](const bnb::account_node& account) mutable {
-                vtrIds.push_back(account.GetID());
-            });
-
-            if (g_Credential().Remove(id2))
+            QString strText = To_QString(ptr_platform->GetData().GetName());
+            if (QDialog::Accepted == ConfirmDialog("Are you sure to remove platform \"" + strText + "\"?", this).exec())
             {
-                SaveCredential();
+                std::vector<unsigned int> vtrIds{ ptr_platform->GetID() };
+                ptr_platform->PreorderTraversal([&vtrIds](const bnb::account_node& account) mutable {
+                    vtrIds.push_back(account.GetID());
+                });
 
-                _ui.m_treeView->RemovePlatform(id1, id2);
-                _ui.m_viewStack->RemovePlatform(id1, id2, vtrIds);
+                if (g_Credential().Remove(id2))
+                {
+                    g_Credential().Save(m_strFile.toStdString().c_str());
 
-                return true;
+                    _ui.m_treeView->RemovePlatform(id1, id2);
+                    _ui.m_viewStack->RemovePlatform(id1, id2, vtrIds);
+
+                    return true;
+                }
+                else
+                {
+                    HintDialog(hint_type::ht_error, "Remove the platform \"" + strText + "\" failed !", this).exec();
+                }
             }
         }
     }
@@ -341,19 +343,27 @@ bool MainView::OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int 
         {
             if (auto ptr_account = ptr_platform->FindByID(id3))
             {
-                std::vector<unsigned int> vtrIds{ ptr_account->GetID() };
-                ptr_account->PreorderTraversal([&vtrIds](const bnb::property_node& property) mutable {
-                    vtrIds.push_back(property.GetID());
-                });
-
-                if (ptr_platform->Remove(id3))
+                QString strText = To_QString(ptr_account->GetData().GetName());
+                if (QDialog::Accepted == ConfirmDialog("Are you sure to remove account \"" + strText + "\"?", this).exec())
                 {
-                    SaveCredential();
+                    std::vector<unsigned int> vtrIds{ ptr_account->GetID() };
+                    ptr_account->PreorderTraversal([&vtrIds](const bnb::pair_node& pair) mutable {
+                        vtrIds.push_back(pair.GetID());
+                    });
 
-                    _ui.m_treeView->RemoveAccount(id1, id2, id3);
-                    _ui.m_viewStack->RemoveAccount(id1, id2, id3, vtrIds);
+                    if (ptr_platform->Remove(id3))
+                    {
+                        g_Credential().Save(m_strFile.toStdString().c_str());
 
-                    return true;
+                        _ui.m_treeView->RemoveAccount(id1, id2, id3);
+                        _ui.m_viewStack->RemoveAccount(id1, id2, id3, vtrIds);
+
+                        return true;
+                    }
+                    else
+                    {
+                        HintDialog(hint_type::ht_error, "Remove the account \"" + strText + "\" failed !", this).exec();
+                    }
                 }
             }
         }
@@ -362,20 +372,31 @@ bool MainView::OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int 
     return false;
 }
 
-bool MainView::OnRemoveProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
+bool MainView::OnRemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
 {
     if (id1 == g_Credential().GetID())
     {
         if (auto ptr_account = g_Credential().FindByID(id2, id3))
         {
-            if (ptr_account->Remove(id4))
+            if (auto ptr_pair = ptr_account->FindByID(id4))
             {
-                SaveCredential();
+                QString strText = To_QString(ptr_pair->GetData().GetKey());
+                if (QDialog::Accepted == ConfirmDialog("Are you sure to remove pair \"" + strText + "\"?", this).exec())
+                {
+                    if (ptr_account->Remove(id4))
+                    {
+                        g_Credential().Save(m_strFile.toStdString().c_str());
 
-                _ui.m_treeView->RemoveProperty(id1, id2, id3, id4);
-                _ui.m_viewStack->RemoveProperty(id1, id3, id4);
+                        _ui.m_treeView->RemovePair(id1, id2, id3, id4);
+                        _ui.m_viewStack->RemovePair(id1, id3, id4);
 
-                return true;
+                        return true;
+                    }
+                    else
+                    {
+                        HintDialog(hint_type::ht_error, "Remove the pair \"" + strText + "\" failed !", this).exec();
+                    }
+                }
             }
         }
     }
@@ -412,16 +433,7 @@ void MainView::ui_type::SetupUI(MainView* pView)
     RetranslateUI(pView);
 }
 
-void MainView::ui_type::RetranslateUI(MainView * pView)
-{
-
-}
-
-void Init()
-{
-    MainView* _viewMain = new MainView;
-    _viewMain->show();
-}
+void MainView::ui_type::RetranslateUI(MainView * pView) { }
 
 QT_END_NAMESPACE
 
@@ -433,4 +445,10 @@ bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str)
 QT_PREPEND_NAMESPACE(QString) To_QString(const bnb::string_type& str)
 {
     return QT_PREPEND_NAMESPACE(QString)::fromStdWString(str);
+}
+
+void Init()
+{
+    QT_PREPEND_NAMESPACE(MainView)* _viewMain = new QT_PREPEND_NAMESPACE(MainView);
+    _viewMain->show();
 }

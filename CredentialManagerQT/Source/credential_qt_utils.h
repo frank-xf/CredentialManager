@@ -15,11 +15,8 @@ namespace ui_utils
         def_text_size = 10,
         def_widget_h = 24,
 
-        lab_text_w = 92,
         lab_mark_w = 16,
         lab_password_w = 100,
-        lab_username_w = 80,
-        lab_account_w = 64,
         btn_default_w = 64,
         tree_item_w = 160,
         edit_default_w = 280,
@@ -34,7 +31,7 @@ namespace ui_utils
     const QColor g_clrCredential{ 128, 128, 0 };
     const QColor g_clrPlatform{ 255, 64, 0 };
     const QColor g_clrAccount{ 160, 128, 255 };
-    const QColor g_clrProperty{ 32, 160, 32 };
+    const QColor g_clrPair{ 32, 160, 32 };
     const QColor g_clrLabel{ 0, 64, 255 };
 
     void SetBackgroundColor(QWidget* pView, const QColor& color);

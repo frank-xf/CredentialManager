@@ -235,9 +235,9 @@ void AccountView::UpdateTable()
     if (0 < nRows)
     {
         unsigned int nIndex = 0;
-        m_Account.PreorderTraversal([this, &nIndex](const bnb::property_node& property) mutable {
-            auto pKey = MakeTableItem(To_QString(property.GetData().GetKey()), property.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
-            auto pValue = MakeTableItem(To_QString(property.GetData().GetValue()), property.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
+        m_Account.PreorderTraversal([this, &nIndex](const bnb::pair_node& pair) mutable {
+            auto pKey = MakeTableItem(To_QString(pair.GetData().GetKey()), pair.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
+            auto pValue = MakeTableItem(To_QString(pair.GetData().GetValue()), pair.GetID(), { 32, 160, 32 }, Qt::AlignCenter);
 
             _ui.m_tabView->setItem(nIndex, 0, pKey);
             _ui.m_tabView->setItem(nIndex, 1, pValue);
@@ -257,11 +257,11 @@ void AccountView::UpdateTable(unsigned int id)
         {
             if (id == pItem->data(Qt::UserRole).toUInt())
             {
-                m_Account.PreorderAction([this, pItem, id, i](const bnb::property_node& property) {
-                    if (property.GetID() == id)
+                m_Account.PreorderAction([this, pItem, id, i](const bnb::pair_node& pair) {
+                    if (pair.GetID() == id)
                     {
-                        pItem->setText(To_QString(property.GetData().GetKey()));
-                        _ui.m_tabView->item(i, 1)->setText(To_QString(property.GetData().GetValue()));
+                        pItem->setText(To_QString(pair.GetData().GetKey()));
+                        _ui.m_tabView->item(i, 1)->setText(To_QString(pair.GetData().GetValue()));
                         return true;
                     }
 

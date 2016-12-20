@@ -62,23 +62,16 @@ void EditCredentialDialog::OnClickedOK()
 
 //------------------------------------------------------------------------------
 
-void EditCredentialDialog::base_type::ui_type::LayoutCentral(EditCredentialDialog::base_type* pView, QBoxLayout* pMainLayout)
+template<>
+QVBoxLayout* EditCredentialDialog::base_type::ui_type::LayoutLayoutMarkLabel(EditCredentialDialog::base_type* pView)
 {
-    for (unsigned int i = 0; i < 2; ++i)
-    {
-        QHBoxLayout* phLayout = new QHBoxLayout;
-        phLayout->setMargin(0);
-        phLayout->setSpacing(0);
-        phLayout->addWidget(_labText[i]);
-        phLayout->addWidget(m_editText[i]);
+    QVBoxLayout* pvLayout = new QVBoxLayout;
+    pvLayout->setMargin(0);
+    pvLayout->setSpacing(2);
+    pvLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout->addStretch(1);
 
-        if (0 == i)
-            phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
-        else
-            phLayout->addStretch(1);
-
-        pMainLayout->addLayout(phLayout);
-    }
+    return pvLayout;
 }
 
 template<>
@@ -146,25 +139,22 @@ void EditPasswordDialog::base_type::ui_type::CreateLabel(EditPasswordDialog::bas
 {
     for (unsigned int i = 0; i < 3; ++i)
     {
-        _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_password_w);
+        _labText[i] = ui_utils::MakeStaticLabel(pView);
         m_editText[i] = ui_utils::MakePasswordLine(pView, ui_utils::edit_password_w);
     }
 }
 
 template<>
-void EditPasswordDialog::base_type::ui_type::LayoutCentral(EditPasswordDialog::base_type* pView, QBoxLayout * pMainLayout)
+QVBoxLayout* EditPasswordDialog::base_type::ui_type::LayoutLayoutMarkLabel(EditPasswordDialog::base_type* pView)
 {
-    for (unsigned int i = 0; i < 3; ++i)
-    {
-        QHBoxLayout* phLayout = new QHBoxLayout;
-        phLayout->setMargin(0);
-        phLayout->setSpacing(0);
-        phLayout->addWidget(_labText[i]);
-        phLayout->addWidget(m_editText[i]);
-        phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+    QVBoxLayout* pvLayout = new QVBoxLayout;
+    pvLayout->setMargin(0);
+    pvLayout->setSpacing(2);
+    pvLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout->addWidget(ui_utils::MakeMarkLabel(pView));
 
-        pMainLayout->addLayout(phLayout);
-    }
+    return pvLayout;
 }
 
 template<>
@@ -265,23 +255,16 @@ void EditPlatformDialog::OnClickedOK()
 
 //------------------------------------------------------------------------------
 
-void EditPlatformDialog::base_type::ui_type::LayoutCentral(EditPlatformDialog::base_type* pView, QBoxLayout* pMainLayout)
+template<>
+QVBoxLayout* EditPlatformDialog::base_type::ui_type::LayoutLayoutMarkLabel(EditPlatformDialog::base_type* pView)
 {
-    for (unsigned int i = 0; i < 3; ++i)
-    {
-        QHBoxLayout* phLayout = new QHBoxLayout;
-        phLayout->setMargin(0);
-        phLayout->setSpacing(0);
-        phLayout->addWidget(_labText[i]);
-        phLayout->addWidget(m_editText[i]);
+    QVBoxLayout* pvLayout = new QVBoxLayout;
+    pvLayout->setMargin(0);
+    pvLayout->setSpacing(2);
+    pvLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout->addStretch(1);
 
-        if (0 == i)
-            phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
-        else
-            phLayout->addStretch(1);
-
-        pMainLayout->addLayout(phLayout);
-    }
+    return pvLayout;
 }
 
 template<>
@@ -382,23 +365,16 @@ void EditAccountDialog::OnClickedOK()
 //------------------------------------------------------------------------------
 
 template<>
-void EditAccountDialog::base_type::ui_type::LayoutCentral(EditAccountDialog::base_type* pView, QBoxLayout * pMainLayout)
+QVBoxLayout* EditAccountDialog::base_type::ui_type::LayoutLayoutMarkLabel(EditAccountDialog::base_type* pView)
 {
-    for (unsigned int i = 0; i < 3; ++i)
-    {
-        QHBoxLayout* phLayout = new QHBoxLayout;
-        phLayout->setMargin(0);
-        phLayout->setSpacing(0);
-        phLayout->addWidget(_labText[i]);
-        phLayout->addWidget(m_editText[i]);
+    QVBoxLayout* pvLayout = new QVBoxLayout;
+    pvLayout->setMargin(0);
+    pvLayout->setSpacing(2);
+    pvLayout->addStretch(1);
+    pvLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout->addStretch(1);
 
-        if (1 == i)
-            phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
-        else
-            phLayout->addStretch(1);
-
-        pMainLayout->addLayout(phLayout);
-    }
+    return pvLayout;
 }
 
 template<>
@@ -413,14 +389,14 @@ void EditAccountDialog::base_type::ui_type::RetranslateLabel(EditAccountDialog::
 }
 
 //==============================================================================
-// Implementation of EditPropertyDialog
+// Implementation of EditPairDialog
 //==============================================================================
-EditPropertyDialog::EditPropertyDialog(bnb::account_node & pa, const bnb::property_node * pp, QWidget * parent)
+EditPairDialog::EditPairDialog(bnb::account_node & pa, const bnb::pair_node * pp, QWidget * parent)
     : base_type(parent, Qt::WindowTitleHint | Qt::CustomizeWindowHint | Qt::WindowCloseButtonHint)
     , m_Account(pa)
-    , m_Property(pp)
+    , m_Pair(pp)
 {
-    setObjectName("EditPropertyDialog");
+    setObjectName("EditPairDialog");
 
     _ui.m_editText[0]->setReadOnly(true);
     _ui.m_editText[1]->setFocus();
@@ -429,32 +405,32 @@ EditPropertyDialog::EditPropertyDialog(bnb::account_node & pa, const bnb::proper
     if (!m_Account.GetData().GetName().empty())
         _ui.m_editText[0]->setText(To_QString(m_Account.GetData().GetName()));
 
-    if (m_Property)
+    if (m_Pair)
     {
-        if (!m_Property->GetData().GetKey().empty())
-            _ui.m_editText[1]->setText(To_QString(m_Property->GetData().GetKey()));
+        if (!m_Pair->GetData().GetKey().empty())
+            _ui.m_editText[1]->setText(To_QString(m_Pair->GetData().GetKey()));
 
-        if (!m_Property->GetData().GetValue().empty())
-            _ui.m_editText[2]->setText(To_QString(m_Property->GetData().GetValue()));
+        if (!m_Pair->GetData().GetValue().empty())
+            _ui.m_editText[2]->setText(To_QString(m_Pair->GetData().GetValue()));
 
-        setWindowTitle("Edit Property");
+        setWindowTitle("Edit Pair");
     }
     else
     {
-        setWindowTitle("PushBack Property");
+        setWindowTitle("Add Pair");
     }
 }
 
-const bnb::property_node * EditPropertyDialog::GetProperty() const
+const bnb::pair_node * EditPairDialog::GetPair() const
 {
-    return m_Property;
+    return m_Pair;
 }
 
-void EditPropertyDialog::OnClickedOK()
+void EditPairDialog::OnClickedOK()
 {
     if (_ui.m_editText[1]->text().isEmpty())
     {
-        _ui.m_labHint->setText("Property key mustn\'t be null !");
+        _ui.m_labHint->setText("The key mustn\'t be null !");
         return;
     }
 
@@ -466,17 +442,17 @@ void EditPropertyDialog::OnClickedOK()
 
     auto key(From_QString(_ui.m_editText[1]->text()));
     auto value(From_QString(_ui.m_editText[2]->text()));
-    bnb::property_type property(key, value);
+    bnb::pair_type pair(key, value);
 
-    if (m_Property)
+    if (m_Pair)
     {
-        if (IsEqual(m_Property->GetData().GetKey(), key) && IsEqual(m_Property->GetData().GetValue(), value))
+        if (IsEqual(m_Pair->GetData().GetKey(), key) && IsEqual(m_Pair->GetData().GetValue(), value))
         {
             reject();
             return;
         }
 
-        if (!m_Account.Update(m_Property->GetData(), property))
+        if (!m_Account.Update(m_Pair->GetData(), pair))
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
             return;
@@ -484,8 +460,8 @@ void EditPropertyDialog::OnClickedOK()
     }
     else
     {
-        m_Property = m_Account.PushBack(property);
-        if (nullptr == m_Property)
+        m_Pair = m_Account.PushBack(pair);
+        if (nullptr == m_Pair)
         {
             _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
             return;
@@ -498,37 +474,20 @@ void EditPropertyDialog::OnClickedOK()
 //------------------------------------------------------------------------------
 
 template<>
-void EditPropertyDialog::base_type::ui_type::CreateLabel(EditPropertyDialog::base_type * pView)
+QVBoxLayout* EditPairDialog::base_type::ui_type::LayoutLayoutMarkLabel(EditPairDialog::base_type* pView)
 {
-    for (unsigned int i = 0; i < 3; ++i)
-    {
-        _labText[i] = ui_utils::MakeStaticLabel(pView, ui_utils::lab_account_w);
-        m_editText[i] = ui_utils::MakeLineEdit(pView);
-    }
+    QVBoxLayout* pvLayout = new QVBoxLayout;
+    pvLayout->setMargin(0);
+    pvLayout->setSpacing(2);
+    pvLayout->addStretch(1);
+    pvLayout->addWidget(ui_utils::MakeMarkLabel(pView));
+    pvLayout->addStretch(1);
+
+    return pvLayout;
 }
 
 template<>
-void EditPropertyDialog::base_type::ui_type::LayoutCentral(EditPropertyDialog::base_type* pView, QBoxLayout * pMainLayout)
-{
-    for (unsigned int i = 0; i < 3; ++i)
-    {
-        QHBoxLayout* phLayout = new QHBoxLayout;
-        phLayout->setMargin(0);
-        phLayout->setSpacing(0);
-        phLayout->addWidget(_labText[i]);
-        phLayout->addWidget(m_editText[i]);
-
-        if (1 == i)
-            phLayout->addWidget(ui_utils::MakeMarkLabel(pView));
-        else
-            phLayout->addStretch(1);
-
-        pMainLayout->addLayout(phLayout);
-    }
-}
-
-template<>
-void EditPropertyDialog::base_type::ui_type::RetranslateLabel(EditPropertyDialog::base_type * pView)
+void EditPairDialog::base_type::ui_type::RetranslateLabel(EditPairDialog::base_type * pView)
 {
     _labText[0]->setText("Account: ");
     _labText[1]->setText("Key: ");

@@ -49,7 +49,7 @@ void AboutDialog::ui_type::SetupUI(AboutDialog * pDlg)
 
     m_editText = new QTextEdit(pDlg);
     m_editText->setReadOnly(true);
-    m_editText->setTextColor(ui_utils::g_clrProperty);
+    m_editText->setTextColor(ui_utils::g_clrPair);
     m_editText->setFontPointSize(ui_utils::def_text_size);
     m_editText->setLineWrapMode(QTextEdit::NoWrap);
     m_editText->setFrameStyle(QFrame::NoFrame);

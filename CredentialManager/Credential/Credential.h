@@ -1,8 +1,6 @@
 #ifndef _bnb_Credential_H_
 #define _bnb_Credential_H_
 
-#include "Tree.h"
-
 namespace std
 {
     template<typename _Ty> class allocator;
@@ -565,7 +563,7 @@ namespace bnb
         friend parent_type;
     };
 
-    enum class credential_enum : unsigned char { credential, platform, account, property };
+    enum class credential_enum : unsigned char { credential, platform, account, pair };
    
     class credential_base
     {
@@ -659,12 +657,12 @@ namespace bnb
         string_type m_strComment;
     };
 
-    class property_type : public credential_base
+    class pair_type : public credential_base
     {
     public:
 
-        property_type(const string_type& key = string_type(), const string_type& value = string_type())
-            : credential_base(credential_enum::property)
+        pair_type(const string_type& key = string_type(), const string_type& value = string_type())
+            : credential_base(credential_enum::pair)
             , m_strKey(key)
             , m_strValue(value)
         { }
@@ -680,25 +678,25 @@ namespace bnb
 
     inline bool operator < (const platform_type& a, const platform_type& b) { return a.GetName() < b.GetName(); }
     inline bool operator < (const account_type& a, const account_type& b) { return a.GetName() < b.GetName(); }
-    inline bool operator < (const property_type& a, const property_type& b) { return a.GetKey() < b.GetKey(); }
+    inline bool operator < (const pair_type& a, const pair_type& b) { return a.GetKey() < b.GetKey(); }
     inline bool operator > (const platform_type& a, const platform_type& b) { return (b < a); }
     inline bool operator > (const account_type& a, const account_type& b) { return (b < a); }
-    inline bool operator > (const property_type& a, const property_type& b) { return (b < a); }
+    inline bool operator > (const pair_type& a, const pair_type& b) { return (b < a); }
     inline bool operator == (const platform_type& a, const platform_type& b) { return a.GetName() == b.GetName(); }
     inline bool operator == (const account_type& a, const account_type& b) { return a.GetName() == b.GetName(); }
-    inline bool operator == (const property_type& a, const property_type& b) { return a.GetKey() == b.GetKey(); }
+    inline bool operator == (const pair_type& a, const pair_type& b) { return a.GetKey() == b.GetKey(); }
     inline bool operator != (const platform_type& a, const platform_type& b) { return !(a == b); }
     inline bool operator != (const account_type& a, const account_type& b) { return !(a == b); }
-    inline bool operator != (const property_type& a, const property_type& b) { return !(a == b); }
+    inline bool operator != (const pair_type& a, const pair_type& b) { return !(a == b); }
 
-    class property_node : public list_node<property_type, property_node>
+    class pair_node : public list_node<pair_type, pair_node>
     {
     public:
 
         using base_type::base_type;
     };
 
-    class account_node : public list_node<account_type, account_node>, public list_type<property_node>
+    class account_node : public list_node<account_type, account_node>, public list_type<pair_node>
     {
     public:
 
@@ -745,9 +743,9 @@ namespace bnb
         using list_base::FindByID;
 
         account_node* FindByID(id_type id1, id_type id2);
-        property_node* FindByID(id_type id1, id_type id2, id_type id3);
+        pair_node* FindByID(id_type id1, id_type id2, id_type id3);
         const account_node* FindByID(id_type id1, id_type id2) const;
-        const property_node* FindByID(id_type id1, id_type id2, id_type id3) const;
+        const pair_node* FindByID(id_type id1, id_type id2, id_type id3) const;
 
         static bool Encoding(memory_type& mt, const byte_type* key, size_t n);
         static bool Decoding(memory_type& mt, const byte_type* key, size_t n);

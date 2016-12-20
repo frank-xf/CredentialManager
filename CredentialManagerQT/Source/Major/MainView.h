@@ -6,7 +6,6 @@ QT_BEGIN_NAMESPACE
 class ToolBar;
 class StackView;
 class TreeView;
-class QTreeWidgetItem;
 
 class MainView : public QWidget, public delegate_type
 {
@@ -26,7 +25,6 @@ public:
 
 private:
 
-    bool SaveCredential();
     void AddCredential();
     void ClearCredential();
 
@@ -37,17 +35,17 @@ private:
 
     bool OnAddPlatform(unsigned int id1) override;
     bool OnAddAccount(unsigned int id1, unsigned int id2) override;
-    bool OnAddProperty(unsigned int id1, unsigned int id2, unsigned int id3) override;
+    bool OnAddPair(unsigned int id1, unsigned int id2, unsigned int id3) override;
 
     bool OnUpdatePassword(unsigned int id1) override;
     bool OnUpdateCredential(unsigned int id1) override;
     bool OnUpdatePlatform(unsigned int id1, unsigned int id2) override;
     bool OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int id3) override;
-    bool OnUpdateProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
+    bool OnUpdatePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
 
     bool OnRemovePlatform(unsigned int id1, unsigned int id2) override;
     bool OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3) override;
-    bool OnRemoveProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
+    bool OnRemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
 
 private:
 

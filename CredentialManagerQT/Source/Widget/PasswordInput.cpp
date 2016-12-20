@@ -29,7 +29,7 @@ void PasswordInput::ui_type::SetupUI(PasswordInput * pDlg)
     pDlg->setObjectName("PasswordInput");
     ui_utils::SetBackgroundColor(pDlg, Qt::white);
 
-    _labPassword = ui_utils::MakeStaticLabel(pDlg, ui_utils::lab_username_w);
+    _labPassword = ui_utils::MakeStaticLabel(pDlg);
 
     m_editPassword = ui_utils::MakePasswordLine(pDlg);
 
@@ -61,10 +61,10 @@ void PasswordInput::ui_type::SetupUI(PasswordInput * pDlg)
     pvMainLayout->addLayout(phLayout1);
     pvMainLayout->addLayout(phLayout2);
 
+    RetranslateUI(pDlg);
+
     pDlg->setLayout(pvMainLayout);
     pDlg->setFixedSize(pDlg->sizeHint());
-
-    RetranslateUI(pDlg);
 }
 
 void PasswordInput::ui_type::RetranslateUI(PasswordInput * pDlg)

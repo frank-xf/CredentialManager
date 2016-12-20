@@ -5,8 +5,6 @@
 #include <QtWidgets/QStyleFactory>
 #include <QtWidgets/QStyledItemDelegate>
 
-#include <iostream>
-
 #include "Credential/Credential.h"
 
 #include "credential_qt_string.h"
@@ -80,13 +78,13 @@ TreeView::TreeView(delegate_type* pDelegate, QWidget * parent)
 
     QObject::connect(_ui.m_actAddAccount, &QAction::triggered, this, &TreeView::OnAddAccount);
     QObject::connect(_ui.m_actAddPlatform, &QAction::triggered, this, &TreeView::OnAddPlatform);
-    QObject::connect(_ui.m_actAddProperty, &QAction::triggered, this, &TreeView::OnAddProperty);
+    QObject::connect(_ui.m_actAddPair, &QAction::triggered, this, &TreeView::OnAddPair);
     QObject::connect(_ui.m_actDelAccount, &QAction::triggered, this, &TreeView::OnRemoveAccount);
     QObject::connect(_ui.m_actDelPlatform, &QAction::triggered, this, &TreeView::OnRemovePlatform);
-    QObject::connect(_ui.m_actDelProperty, &QAction::triggered, this, &TreeView::OnRemoveProperty);
+    QObject::connect(_ui.m_actDelPair, &QAction::triggered, this, &TreeView::OnRemovePair);
     QObject::connect(_ui.m_actEditAccount, &QAction::triggered, this, &TreeView::OnEditAccount);
     QObject::connect(_ui.m_actEditPlatform, &QAction::triggered, this, &TreeView::OnEditPlatform);
-    QObject::connect(_ui.m_actEditProperty, &QAction::triggered, this, &TreeView::OnEditProperty);
+    QObject::connect(_ui.m_actEditPair, &QAction::triggered, this, &TreeView::OnEditPair);
     QObject::connect(_ui.m_actModifyPassword, &QAction::triggered, this, &TreeView::OnMotifyPassword);
     QObject::connect(_ui.m_actEditCredential, &QAction::triggered, this, &TreeView::OnEditCredential);
 }
@@ -132,7 +130,7 @@ QTreeWidgetItem* TreeView::AddAccount(const bnb::account_node& pa)
     return nullptr;
 }
 
-QTreeWidgetItem* TreeView::AddProperty(const bnb::property_node& pp)
+QTreeWidgetItem* TreeView::AddPair(const bnb::pair_node& pp)
 {
     if (auto ptr_account = dynamic_cast<bnb::account_node*>(pp.GetParent()))
     {
@@ -143,7 +141,7 @@ QTreeWidgetItem* TreeView::AddProperty(const bnb::property_node& pp)
                 if (auto item_account = FindItem(FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()), ptr_account->GetID()))
                 {
                     item_account->setExpanded(true);
-                    return (_AddProperty(item_account, pp));
+                    return (_AddPair(item_account, pp));
                 }
             }
         }
@@ -194,7 +192,7 @@ QTreeWidgetItem * TreeView::UpdateAccount(const bnb::account_node & pa)
     return nullptr;
 }
 
-QTreeWidgetItem * TreeView::UpdateProperty(const bnb::property_node & pp)
+QTreeWidgetItem * TreeView::UpdatePair(const bnb::pair_node & pp)
 {
     if (auto ptr_account = dynamic_cast<bnb::account_node*>(pp.GetParent()))
     {
@@ -202,10 +200,10 @@ QTreeWidgetItem * TreeView::UpdateProperty(const bnb::property_node & pp)
         {
             if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
             {
-                if (auto item_property = FindItem(FindItem(FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()), ptr_account->GetID()), pp.GetID()))
+                if (auto item_pair = FindItem(FindItem(FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()), ptr_account->GetID()), pp.GetID()))
                 {
-                    item_property->setText(0, To_QString(pp.GetData().GetKey()));
-                    return item_property;
+                    item_pair->setText(0, To_QString(pp.GetData().GetKey()));
+                    return item_pair;
                 }
             }
         }
@@ -262,14 +260,14 @@ bool TreeView::RemoveAccount(unsigned int id1, unsigned int id2, unsigned int id
     return false;
 }
 
-bool TreeView::RemoveProperty(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
+bool TreeView::RemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
 {
     if (auto item_account = FindItem(FindItem(FindItem(id1), id2), id3))
     {
-        if (auto item_property = FindItem(item_account, id4))
+        if (auto item_pair = FindItem(item_account, id4))
         {
-            item_account->removeChild(item_property);
-            delete item_property;
+            item_account->removeChild(item_pair);
+            delete item_pair;
 
             return true;
         }
@@ -322,8 +320,8 @@ void TreeView::mouseDoubleClickEvent(QMouseEvent * event)
             case bnb::credential_enum::account:
                 _EditAccount(pItem);
                 break;
-            case bnb::credential_enum::property:
-                _EditProperty(pItem);
+            case bnb::credential_enum::pair:
+                _EditPair(pItem);
                 break;
             default:
                 break;
@@ -357,15 +355,15 @@ void TreeView::OnTreeContextMenu(const QPoint & pos)
             treeMenu.addSeparator();
             treeMenu.addAction(_ui.m_actAddPlatform);
             break;
-        case bnb::credential_enum::property:
-            treeMenu.addAction(_ui.m_actEditProperty);
-            treeMenu.addAction(_ui.m_actDelProperty);
+        case bnb::credential_enum::pair:
+            treeMenu.addAction(_ui.m_actEditPair);
+            treeMenu.addAction(_ui.m_actDelPair);
             break;
         case bnb::credential_enum::account:
             treeMenu.addAction(_ui.m_actEditAccount);
             treeMenu.addAction(_ui.m_actDelAccount);
             treeMenu.addSeparator();
-            treeMenu.addAction(_ui.m_actAddProperty);
+            treeMenu.addAction(_ui.m_actAddPair);
             break;
         case bnb::credential_enum::platform:
             treeMenu.addAction(_ui.m_actEditPlatform);
@@ -390,7 +388,7 @@ void TreeView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
 
         switch (eType)
         {
-        case bnb::credential_enum::property:
+        case bnb::credential_enum::pair:
         {
             if (auto item_account = cur->parent())
             {
@@ -436,7 +434,7 @@ void TreeView::OnAddAccount()
                         _delegate->OnAddAccount(GetItemID(item_credential), GetItemID(item_platform));
 }
 
-void TreeView::OnAddProperty()
+void TreeView::OnAddPair()
 {
     if (QTreeWidgetItem* item_account = currentItem())
         if (bnb::credential_enum::account == GetItemType(item_account))
@@ -445,7 +443,7 @@ void TreeView::OnAddProperty()
                     if (QTreeWidgetItem* item_credential = item_platform->parent())
                         if (bnb::credential_enum::credential == GetItemType(item_credential))
                             if (_delegate)
-                                _delegate->OnAddProperty(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account));
+                                _delegate->OnAddPair(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account));
 }
 
 void TreeView::OnMotifyPassword()
@@ -477,11 +475,11 @@ void TreeView::OnEditAccount()
             _EditAccount(item_account);
 }
 
-void TreeView::OnEditProperty()
+void TreeView::OnEditPair()
 {
-    if (QTreeWidgetItem* item_property = currentItem())
-        if (bnb::credential_enum::property == GetItemType(item_property))
-            _EditProperty(item_property);
+    if (QTreeWidgetItem* item_pair = currentItem())
+        if (bnb::credential_enum::pair == GetItemType(item_pair))
+            _EditPair(item_pair);
 }
 
 void TreeView::OnRemovePlatform()
@@ -506,18 +504,18 @@ void TreeView::OnRemoveAccount()
                                 _delegate->OnRemoveAccount(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account));
 }
 
-void TreeView::OnRemoveProperty()
+void TreeView::OnRemovePair()
 {
-    if (QTreeWidgetItem* item_property = currentItem())
-        if (bnb::credential_enum::property == GetItemType(item_property))
-            if (QTreeWidgetItem* item_account = item_property->parent())
+    if (QTreeWidgetItem* item_pair = currentItem())
+        if (bnb::credential_enum::pair == GetItemType(item_pair))
+            if (QTreeWidgetItem* item_account = item_pair->parent())
                 if (bnb::credential_enum::account == GetItemType(item_account))
                     if (QTreeWidgetItem* item_platform = item_account->parent())
                         if (bnb::credential_enum::platform == GetItemType(item_platform))
                             if (QTreeWidgetItem* item_credential = item_platform->parent())
                                 if (bnb::credential_enum::credential == GetItemType(item_credential))
                                     if (_delegate)
-                                        _delegate->OnRemoveProperty(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_property));
+                                        _delegate->OnRemovePair(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_pair));
 }
 
 QTreeWidgetItem * TreeView::_AddCredential(const bnb::Credential & credential)
@@ -535,8 +533,8 @@ QTreeWidgetItem * TreeView::_AddCredential(const bnb::Credential & credential)
         platform.PreorderTraversal([this, item_platform](const bnb::account_node& account) {
             auto item_account = _AddAccount(item_platform, account);
 
-            account.PreorderTraversal([this, item_account](const bnb::property_node& property) {
-                _AddProperty(item_account, property);
+            account.PreorderTraversal([this, item_account](const bnb::pair_node& pair) {
+                _AddPair(item_account, pair);
             });
         });
 
@@ -563,12 +561,12 @@ QTreeWidgetItem * TreeView::_AddAccount(QTreeWidgetItem * parent, const bnb::acc
     return item_account;
 }
 
-QTreeWidgetItem * TreeView::_AddProperty(QTreeWidgetItem * parent, const bnb::property_node& pp)
+QTreeWidgetItem * TreeView::_AddPair(QTreeWidgetItem * parent, const bnb::pair_node& pp)
 {
-    auto item_property = MakeTreeItem(parent, To_QString(pp.GetData().GetKey()), pp.GetData().GetType(), pp.GetID(), ui_utils::g_clrProperty);
-    parent->addChild(item_property);
+    auto item_pair = MakeTreeItem(parent, To_QString(pp.GetData().GetKey()), pp.GetData().GetType(), pp.GetID(), ui_utils::g_clrPair);
+    parent->addChild(item_pair);
 
-    return item_property;
+    return item_pair;
 }
 
 void TreeView::_EditCredential(QTreeWidgetItem * item_credential)
@@ -595,29 +593,29 @@ void TreeView::_EditAccount(QTreeWidgetItem * item_account)
                         _delegate->OnUpdateAccount(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account));
 }
 
-void TreeView::_EditProperty(QTreeWidgetItem * item_property)
+void TreeView::_EditPair(QTreeWidgetItem * item_pair)
 {
-    if (QTreeWidgetItem* item_account = item_property->parent())
+    if (QTreeWidgetItem* item_account = item_pair->parent())
         if (bnb::credential_enum::account == GetItemType(item_account))
             if (QTreeWidgetItem* item_platform = item_account->parent())
                 if (bnb::credential_enum::platform == GetItemType(item_platform))
                     if (QTreeWidgetItem* item_credential = item_platform->parent())
                         if (bnb::credential_enum::credential == GetItemType(item_credential))
                             if (_delegate)
-                                _delegate->OnUpdateProperty(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_property));
+                                _delegate->OnUpdatePair(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_pair));
 }
 
 void TreeView::ui_type::SetupUI(TreeView* pView)
 {
     m_actAddAccount = new QAction(pView);
     m_actAddPlatform = new QAction(pView);
-    m_actAddProperty = new QAction(pView);
+    m_actAddPair = new QAction(pView);
     m_actDelAccount = new QAction(pView);
     m_actDelPlatform = new QAction(pView);
-    m_actDelProperty = new QAction(pView);
+    m_actDelPair = new QAction(pView);
     m_actEditAccount = new QAction(pView);
     m_actEditPlatform = new QAction(pView);
-    m_actEditProperty = new QAction(pView);
+    m_actEditPair = new QAction(pView);
     m_actModifyPassword = new QAction(pView);
     m_actEditCredential = new QAction(pView);
 
@@ -626,15 +624,15 @@ void TreeView::ui_type::SetupUI(TreeView* pView)
 
 void TreeView::ui_type::RetranslateUI(TreeView * pView)
 {
-    m_actAddAccount->setText("PushBack Account");
-    m_actAddPlatform->setText("PushBack Platform");
-    m_actAddProperty->setText("PushBack Property");
+    m_actAddAccount->setText("Add Account");
+    m_actAddPlatform->setText("Add Platform");
+    m_actAddPair->setText("Add Pair");
     m_actDelAccount->setText("Remove Account");
     m_actDelPlatform->setText("Remove Platform");
-    m_actDelProperty->setText("Remove Property");
+    m_actDelPair->setText("Remove Pair");
     m_actEditAccount->setText("Edit Account");
     m_actEditPlatform->setText("Edit Platform");
-    m_actEditProperty->setText("Edit Property");
+    m_actEditPair->setText("Edit Pair");
     m_actModifyPassword->setText("Modify Password");
     m_actEditCredential->setText("Edit Credential");
 }
