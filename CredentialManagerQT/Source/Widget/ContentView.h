@@ -28,7 +28,7 @@ public:
 //------------------------------------------------------------------------------
 
 template<typename _Ty, unsigned int n>
-class ContentView : public BaseView, public delegate_table
+class ContentView : public BaseView, public DelegateTableView
 {
     static_assert(0 < n, R"(the template parameter 'n' must be greater than 0)");
 
@@ -110,6 +110,8 @@ protected:
 
     ui_type _ui;
 
+    DelegateMainView* _delegate;
+
 };	// class ContentView
 
 //------------------------------------------------------------------------------
@@ -123,6 +125,13 @@ public:
     void UpdateInfo();
     void UpdateTable();
     void UpdateTable(unsigned int id);
+
+private:
+
+    void OnAdd() override;
+    void OnEdit(unsigned int id) override;
+    void OnRemove(unsigned int id) override;
+    void OnMove(unsigned int id, int offset) override;
 
 private:
 
@@ -144,6 +153,13 @@ public:
 
 private:
 
+    void OnAdd() override;
+    void OnEdit(unsigned int id) override;
+    void OnRemove(unsigned int id) override;
+    void OnMove(unsigned int id, int offset) override;
+
+private:
+
     const bnb::platform_node& m_Platform;
 
 };	// class PlatformView
@@ -159,6 +175,13 @@ public:
     void UpdateInfo();
     void UpdateTable();
     void UpdateTable(unsigned int id);
+
+private:
+
+    void OnAdd() override;
+    void OnEdit(unsigned int id) override;
+    void OnRemove(unsigned int id) override;
+    void OnMove(unsigned int id, int offset) override;
 
 private:
 

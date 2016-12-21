@@ -18,7 +18,7 @@ class ToolBar : public QWidget
 
 public:
 
-    ToolBar(delegate_type* pDelegate = nullptr, QWidget * parent = nullptr);
+    ToolBar(DelegateMainView* pDelegate = nullptr, QWidget * parent = nullptr);
 
     const ui_type& UI() const { return (_ui); }
 
@@ -34,7 +34,7 @@ private:
 
     ui_type _ui;
 
-    delegate_type* _delegate;
+    DelegateMainView* _delegate;
 
 };
 

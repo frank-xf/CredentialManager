@@ -47,7 +47,7 @@ static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& s
 //==============================================================================
 // Implementation of TreeView
 //==============================================================================
-TreeView::TreeView(delegate_type* pDelegate, QWidget * parent)
+TreeView::TreeView(DelegateMainView* pDelegate, QWidget * parent)
     : QTreeWidget(parent)
     , _delegate(pDelegate)
 {

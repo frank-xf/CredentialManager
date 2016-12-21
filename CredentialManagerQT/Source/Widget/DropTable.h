@@ -19,7 +19,7 @@ class DropTable : public QTableWidget
 
 public:
 
-    DropTable(delegate_table* pDelegate = nullptr, QWidget * parent = nullptr);
+    DropTable(DelegateTableView* pDelegate = nullptr, QWidget * parent = nullptr);
 
 private:
 
@@ -31,12 +31,13 @@ private:
     void OnTableContextMenu(const QPoint & pos);
 
     void dropEvent(QDropEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
 
 private:
 
     ui_type _ui;
 
-    delegate_table* _delegate;
+    DelegateTableView* _delegate;
 };
 
 QT_END_NAMESPACE

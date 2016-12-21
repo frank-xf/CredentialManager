@@ -17,7 +17,7 @@ static inline unsigned int GetItemID(const QTableWidgetItem* item)
 
 QT_BEGIN_NAMESPACE
 
-DropTable::DropTable(delegate_table* pDelegate, QWidget * parent)
+DropTable::DropTable(DelegateTableView* pDelegate, QWidget * parent)
     : QTableWidget(parent)
     , _delegate(pDelegate)
 {
@@ -159,6 +159,20 @@ void DropTable::dropEvent(QDropEvent * event)
     {
         QTableWidget::dropEvent(event);
     }
+}
+
+void DropTable::mouseDoubleClickEvent(QMouseEvent * event)
+{
+    if (auto pItem = itemAt(event->pos()))
+    {
+        if (_delegate)
+            _delegate->OnEdit(GetItemID(pItem));
+
+        event->accept();
+        return;
+    }
+
+    QTableWidget::mouseDoubleClickEvent(event);
 }
 
 //------------------------------------------------------------------------------

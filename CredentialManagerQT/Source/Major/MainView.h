@@ -7,7 +7,7 @@ class ToolBar;
 class StackView;
 class TreeView;
 
-class MainView : public QWidget, public delegate_type
+class MainView : public QWidget, public DelegateMainView
 {
     struct ui_type
     {

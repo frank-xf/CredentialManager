@@ -9,7 +9,7 @@
 
 QT_BEGIN_NAMESPACE
 
-ToolBar::ToolBar(delegate_type* pDelegate, QWidget * parent)
+ToolBar::ToolBar(DelegateMainView* pDelegate, QWidget * parent)
     : QWidget(parent)
     , _delegate(pDelegate)
 {

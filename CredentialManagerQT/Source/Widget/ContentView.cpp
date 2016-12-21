@@ -96,6 +96,30 @@ void CredentialView::UpdateTable(unsigned int id)
     }
 }
 
+void CredentialView::OnAdd()
+{
+    if (_delegate)
+        _delegate->OnAddPlatform(m_Credential.GetID());
+}
+
+void CredentialView::OnEdit(unsigned int id)
+{
+    if (_delegate)
+        _delegate->OnUpdatePlatform(m_Credential.GetID(), id);
+}
+
+void CredentialView::OnRemove(unsigned int id)
+{
+    if (_delegate)
+        _delegate->OnRemovePlatform(m_Credential.GetID(), id);
+}
+
+void CredentialView::OnMove(unsigned int id, int offset)
+{
+    if (_delegate)
+        _delegate->OnMovePlatform(m_Credential.GetID(), id, offset);
+}
+
 //------------------------------------------------------------------------------
 
 template<>
@@ -186,6 +210,34 @@ void PlatformView::UpdateTable(unsigned int id)
     }
 }
 
+void PlatformView::OnAdd()
+{
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->OnAddAccount(ptr_credential->GetID(), m_Platform.GetID());
+}
+
+void PlatformView::OnEdit(unsigned int id)
+{
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->OnUpdateAccount(ptr_credential->GetID(), m_Platform.GetID(), id);
+}
+
+void PlatformView::OnRemove(unsigned int id)
+{
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->OnRemoveAccount(ptr_credential->GetID(), m_Platform.GetID(), id);
+}
+
+void PlatformView::OnMove(unsigned int id, int offset)
+{
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->OnMoveAccount(ptr_credential->GetID(), m_Platform.GetID(), id, offset);
+}
+
 //------------------------------------------------------------------------------
 
 template<>
@@ -273,6 +325,22 @@ void AccountView::UpdateTable(unsigned int id)
             }
         }
     }
+}
+
+void AccountView::OnAdd()
+{
+}
+
+void AccountView::OnEdit(unsigned int id)
+{
+}
+
+void AccountView::OnRemove(unsigned int id)
+{
+}
+
+void AccountView::OnMove(unsigned int id, int offset)
+{
 }
 
 //------------------------------------------------------------------------------
