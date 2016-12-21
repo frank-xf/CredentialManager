@@ -44,6 +44,36 @@ static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& s
     return pItem;
 }
 
+static inline QTreeWidgetItem* MoveItem(QTreeWidgetItem* parent, int i, int offset)
+{
+    auto child = parent->takeChild(i);
+
+    int nIndex = i + offset;
+    if (nIndex < 0) nIndex = 0;
+
+    int nCount = parent->childCount();
+    if (nCount < nIndex) nIndex = nCount;
+
+    parent->insertChild(nIndex, child);
+    return child;
+}
+
+static inline bool TransferItem(QTreeWidgetItem* parent, QList<QTreeWidgetItem*>& listItem, unsigned int id)
+{
+    for (int i = 0; i < listItem.size(); ++i)
+    {
+        auto pItem = listItem.at(i);
+        if (GetItemID(pItem) == id)
+        {
+            parent->addChild(pItem);
+            listItem.removeAt(i);
+            return true;
+        }
+    }
+
+    return false;
+}
+
 //==============================================================================
 // Implementation of TreeView
 //==============================================================================
@@ -150,9 +180,9 @@ QTreeWidgetItem* TreeView::AddPair(const bnb::pair_node& pp)
     return nullptr;
 }
 
-QTreeWidgetItem* TreeView::UpdateCredential(unsigned int id, const bnb::Credential& pc)
+QTreeWidgetItem* TreeView::UpdateCredential(const bnb::Credential& pc)
 {
-    if (auto item_credential = FindItem(id))
+    if (auto item_credential = FindItem(pc.GetID()))
     {
         item_credential->setText(0, '[' + To_QString(pc.GetData().GetUser()) + ']');
         return item_credential;
@@ -206,6 +236,51 @@ QTreeWidgetItem * TreeView::UpdatePair(const bnb::pair_node & pp)
                     return item_pair;
                 }
             }
+        }
+    }
+
+    return nullptr;
+}
+
+QTreeWidgetItem * TreeView::MovePlatform(unsigned int id1, unsigned int id2, int offset)
+{
+    if (auto item_credential = FindItem(id1))
+    {
+        for (int i = 0; i < item_credential->childCount(); ++i)
+        {
+            auto item_platform = item_credential->child(i);
+            if (id2 == GetItemID(item_platform))
+                return MoveItem(item_credential, i, offset);
+        }
+    }
+
+    return nullptr;
+}
+
+QTreeWidgetItem * TreeView::MoveAccount(unsigned int id1, unsigned int id2, unsigned int id3, int offset)
+{
+    if (auto item_platform = FindItem(FindItem(id1), id2))
+    {
+        for (int i = 0; i < item_platform->childCount(); ++i)
+        {
+            auto item_account = item_platform->child(i);
+            if (id3 == GetItemID(item_account))
+                return MoveItem(item_platform, i, offset);
+        }
+    }
+
+    return nullptr;
+}
+
+QTreeWidgetItem * TreeView::MovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4, int offset)
+{
+    if (auto item_account = FindItem(FindItem(FindItem(id1), id2), id3))
+    {
+        for (int i = 0; i < item_account->childCount(); ++i)
+        {
+            auto item_pair = item_account->child(i);
+            if (id4 == GetItemID(item_pair))
+                return MoveItem(item_account, i, offset);
         }
     }
 
@@ -270,6 +345,60 @@ bool TreeView::RemovePair(unsigned int id1, unsigned int id2, unsigned int id3, 
             delete item_pair;
 
             return true;
+        }
+    }
+
+    return false;
+}
+
+bool TreeView::Reschedule(const bnb::Credential & credential)
+{
+    if (auto item_credential = FindItem(credential.GetID()))
+    {
+        auto listItem = item_credential->takeChildren();
+        credential.PreorderTraversal([&listItem, &item_credential](const bnb::platform_node& item) mutable {
+            TransferItem(item_credential, listItem, item.GetID());
+        });
+
+        return true;
+    }
+
+    return false;
+}
+
+bool TreeView::Reschedule(const bnb::platform_node & pp)
+{
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(pp.GetParent()))
+    {
+        if (auto item_platform = FindItem(FindItem(ptr_credential->GetID()), pp.GetID()))
+        {
+            auto listItem = item_platform->takeChildren();
+            pp.PreorderTraversal([&listItem, &item_platform](const bnb::account_node& item) mutable {
+                TransferItem(item_platform, listItem, item.GetID());
+            });
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool TreeView::Reschedule(const bnb::account_node & pa)
+{
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(pa.GetParent()))
+    {
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+        {
+            if (auto item_account = FindItem(FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()), pa.GetID()))
+            {
+                auto listItem = item_account->takeChildren();
+                pa.PreorderTraversal([&listItem, &item_account] (const bnb::pair_node& item) mutable {
+                    TransferItem(item_account, listItem, item.GetID());
+                });
+
+                return true;
+            }
         }
     }
 

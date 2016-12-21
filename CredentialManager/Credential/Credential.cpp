@@ -204,34 +204,34 @@ namespace bnb
         std::cout << "-------------------------------------------" << std::endl << std::endl;
     }
 
-    account_node* Credential::FindByID(id_type id1, id_type id2)
+    account_node* Credential::Find(id_type id1, id_type id2)
     {
-        if (platform_node* platform_ptr = list_base::FindByID(id1))
-            return platform_ptr->FindByID(id2);
+        if (platform_node* platform_ptr = Find(id1))
+            return platform_ptr->Find(id2);
 
         return nullptr;
     }
 
-    const account_node* Credential::FindByID(id_type id1, id_type id2) const
+    const account_node* Credential::Find(id_type id1, id_type id2) const
     {
-        if (const platform_node* platform_ptr = list_base::FindByID(id1))
-            return platform_ptr->FindByID(id2);
+        if (const platform_node* platform_ptr = Find(id1))
+            return platform_ptr->Find(id2);
 
         return nullptr;
     }
 
-    pair_node* Credential::FindByID(id_type id1, id_type id2, id_type id3)
+    pair_node* Credential::Find(id_type id1, id_type id2, id_type id3)
     {
-        if (account_node* account_ptr = FindByID(id1, id2))
-            return account_ptr->FindByID(id3);
+        if (account_node* account_ptr = Find(id1, id2))
+            return account_ptr->Find(id3);
 
         return nullptr;
     }
 
-    const pair_node* Credential::FindByID(id_type id1, id_type id2, id_type id3) const
+    const pair_node* Credential::Find(id_type id1, id_type id2, id_type id3) const
     {
-        if (const account_node* account_ptr = FindByID(id1, id2))
-            return account_ptr->FindByID(id3);
+        if (const account_node* account_ptr = Find(id1, id2))
+            return account_ptr->Find(id3);
 
         return nullptr;
     }

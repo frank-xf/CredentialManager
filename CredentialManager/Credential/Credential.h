@@ -168,6 +168,114 @@ namespace bnb
             return nullptr;
         }
 
+        template<typename _findT>
+        bool _Update(_findT _findFunc, const node_item& item)
+        {
+            node_type* target_ptr = nullptr;
+
+            for (node_type* ptr = _first; ptr; ptr = ptr->_next)
+            {
+                if (nullptr == target_ptr)
+                {
+                    if (_findFunc(*ptr))
+                    {
+                        target_ptr = ptr;
+                        continue;
+                    }
+                }
+
+                if (item == ptr->GetData())
+                    return nullptr;
+            }
+
+            if (target_ptr)
+            {
+                target_ptr->SetData(item);
+                Updated(static_cast<param_type>(action_type::at_update));
+
+                return true;
+            }
+
+            return false;
+        }
+
+        template<typename _findT>
+        bool _Remove(_findT _findFunc)
+        {
+            for (node_type* ptr = _first; ptr; ptr = ptr->_next)
+            {
+                if (_findFunc(*ptr))
+                {
+                    _Take(ptr);
+                    --_nCount;
+                    delete ptr;
+
+                    Updated(static_cast<param_type>(action_type::at_delete));
+
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        template<typename _findT>
+        bool _Move(_findT _findFunc, int offset)
+        {
+            if (0 < offset)
+            {
+                for (node_type* target_ptr = _first; target_ptr; target_ptr = target_ptr->_next)
+                {
+                    if (_findFunc(*target_ptr))
+                    {
+                        node_type* insert_ptr = target_ptr;
+                        for (int i = 0; i < offset && insert_ptr != _last; ++i)
+                            insert_ptr = insert_ptr->_next;
+
+                        if (target_ptr != insert_ptr)
+                        {
+                            _Take(target_ptr);
+                            _InsertAfter(target_ptr, insert_ptr);
+                        }
+
+                        Updated(static_cast<param_type>(action_type::at_move));
+
+                        return true;
+                    }
+                }
+            }
+            else if (offset < 0)
+            {
+                for (node_type* target_ptr = _last; target_ptr; target_ptr = target_ptr->_prev)
+                {
+                    if (_findFunc(*target_ptr))
+                    {
+                        node_type* insert_ptr = target_ptr;
+                        for (int i = 0; offset < i && insert_ptr != _first; --i)
+                            insert_ptr = insert_ptr->_prev;
+
+                        if (target_ptr != insert_ptr)
+                        {
+                            _Take(target_ptr);
+                            _InsertBefore(target_ptr, insert_ptr);
+                        }
+
+                        Updated(static_cast<param_type>(action_type::at_move));
+
+                        return true;
+                    }
+                }
+            }
+            else
+            {
+                for (node_type* ptr = _first; ptr; ptr = ptr->_next)
+                    if (_findFunc(*ptr))
+                        return true;
+            }
+
+            return false;
+        }
+
     public:
 
         list_type() = default;
@@ -262,12 +370,12 @@ namespace bnb
             return false;
         }
 
-        node_type* FindByID(typename node_type::id_type id)
+        node_type* Find(typename node_type::id_type id)
         {
             return (_Find([&id](const node_type& node) { return (id == node.GetID()); }));
         }
 
-        const node_type* FindByID(typename node_type::id_type id) const
+        const node_type* Find(typename node_type::id_type id) const
         {
             return (_Find([&id](const node_type& node) { return (id == node.GetID()); }));
         }
@@ -336,72 +444,24 @@ namespace bnb
             return ptr;
         }
 
-        bool Update(const node_item& target, const node_item& item)
+        bool Update(typename node_type::id_type id, const node_item& item)
         {
-            node_type* target_ptr = nullptr;
-
-            for (node_type* ptr = _first; ptr; ptr = ptr->_next)
-            {
-                if (nullptr == target_ptr)
-                {
-                    if (&target == &ptr->GetData() || target == ptr->GetData())
-                    {
-                        target_ptr = ptr;
-                        continue;
-                    }
-                }
-
-                if (item == ptr->GetData())
-                    return nullptr;
-            }
-
-            if (target_ptr)
-            {
-                target_ptr->SetData(item);
-                Updated(static_cast<param_type>(action_type::at_update));
-
-                return true;
-            }
-
-            return false;
-        }
-        /*
-        bool Remove(const node_item& item)
-        {
-        for (node_type* ptr = _first; ptr; ptr = ptr->_next)
-        {
-        if (&item == &ptr->GetData() || item == ptr->GetData())
-        {
-        _Take(ptr);
-        --_nCount;
-        delete ptr;
-
-        Updated(static_cast<param_type>(action_type::at_delete));
-
-        return true;
-        }
+            return (_Update([&id](const node_type& node) { return (id == node.GetID()); }, item));
         }
 
-        return false;
+        bool Update(const node_item& key, const node_item& item)
+        {
+            return (_Update([&key](const node_type& node) { return (&key == &node.GetData() || key == node.GetData()); }, item));
         }
-        */
+
         bool Remove(typename node_type::id_type id)
         {
-            for (node_type* ptr = _first; ptr; ptr = ptr->_next)
-            {
-                if (id == ptr->GetID())
-                {
-                    _Take(ptr);
-                    --_nCount;
-                    delete ptr;
+            return (_Remove([&id](const node_type& node) { return (id == node.GetID()); }));
+        }
 
-                    Updated(static_cast<param_type>(action_type::at_delete));
-
-                    return true;
-                }
-            }
-
-            return false;
+        bool Remove(const node_item& key)
+        {
+            return (_Remove([&key](const node_type& node) { return (&key == &node.GetData() || key == node.GetData()); }));
         }
 
         template<typename _findT>
@@ -479,58 +539,12 @@ namespace bnb
 
         bool Move(const node_item& key, int offset)
         {
-            if (0 < offset)
-            {
-                for (node_type* target_ptr = _first; target_ptr; target_ptr = target_ptr->_next)
-                {
-                    if (&key == &target_ptr->GetData() || key == target_ptr->GetData())
-                    {
-                        node_type* insert_ptr = target_ptr;
-                        for (int i = 0; i < offset && insert_ptr != _last; ++i)
-                            insert_ptr = insert_ptr->_next;
+            return (_Move([&key](const node_type& node) { return (&key == &node.GetData() || key == node.GetData()); }, offset));
+        }
 
-                        if (target_ptr != insert_ptr)
-                        {
-                            _Take(target_ptr);
-                            _InsertAfter(target_ptr, insert_ptr);
-                        }
-
-                        Updated(static_cast<param_type>(action_type::at_move));
-
-                        return true;
-                    }
-                }
-            }
-            else if (offset < 0)
-            {
-                for (node_type* target_ptr = _last; target_ptr; target_ptr = target_ptr->_prev)
-                {
-                    if (&key == &target_ptr->GetData() || key == target_ptr->GetData())
-                    {
-                        node_type* insert_ptr = target_ptr;
-                        for (int i = 0; offset < i && insert_ptr != _first; --i)
-                            insert_ptr = insert_ptr->_prev;
-
-                        if (target_ptr != insert_ptr)
-                        {
-                            _Take(target_ptr);
-                            _InsertBefore(target_ptr, insert_ptr);
-                        }
-
-                        Updated(static_cast<param_type>(action_type::at_move));
-
-                        return true;
-                    }
-                }
-            }
-            else
-            {
-                for (node_type* ptr = _first; ptr; ptr = ptr->_next)
-                    if (&key == &ptr->GetData() || key == ptr->GetData())
-                        return true;
-            }
-
-            return false;
+        bool Move(typename node_type::id_type id, int offset)
+        {
+            return (_Move([&id](const node_type& node) { return (id == node.GetID()); }, offset));
         }
 
     };
@@ -740,12 +754,12 @@ namespace bnb
         bool Load(const char* file);
         bool Save(const char* file) const;
 
-        using list_base::FindByID;
+        using list_base::Find;
 
-        account_node* FindByID(id_type id1, id_type id2);
-        pair_node* FindByID(id_type id1, id_type id2, id_type id3);
-        const account_node* FindByID(id_type id1, id_type id2) const;
-        const pair_node* FindByID(id_type id1, id_type id2, id_type id3) const;
+        account_node* Find(id_type id1, id_type id2);
+        pair_node* Find(id_type id1, id_type id2, id_type id3);
+        const account_node* Find(id_type id1, id_type id2) const;
+        const pair_node* Find(id_type id1, id_type id2, id_type id3) const;
 
         static bool Encoding(memory_type& mt, const byte_type* key, size_t n);
         static bool Decoding(memory_type& mt, const byte_type* key, size_t n);

@@ -7,12 +7,12 @@ class DelegateMainView
 {
 private:
 
-    using id_type = unsigned int;
-
     DelegateMainView(const DelegateMainView&) = delete;
     DelegateMainView& operator=(const DelegateMainView&) = delete;
 
 protected:
+
+    using id_type = unsigned int;
 
     DelegateMainView() = default;
 

@@ -102,8 +102,9 @@ protected:
         }
     };
 
-    ContentView(unsigned int id, QWidget * parent = nullptr)
+    ContentView(unsigned int id, DelegateMainView* pDelegate, QWidget * parent = nullptr)
         : BaseView(id, parent)
+        , _delegate(pDelegate)
     {
         _ui.SetupUI(this);
     }
@@ -120,7 +121,7 @@ class CredentialView : public ContentView<CredentialView, 3>
 {
 public:
 
-    CredentialView(const bnb::Credential& credential, QWidget * parent = nullptr);
+    CredentialView(const bnb::Credential& credential, DelegateMainView* pDelegate, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
@@ -145,7 +146,7 @@ class PlatformView : public ContentView<PlatformView, 3>
 {
 public:
 
-    PlatformView(const bnb::platform_node& tp, QWidget * parent = nullptr);
+    PlatformView(const bnb::platform_node& tp, DelegateMainView* pDelegate, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
@@ -170,7 +171,7 @@ class AccountView : public ContentView<AccountView, 2>
 {
 public:
 
-    AccountView(const bnb::account_node& tp, QWidget * parent = nullptr);
+    AccountView(const bnb::account_node& tp, DelegateMainView* pDelegate, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();

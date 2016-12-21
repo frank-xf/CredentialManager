@@ -29,8 +29,8 @@ static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned i
 //==============================================================================
 // Implementation of CredentialView
 //==============================================================================
-CredentialView::CredentialView(const bnb::Credential& credential, QWidget * parent)
-    : base_type(credential.GetID(), parent)
+CredentialView::CredentialView(const bnb::Credential& credential, DelegateMainView* pDelegate, QWidget * parent)
+    : base_type(credential.GetID(), pDelegate, parent)
     , m_Credential(credential)
 {
     UpdateInfo();
@@ -146,8 +146,8 @@ void CredentialView::base_type::ui_type::CreateLabel(CredentialView::base_type* 
 //==============================================================================
 // Implementation of PlatformView
 //==============================================================================
-PlatformView::PlatformView(const bnb::platform_node& tp, QWidget * parent)
-    : base_type(tp.GetID(), parent)
+PlatformView::PlatformView(const bnb::platform_node& tp, DelegateMainView* pDelegate, QWidget * parent)
+    : base_type(tp.GetID(), pDelegate, parent)
     , m_Platform(tp)
 {
     UpdateInfo();
@@ -264,8 +264,8 @@ void PlatformView::base_type::ui_type::CreateLabel(PlatformView::base_type* pVie
 //==============================================================================
 // Implementation of AccountView
 //==============================================================================
-AccountView::AccountView(const bnb::account_node & tp, QWidget * parent)
-    : base_type(tp.GetID(), parent)
+AccountView::AccountView(const bnb::account_node & tp, DelegateMainView* pDelegate, QWidget * parent)
+    : base_type(tp.GetID(), pDelegate, parent)
     , m_Account(tp)
 {
     UpdateInfo();
@@ -329,18 +329,34 @@ void AccountView::UpdateTable(unsigned int id)
 
 void AccountView::OnAdd()
 {
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+            if (_delegate)
+                _delegate->OnAddPair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID());
 }
 
 void AccountView::OnEdit(unsigned int id)
 {
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+            if (_delegate)
+                _delegate->OnUpdatePair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), id);
 }
 
 void AccountView::OnRemove(unsigned int id)
 {
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+            if (_delegate)
+                _delegate->OnRemovePair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), id);
 }
 
 void AccountView::OnMove(unsigned int id, int offset)
 {
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+            if (_delegate)
+                _delegate->OnMovePair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), id, offset);
 }
 
 //------------------------------------------------------------------------------

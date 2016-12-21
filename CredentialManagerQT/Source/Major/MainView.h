@@ -47,6 +47,10 @@ private:
     bool OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3) override;
     bool OnRemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
 
+    bool OnMovePlatform(id_type id1, id_type id2, int offset) override;
+    bool OnMoveAccount(id_type id1, id_type id2, id_type id3, int offset) override;
+    bool OnMovePair(id_type id1, id_type id2, id_type id3, id_type id4, int offset) override;
+
 private:
 
     ui_type _ui;

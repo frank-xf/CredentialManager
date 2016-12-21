@@ -4,6 +4,7 @@
 
 #include "Credential/Credential.h"
 
+#include "credential_qt_delegate.h"
 #include "credential_qt_utils.h"
 
 #include "Widget/ContentView.h"
@@ -11,7 +12,9 @@
 
 QT_BEGIN_NAMESPACE
 
-StackView::StackView(QWidget * parent) : QStackedWidget(parent)
+StackView::StackView(DelegateMainView* pDelegate, QWidget * parent)
+    : QStackedWidget(parent)
+    , _delegate(pDelegate)
 {
     setObjectName("StackView");
     ui_utils::SetBackgroundColor(this, Qt::white);
@@ -48,14 +51,14 @@ void StackView::ClearCredential()
 
 void StackView::AddCredential(const bnb::Credential & credential)
 {
-    auto view_credential = new CredentialView(credential, this);
+    auto view_credential = new CredentialView(credential, _delegate, this);
     addWidget(view_credential);
 
     credential.PreorderTraversal([this](const bnb::platform_node& platform) {
-        addWidget(new PlatformView(platform, this));
+        addWidget(new PlatformView(platform, _delegate, this));
 
         platform.PreorderTraversal([this](const bnb::account_node& account) {
-            addWidget(new AccountView(account, this));
+            addWidget(new AccountView(account, _delegate, this));
         });
     });
 
@@ -66,18 +69,8 @@ bool StackView::AddPlatform(const bnb::platform_node & platform)
 {
     if (auto ptr_credential = dynamic_cast<bnb::Credential*>(platform.GetParent()))
     {
-        for (int i = 0; i < count(); ++i)
-        {
-            CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-            if (ptr && ptr->GetID() == ptr_credential->GetID())
-            {
-                ptr->UpdateTable();
-                ptr->UpdateInfo();
-                break;
-            }
-        }
-
-        addWidget(new PlatformView(platform, this));
+        addWidget(new PlatformView(platform, _delegate, this));
+        UpdateTable(ptr_credential->GetID());
         return true;
     }
 
@@ -90,8 +83,8 @@ bool StackView::AddAccount(const bnb::account_node & account)
     {
         if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
         {
-            UpdateView<PlatformView>(ptr_credential->GetID(), ptr_platform->GetID());
-            addWidget(new AccountView(account, this));
+            addWidget(new AccountView(account, _delegate, this));
+            UpdateTable(ptr_credential->GetID(), ptr_platform->GetID());
             return true;
         }
     }
@@ -104,7 +97,7 @@ bool StackView::AddPair(const bnb::pair_node & pair)
     if (auto ptr_account = dynamic_cast<bnb::account_node*>(pair.GetParent()))
         if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(ptr_account->GetParent()))
             if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
-                return UpdateView<AccountView>(ptr_credential->GetID(), ptr_account->GetID());
+                return UpdateTable(ptr_credential->GetID(), ptr_platform->GetID(), ptr_account->GetID());
 
     return false;
 }
@@ -227,10 +220,8 @@ bool StackView::UpdatePair(unsigned int credential_id, unsigned int account_id, 
     return false;
 }
 
-bool StackView::RemovePlatform(unsigned int credential_id, unsigned int platform_id, const std::vector<unsigned int>& ids)
+bool StackView::UpdateTable(unsigned int credential_id)
 {
-    RemoveView(ids);
-
     for (int i = 0; i < count(); ++i)
     {
         CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
@@ -245,16 +236,33 @@ bool StackView::RemovePlatform(unsigned int credential_id, unsigned int platform
     return false;
 }
 
+bool StackView::UpdateTable(unsigned int credential_id, unsigned int platform_id)
+{
+    return UpdateView<PlatformView>(credential_id, platform_id);
+}
+
+bool StackView::UpdateTable(unsigned int credential_id, unsigned int platform_id, unsigned int account_id)
+{
+    return UpdateView<AccountView>(credential_id, account_id);
+}
+
+bool StackView::RemovePlatform(unsigned int credential_id, unsigned int platform_id, const std::vector<unsigned int>& ids)
+{
+    RemoveView(ids);
+
+    return UpdateTable(credential_id);
+}
+
 bool StackView::RemoveAccount(unsigned int credential_id, unsigned int platform_id, unsigned int account_id, const std::vector<unsigned int>& ids)
 {
     RemoveView(ids);
 
-    return UpdateView<PlatformView>(credential_id, platform_id);
+    return UpdateTable(credential_id, platform_id);
 }
 
-bool StackView::RemovePair(unsigned int credential_id, unsigned int account_id, unsigned int pair_id)
+bool StackView::RemovePair(unsigned int credential_id, unsigned int platform_id, unsigned int account_id, unsigned int pair_id)
 {
-    return UpdateView<AccountView>(credential_id, account_id);
+    return UpdateTable(credential_id, platform_id, account_id);
 }
 
 unsigned int StackView::RemoveView(const std::vector<unsigned int>& ids)

@@ -144,8 +144,8 @@ void fun1()
     xx.PostorderTraversal([](const bnb::platform_node& item) {});
     xx.PreorderAction([](const bnb::platform_node& item) {return true;});
     xx.PostorderAction([](const bnb::platform_node& item) {return true;});
-    // xx.bnb::list_type<bnb::platform_node>::FindByID(12);
-    xx.FindByID(10);
+    // xx.bnb::list_type<bnb::platform_node>::Find(12);
+    xx.Find(10);
 
     auto child = xx.PushBack({ L"heh" });
     xx.PushBack({ L"heh2" });

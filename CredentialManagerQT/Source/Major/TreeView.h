@@ -37,15 +37,23 @@ public:
 	QTreeWidgetItem* AddAccount(const bnb::account_node& pa);
 	QTreeWidgetItem* AddPair(const bnb::pair_node& pp);
 
-    QTreeWidgetItem* UpdateCredential(unsigned int id, const bnb::Credential& pc);
+    QTreeWidgetItem* UpdateCredential(const bnb::Credential& pc);
     QTreeWidgetItem* UpdatePlatform(const bnb::platform_node& pp);
     QTreeWidgetItem* UpdateAccount(const bnb::account_node& pa);
     QTreeWidgetItem* UpdatePair(const bnb::pair_node& pp);
+
+    QTreeWidgetItem* MovePlatform(unsigned int id1, unsigned int id2, int offset);
+    QTreeWidgetItem* MoveAccount(unsigned int id1, unsigned int id2, unsigned int id3, int offset);
+    QTreeWidgetItem* MovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4, int offset);
 
     bool RemoveCredential(unsigned int id1);
     bool RemovePlatform(unsigned int id1, unsigned int id2);
     bool RemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3);
     bool RemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4);
+
+    bool Reschedule(const bnb::Credential& credential);
+    bool Reschedule(const bnb::platform_node& pp);
+    bool Reschedule(const bnb::account_node& pa);
 
     QTreeWidgetItem* FindItem(unsigned int id);
     QTreeWidgetItem* FindItem(QTreeWidgetItem* parent, unsigned int id);
