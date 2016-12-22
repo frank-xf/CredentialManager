@@ -5,9 +5,11 @@ QT_BEGIN_NAMESPACE
 
 class StackView : public QStackedWidget
 {
+    using id_type = bnb::Credential::id_type;
+
 public:
 
-    StackView(DelegateMainView* pDelegate = nullptr, QWidget * parent = nullptr);
+    StackView(DelegateType* pDelegate = nullptr, QWidget * parent = nullptr);
 
     void ClearCredential();
 
@@ -16,28 +18,28 @@ public:
     bool AddAccount(const bnb::account_node& account);
     bool AddPair(const bnb::pair_node& pair);
 
-    bool UpdateCredential(unsigned int credential_id);
-    bool UpdatePlatform(unsigned int credential_id, unsigned int platform_id);
-    bool UpdateAccount(unsigned int credential_id, unsigned int platform_id, unsigned int account_id);
-    bool UpdatePair(unsigned int credential_id, unsigned int account_id, unsigned int pair_id);
+    bool UpdateCredential(id_type credentialId);
+    bool UpdatePlatform(id_type credentialId, id_type platformId);
+    bool UpdateAccount(id_type credentialId, id_type platformId, id_type accountId);
+    bool UpdatePair(id_type credentialId, id_type accountId, id_type pairId);
 
-    bool UpdateTable(unsigned int credential_id);
-    bool UpdateTable(unsigned int credential_id, unsigned int platform_id);
-    bool UpdateTable(unsigned int credential_id, unsigned int platform_id, unsigned int account_id);
+    bool UpdateTable(id_type credentialId);
+    bool UpdateTable(id_type credentialId, id_type platformId);
+    bool UpdateTable(id_type credentialId, id_type platformId, id_type accountId);
 
-	bool RemoveCredential(unsigned int credential_id, const std::vector<unsigned int>& ids);
-	bool RemovePlatform(unsigned int credential_id, unsigned int platform_id, const std::vector<unsigned int>& ids);
-    bool RemoveAccount(unsigned int credential_id, unsigned int platform_id, unsigned int account_id, const std::vector<unsigned int>& ids);
-    bool RemovePair(unsigned int credential_id, unsigned int platform_id, unsigned int account_id, unsigned int pair_id);
-    unsigned int RemoveView(const std::vector<unsigned int>& ids);
+	bool RemoveCredential(id_type credentialId, const std::vector<id_type>& ids);
+	bool RemovePlatform(id_type credentialId, id_type platformId, const std::vector<id_type>& ids);
+    bool RemoveAccount(id_type credentialId, id_type platformId, id_type accountId, const std::vector<id_type>& ids);
+    bool RemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId);
+    unsigned int RemoveView(const std::vector<id_type>& ids);
 
-    bool SwitchToView(bnb::credential_enum eType, unsigned int id);
-    bool SwitchToHint(const QString& strText);
+    bool SwitchToView(bnb::credential_enum eType, id_type id);
+    void SwitchToHint();
 
 private:
 
     template<typename _Ty>
-    bool UpdateView(unsigned int credential_id, unsigned int view_id)
+    bool UpdateView(id_type credentialId, id_type viewId)
     {
         bool bView1 = false;
         bool bView2 = false;
@@ -46,7 +48,7 @@ private:
             if (!bView1)
             {
                 _Ty* ptr = dynamic_cast<_Ty*>(widget(i));
-                if (ptr && ptr->GetID() == view_id)
+                if (ptr && ptr->GetID() == viewId)
                 {
                     ptr->UpdateTable();
                     bView1 = true;
@@ -55,7 +57,7 @@ private:
             if (!bView2)
             {
                 CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-                if (ptr && ptr->GetID() == credential_id)
+                if (ptr && ptr->GetID() == credentialId)
                 {
                     ptr->UpdateInfo();
                     bView2 = true;
@@ -70,7 +72,7 @@ private:
 
     QLabel* m_labHint;
 
-    DelegateMainView* _delegate;
+    DelegateType* _delegate;
 };
 
 QT_END_NAMESPACE

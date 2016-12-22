@@ -18,7 +18,28 @@ class ToolBar : public QWidget
 
 public:
 
-    ToolBar(DelegateMainView* pDelegate = nullptr, QWidget * parent = nullptr);
+    class delegate_type
+    {
+    private:
+
+        delegate_type(const delegate_type&) = delete;
+        delegate_type& operator=(const delegate_type&) = delete;
+
+    protected:
+
+        delegate_type() = default;
+
+    public:
+
+        virtual void OnClickedNew() = 0;
+        virtual void OnClickedOpen() = 0;
+        virtual void OnClickedAbout() = 0;
+
+        virtual ~delegate_type() = 0 { }
+
+    };
+
+    ToolBar(delegate_type* pDelegate = nullptr, QWidget * parent = nullptr);
 
     const ui_type& UI() const { return (_ui); }
 
@@ -34,7 +55,7 @@ private:
 
     ui_type _ui;
 
-    DelegateMainView* _delegate;
+    delegate_type* _delegate;
 
 };
 

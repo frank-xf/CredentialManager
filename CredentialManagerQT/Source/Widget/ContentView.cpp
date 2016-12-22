@@ -16,7 +16,7 @@
 
 QT_BEGIN_NAMESPACE
 
-static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned int id, const QColor& c = Qt::black, Qt::Alignment a = Qt::AlignVCenter | Qt::AlignLeft)
+static inline QTableWidgetItem* MakeTableItem(const QString& strText, bnb::Credential::id_type id, const QColor& c = Qt::black, Qt::Alignment a = Qt::AlignVCenter | Qt::AlignLeft)
 {
     QTableWidgetItem* pItem = new QTableWidgetItem(strText);
     pItem->setTextAlignment(a);
@@ -30,7 +30,7 @@ static inline QTableWidgetItem* MakeTableItem(const QString& strText, unsigned i
 //==============================================================================
 // Implementation of CredentialView
 //==============================================================================
-CredentialView::CredentialView(const bnb::Credential& credential, DelegateMainView* pDelegate, QWidget * parent)
+CredentialView::CredentialView(const bnb::Credential& credential, DelegateType* pDelegate, QWidget * parent)
     : base_type(credential.GetID(), pDelegate, parent)
     , m_Credential(credential)
 {
@@ -71,7 +71,7 @@ void CredentialView::UpdateTable()
     }
 }
 
-void CredentialView::UpdateTable(unsigned int id)
+void CredentialView::UpdateTable(id_type id)
 {
     for (int i = 0; i < _ui.m_tabView->rowCount(); ++i)
     {
@@ -123,20 +123,20 @@ void CredentialView::OnMove(unsigned int id, int offset)
 
 void CredentialView::OnSort(int cln, bool ascending)
 {
-	if (_delegate)
-		_delegate->OnSortPlatform(m_Credential.GetID(), cln, ascending);
+    if (_delegate)
+        _delegate->OnSortPlatform(m_Credential.GetID(), cln, ascending);
 }
 
 void CredentialView::OnClickedEdit()
 {
-	if (_delegate)
-		_delegate->OnUpdateCredential(m_Credential.GetID());
+    if (_delegate)
+        _delegate->OnUpdateCredential(m_Credential.GetID());
 }
 
 void CredentialView::OnClickedRemove()
 {
-	if (_delegate)
-		_delegate->OnRemoveCredential(m_Credential.GetID());
+    if (_delegate)
+        _delegate->OnRemoveCredential(m_Credential.GetID());
 }
 
 //------------------------------------------------------------------------------
@@ -165,7 +165,7 @@ void CredentialView::base_type::ui_type::CreateLabel(CredentialView::base_type* 
 //==============================================================================
 // Implementation of PlatformView
 //==============================================================================
-PlatformView::PlatformView(const bnb::platform_node& tp, DelegateMainView* pDelegate, QWidget * parent)
+PlatformView::PlatformView(const bnb::platform_node& tp, DelegateType* pDelegate, QWidget * parent)
     : base_type(tp.GetID(), pDelegate, parent)
     , m_Platform(tp)
 {
@@ -204,7 +204,7 @@ void PlatformView::UpdateTable()
     }
 }
 
-void PlatformView::UpdateTable(unsigned int id)
+void PlatformView::UpdateTable(id_type id)
 {
     for (int i = 0; i < _ui.m_tabView->rowCount(); ++i)
     {
@@ -252,30 +252,30 @@ void PlatformView::OnRemove(unsigned int id)
 
 void PlatformView::OnMove(unsigned int id, int offset)
 {
-	if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
-		if (_delegate)
-			_delegate->OnMoveAccount(ptr_credential->GetID(), m_Platform.GetID(), id, offset);
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->OnMoveAccount(ptr_credential->GetID(), m_Platform.GetID(), id, offset);
 }
 
 void PlatformView::OnSort(int cln, bool ascending)
 {
-	if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
-		if (_delegate)
-			_delegate->OnSortAccount(ptr_credential->GetID(), m_Platform.GetID(), cln, ascending);
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->OnSortAccount(ptr_credential->GetID(), m_Platform.GetID(), cln, ascending);
 }
 
 void PlatformView::OnClickedEdit()
 {
-	if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
-		if (_delegate)
-			_delegate->OnUpdatePlatform(ptr_credential->GetID(), m_Platform.GetID());
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->OnUpdatePlatform(ptr_credential->GetID(), m_Platform.GetID());
 }
 
 void PlatformView::OnClickedRemove()
 {
-	if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
-		if (_delegate)
-			_delegate->OnRemovePlatform(ptr_credential->GetID(), m_Platform.GetID());
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->OnRemovePlatform(ptr_credential->GetID(), m_Platform.GetID());
 }
 
 //------------------------------------------------------------------------------
@@ -304,7 +304,7 @@ void PlatformView::base_type::ui_type::CreateLabel(PlatformView::base_type* pVie
 //==============================================================================
 // Implementation of AccountView
 //==============================================================================
-AccountView::AccountView(const bnb::account_node & tp, DelegateMainView* pDelegate, QWidget * parent)
+AccountView::AccountView(const bnb::account_node & tp, DelegateType* pDelegate, QWidget * parent)
     : base_type(tp.GetID(), pDelegate, parent)
     , m_Account(tp)
 {
@@ -342,7 +342,7 @@ void AccountView::UpdateTable()
     }
 }
 
-void AccountView::UpdateTable(unsigned int id)
+void AccountView::UpdateTable(id_type id)
 {
     for (int i = 0; i < _ui.m_tabView->rowCount(); ++i)
     {
@@ -401,26 +401,26 @@ void AccountView::OnMove(unsigned int id, int offset)
 
 void AccountView::OnSort(int cln, bool ascending)
 {
-	if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
-		if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
-			if (_delegate)
-				_delegate->OnSortPair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), cln, ascending);
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+            if (_delegate)
+                _delegate->OnSortPair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), cln, ascending);
 }
 
 void AccountView::OnClickedEdit()
 {
-	if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
-		if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
-			if (_delegate)
-				_delegate->OnUpdateAccount(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID());
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+            if (_delegate)
+                _delegate->OnUpdateAccount(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID());
 }
 
 void AccountView::OnClickedRemove()
 {
-	if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
-		if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
-			if (_delegate)
-				_delegate->OnRemoveAccount(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID());
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+            if (_delegate)
+                _delegate->OnRemoveAccount(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID());
 }
 
 //------------------------------------------------------------------------------

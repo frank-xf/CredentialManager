@@ -1,4 +1,5 @@
 #include <QtGui/QGuiApplication>
+#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
@@ -32,8 +33,8 @@ namespace ui_utils
     {
         QLabel* lab = new QLabel(parent);
         lab->setAlignment(align);
-        lab->setFixedHeight(def_widget_h);
-		lab->setFont(MakeFont(def_text_size, bold));
+        lab->setFixedHeight(h);
+		lab->setFont(MakeFont(size, bold));
         lab->setStyleSheet("QLabel{ background:transparent; color:" + clr.name() + "; }");
 
         return lab;
@@ -103,6 +104,20 @@ namespace ui_utils
             "QPushButton:pressed{ background-color:#4080FF; color:white; }");
 
         return button;
+    }
+
+    QHBoxLayout * MakeButtonLayout(QPushButton * btnOK, QPushButton * btnCancel)
+    {
+        QHBoxLayout* phLayout = new QHBoxLayout;
+        phLayout->setContentsMargins(0, 12, 0, 12);
+        phLayout->setSpacing(0);
+        phLayout->addStretch(1);
+        phLayout->addWidget(btnOK);
+        phLayout->addStretch(1);
+        phLayout->addWidget(btnCancel);
+        phLayout->addStretch(1);
+
+        return phLayout;
     }
 
     bool ValidateName(const QString & strName)

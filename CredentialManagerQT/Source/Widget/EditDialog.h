@@ -65,14 +65,7 @@ protected:
             phLayout1->addLayout(pvLayout2);
             phLayout1->addLayout(LayoutLayoutMarkLabel(pView));
 
-            QHBoxLayout* phLayout2 = new QHBoxLayout;
-            phLayout2->setContentsMargins(0, 12, 0, 12);
-            phLayout2->setSpacing(0);
-            phLayout2->addStretch(1);
-            phLayout2->addWidget(m_btnOK);
-            phLayout2->addStretch(1);
-            phLayout2->addWidget(m_btnCancel);
-            phLayout2->addStretch(1);
+            QHBoxLayout* phLayout2 = ui_utils::MakeButtonLayout(m_btnOK, m_btnCancel);
 
             QVBoxLayout* pMainLayout = new QVBoxLayout;
             pMainLayout->setMargin(4);
@@ -123,10 +116,9 @@ protected:
         QObject::connect(_ui.m_btnOK, &QPushButton::clicked, [this]() { OnClickedOK(); });
         QObject::connect(_ui.m_btnCancel, &QPushButton::clicked, this, &QDialog::reject);
         for (unsigned int i = 0; i < n; ++i)
-            QObject::connect(_ui.m_editText[i], &QLineEdit::textEdited, [this](const QString strText) { OnChangedText(strText); });
+            QObject::connect(_ui.m_editText[i], &QLineEdit::textEdited, [this](const QString strText) { _ui.m_labHint->clear(); });
     }
 
-    virtual void OnChangedText(const QString &) { _ui.m_labHint->clear(); }
     virtual void OnClickedOK() { accept(); }
 
     ui_type _ui;

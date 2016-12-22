@@ -6,6 +6,7 @@ QT_BEGIN_NAMESPACE
 class QLabel;
 class QLineEdit;
 class QPushButton;
+class QHBoxLayout;
 
 namespace ui_utils
 {
@@ -49,6 +50,7 @@ namespace ui_utils
     QLineEdit* MakeShowLine(QWidget* parent, const QColor& clr = Qt::black);
 
     QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w);
+    QHBoxLayout* MakeButtonLayout(QPushButton* btnOK, QPushButton* btnCancel);
 
 }
 

@@ -26,37 +26,39 @@ private:
         void RetranslateUI(TreeView* pView);
     };
 
+    using id_type = bnb::Credential::id_type;
+
 public:
 
-	TreeView(DelegateMainView* pDelegate = nullptr, QWidget * parent = nullptr);
+	TreeView(DelegateType* pDelegate = nullptr, QWidget * parent = nullptr);
 
 	void ClearCredential();
 
     QTreeWidgetItem* AddCredential(const bnb::Credential& credential);
-    QTreeWidgetItem* AddPlatform(const bnb::platform_node& pp);
-	QTreeWidgetItem* AddAccount(const bnb::account_node& pa);
-	QTreeWidgetItem* AddPair(const bnb::pair_node& pp);
+    QTreeWidgetItem* AddPlatform(const bnb::platform_node& platform);
+	QTreeWidgetItem* AddAccount(const bnb::account_node& account);
+	QTreeWidgetItem* AddPair(const bnb::pair_node& pair);
 
-    QTreeWidgetItem* UpdateCredential(const bnb::Credential& pc);
-    QTreeWidgetItem* UpdatePlatform(const bnb::platform_node& pp);
-    QTreeWidgetItem* UpdateAccount(const bnb::account_node& pa);
-    QTreeWidgetItem* UpdatePair(const bnb::pair_node& pp);
+    QTreeWidgetItem* UpdateCredential(const bnb::Credential& credential);
+    QTreeWidgetItem* UpdatePlatform(const bnb::platform_node& platform);
+    QTreeWidgetItem* UpdateAccount(const bnb::account_node& account);
+    QTreeWidgetItem* UpdatePair(const bnb::pair_node& pair);
 
-    QTreeWidgetItem* MovePlatform(unsigned int id1, unsigned int id2, int offset);
-    QTreeWidgetItem* MoveAccount(unsigned int id1, unsigned int id2, unsigned int id3, int offset);
-    QTreeWidgetItem* MovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4, int offset);
+    QTreeWidgetItem* MovePlatform(id_type credentialId, id_type platformId, int offset);
+    QTreeWidgetItem* MoveAccount(id_type credentialId, id_type platformId, id_type accountId, int offset);
+    QTreeWidgetItem* MovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId, int offset);
 
-    bool RemoveCredential(unsigned int id1);
-    bool RemovePlatform(unsigned int id1, unsigned int id2);
-    bool RemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3);
-    bool RemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4);
+    bool RemoveCredential(id_type credentialId);
+    bool RemovePlatform(id_type credentialId, id_type platformId);
+    bool RemoveAccount(id_type credentialId, id_type platformId, id_type accountId);
+    bool RemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId);
 
     bool Reschedule(const bnb::Credential& credential);
-    bool Reschedule(const bnb::platform_node& pp);
-    bool Reschedule(const bnb::account_node& pa);
+    bool Reschedule(const bnb::platform_node& platform);
+    bool Reschedule(const bnb::account_node& account);
 
-    QTreeWidgetItem* FindItem(unsigned int id);
-    QTreeWidgetItem* FindItem(QTreeWidgetItem* parent, unsigned int id);
+    QTreeWidgetItem* FindItem(id_type id);
+    QTreeWidgetItem* FindItem(QTreeWidgetItem* parent, id_type id);
 
 private:
 
@@ -79,9 +81,9 @@ private:
 	void OnRemoveCredential();
 
     QTreeWidgetItem* _AddCredential(const bnb::Credential & credential);
-    QTreeWidgetItem* _AddPlatform(QTreeWidgetItem * parent, const bnb::platform_node& pp);
-    QTreeWidgetItem* _AddAccount(QTreeWidgetItem * parent, const bnb::account_node& pa);
-    QTreeWidgetItem* _AddPair(QTreeWidgetItem * parent, const bnb::pair_node& pp);
+    QTreeWidgetItem* _AddPlatform(QTreeWidgetItem * parent, const bnb::platform_node& platform);
+    QTreeWidgetItem* _AddAccount(QTreeWidgetItem * parent, const bnb::account_node& account);
+    QTreeWidgetItem* _AddPair(QTreeWidgetItem * parent, const bnb::pair_node& pair);
 
     void _EditCredential(QTreeWidgetItem* item_credential);
     void _EditPlatform(QTreeWidgetItem* item_platform);
@@ -92,7 +94,7 @@ private:
 
     ui_type _ui;
 
-    DelegateMainView* _delegate;
+    DelegateType* _delegate;
 };
 
 QT_END_NAMESPACE

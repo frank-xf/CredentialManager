@@ -3,13 +3,12 @@
 #include <QtWidgets/QLineEdit>
 
 #include "credential_qt_utils.h"
-#include "credential_qt_delegate.h"
 
 #include "Major/ToolBar.h"
 
 QT_BEGIN_NAMESPACE
 
-ToolBar::ToolBar(DelegateMainView* pDelegate, QWidget * parent)
+ToolBar::ToolBar(delegate_type* pDelegate, QWidget * parent)
     : QWidget(parent)
     , _delegate(pDelegate)
 {

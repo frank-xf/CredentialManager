@@ -12,23 +12,25 @@ class BaseView : public QWidget
 {
 protected:
 
-    const unsigned int m_ID;
+    using id_type = bnb::Credential::id_type;
 
-    BaseView(unsigned int id, QWidget * parent = nullptr)
+    const id_type m_ID;
+
+    BaseView(id_type id, QWidget * parent = nullptr)
         : QWidget(parent)
         , m_ID(id)
     { }
 
 public:
 
-    unsigned int GetID() const { return m_ID; }
+    id_type GetID() const { return m_ID; }
 
 };	// class BaseView
 
 //------------------------------------------------------------------------------
 
 template<typename _Ty, unsigned int n>
-class ContentView : public BaseView, public DelegateTableView
+class ContentView : public BaseView, public DropTable::delegate_type
 {
     static_assert(0 < n, R"(the template parameter 'n' must be greater than 0)");
 
@@ -127,7 +129,7 @@ protected:
         }
     };
 
-    ContentView(unsigned int id, DelegateMainView* pDelegate, QWidget * parent = nullptr)
+    ContentView(id_type id, DelegateType* pDelegate, QWidget * parent = nullptr)
         : BaseView(id, parent)
         , _delegate(pDelegate)
     {
@@ -139,7 +141,7 @@ protected:
 
     ui_type _ui;
 
-    DelegateMainView* _delegate;
+    DelegateType* _delegate;
 
 	virtual void OnClickedEdit() { }
 	virtual void OnClickedRemove() { }
@@ -152,11 +154,11 @@ class CredentialView : public ContentView<CredentialView, 3>
 {
 public:
 
-    CredentialView(const bnb::Credential& credential, DelegateMainView* pDelegate, QWidget * parent = nullptr);
+    CredentialView(const bnb::Credential& credential, DelegateType* pDelegate, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
-    void UpdateTable(unsigned int id);
+    void UpdateTable(id_type id);
 
 private:
 
@@ -181,11 +183,11 @@ class PlatformView : public ContentView<PlatformView, 3>
 {
 public:
 
-    PlatformView(const bnb::platform_node& tp, DelegateMainView* pDelegate, QWidget * parent = nullptr);
+    PlatformView(const bnb::platform_node& tp, DelegateType* pDelegate, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
-    void UpdateTable(unsigned int id);
+    void UpdateTable(id_type id);
 
 private:
 
@@ -210,11 +212,11 @@ class AccountView : public ContentView<AccountView, 2>
 {
 public:
 
-    AccountView(const bnb::account_node& tp, DelegateMainView* pDelegate, QWidget * parent = nullptr);
+    AccountView(const bnb::account_node& tp, DelegateType* pDelegate, QWidget * parent = nullptr);
 
     void UpdateInfo();
     void UpdateTable();
-    void UpdateTable(unsigned int id);
+    void UpdateTable(id_type id);
 
 private:
 

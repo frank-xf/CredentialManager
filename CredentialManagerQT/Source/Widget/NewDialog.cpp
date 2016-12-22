@@ -7,7 +7,6 @@
 
 #include "Credential/Credential.h"
 
-#include "credential_qt_string.h"
 #include "credential_qt_utils.h"
 
 #include "Widget/NewDialog.h"
@@ -156,14 +155,7 @@ void NewDialog::ui_type::SetupUI(NewDialog * pView)
     phLayout1->addLayout(pvLayout2);
     phLayout1->addLayout(pvLayout3);
 
-    QHBoxLayout* phLayout2 = new QHBoxLayout;
-    phLayout2->setContentsMargins(0, 12, 0, 12);
-    phLayout2->setSpacing(0);
-    phLayout2->addStretch(1);
-    phLayout2->addWidget(m_btnOK);
-    phLayout2->addStretch(1);
-    phLayout2->addWidget(m_btnCancel);
-    phLayout2->addStretch(1);
+    QHBoxLayout* phLayout2 = ui_utils::MakeButtonLayout(m_btnOK, m_btnCancel);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
     pMainLayout->setMargin(2);

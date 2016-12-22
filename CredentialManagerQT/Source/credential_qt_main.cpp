@@ -2,7 +2,7 @@
 
 int main(int argc, char *argv[])
 {
-    void Init();
+    extern void Init();
 
 	QApplication app(argc, argv);
 

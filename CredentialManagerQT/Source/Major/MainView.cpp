@@ -1,5 +1,4 @@
 #include <QtWidgets/QBoxLayout>
-#include <QtWidgets/QLabel>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QStackedWidget>
@@ -125,14 +124,14 @@ void MainView::OnClickedAbout()
     AboutDialog().exec();
 }
 
-bool MainView::SwitchNode(unsigned int eType, unsigned int id)
+bool MainView::SwitchNode(unsigned int eType, id_type id)
 {
     return (_ui.m_viewStack->SwitchToView(static_cast<bnb::credential_enum>(eType), id));
 }
 
-bool MainView::OnAddPlatform(unsigned int id1)
+bool MainView::OnAddPlatform(id_type credentialId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
         EditPlatformDialog dlg(g_Credential(), nullptr, this);
         if (QDialog::Accepted == dlg.exec())
@@ -149,11 +148,11 @@ bool MainView::OnAddPlatform(unsigned int id1)
     return false;
 }
 
-bool MainView::OnAddAccount(unsigned int id1, unsigned int id2)
+bool MainView::OnAddAccount(id_type credentialId, id_type platformId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().Find(id2))
+        if (auto ptr_platform = g_Credential().Find(platformId))
         {
             EditAccountDialog dlg(*ptr_platform, nullptr, this);
             if (QDialog::Accepted == dlg.exec())
@@ -171,11 +170,11 @@ bool MainView::OnAddAccount(unsigned int id1, unsigned int id2)
     return false;
 }
 
-bool MainView::OnAddPair(unsigned int id1, unsigned int id2, unsigned int id3)
+bool MainView::OnAddPair(id_type credentialId, id_type platformId, id_type accountId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_account = g_Credential().Find(id2, id3))
+        if (auto ptr_account = g_Credential().Find(platformId, accountId))
         {
             EditPairDialog dlg(*ptr_account, nullptr, this);
             if (QDialog::Accepted == dlg.exec())
@@ -193,16 +192,16 @@ bool MainView::OnAddPair(unsigned int id1, unsigned int id2, unsigned int id3)
     return false;
 }
 
-bool MainView::OnUpdatePassword(unsigned int id1)
+bool MainView::OnUpdatePassword(id_type credentialId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
         EditPasswordDialog dlg(g_Credential(), this);
         if (QDialog::Accepted == dlg.exec())
         {
             g_Credential().Save(m_strFile.toStdString().c_str());
 
-            _ui.m_viewStack->UpdateCredential(id1);
+            _ui.m_viewStack->UpdateCredential(credentialId);
         }
 
         return true;
@@ -211,9 +210,9 @@ bool MainView::OnUpdatePassword(unsigned int id1)
     return false;
 }
 
-bool MainView::OnUpdateCredential(unsigned int id1)
+bool MainView::OnUpdateCredential(id_type credentialId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
         EditCredentialDialog dlg(g_Credential(), this);
         if (QDialog::Accepted == dlg.exec())
@@ -221,7 +220,7 @@ bool MainView::OnUpdateCredential(unsigned int id1)
             g_Credential().Save(m_strFile.toStdString().c_str());
 
             _ui.m_treeView->UpdateCredential(g_Credential());
-            _ui.m_viewStack->UpdateCredential(id1);
+            _ui.m_viewStack->UpdateCredential(credentialId);
         }
 
         return true;
@@ -230,11 +229,11 @@ bool MainView::OnUpdateCredential(unsigned int id1)
     return false;
 }
 
-bool MainView::OnUpdatePlatform(unsigned int id1, unsigned int id2)
+bool MainView::OnUpdatePlatform(id_type credentialId, id_type platformId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().Find(id2))
+        if (auto ptr_platform = g_Credential().Find(platformId))
         {
             EditPlatformDialog dlg(g_Credential(), ptr_platform, this);
             if (QDialog::Accepted == dlg.exec())
@@ -242,7 +241,7 @@ bool MainView::OnUpdatePlatform(unsigned int id1, unsigned int id2)
                 g_Credential().Save(m_strFile.toStdString().c_str());
 
                 _ui.m_treeView->UpdatePlatform(*dlg.GetPlatform());
-                _ui.m_viewStack->UpdatePlatform(id1, id2);
+                _ui.m_viewStack->UpdatePlatform(credentialId, platformId);
             }
 
             return true;
@@ -252,13 +251,13 @@ bool MainView::OnUpdatePlatform(unsigned int id1, unsigned int id2)
     return false;
 }
 
-bool MainView::OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int id3)
+bool MainView::OnUpdateAccount(id_type credentialId, id_type platformId, id_type accountId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().Find(id2))
+        if (auto ptr_platform = g_Credential().Find(platformId))
         {
-            if (auto ptr_account = ptr_platform->Find(id3))
+            if (auto ptr_account = ptr_platform->Find(accountId))
             {
                 EditAccountDialog dlg(*ptr_platform, ptr_account, this);
                 if (QDialog::Accepted == dlg.exec())
@@ -266,7 +265,7 @@ bool MainView::OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int 
                     g_Credential().Save(m_strFile.toStdString().c_str());
 
                     _ui.m_treeView->UpdateAccount(*dlg.GetAccount());
-                    _ui.m_viewStack->UpdateAccount(id1, id2, id3);
+                    _ui.m_viewStack->UpdateAccount(credentialId, platformId, accountId);
                 }
                 return true;
             }
@@ -276,13 +275,13 @@ bool MainView::OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int 
     return false;
 }
 
-bool MainView::OnUpdatePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
+bool MainView::OnUpdatePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_account = g_Credential().Find(id2, id3))
+        if (auto ptr_account = g_Credential().Find(platformId, accountId))
         {
-            if (auto ptr_pair = ptr_account->Find(id4))
+            if (auto ptr_pair = ptr_account->Find(pairId))
             {
                 EditPairDialog dlg(*ptr_account, ptr_pair, this);
                 if (QDialog::Accepted == dlg.exec())
@@ -290,7 +289,7 @@ bool MainView::OnUpdatePair(unsigned int id1, unsigned int id2, unsigned int id3
                     g_Credential().Save(m_strFile.toStdString().c_str());
 
                     _ui.m_treeView->UpdatePair(*dlg.GetPair());
-                    _ui.m_viewStack->UpdatePair(id1, id3, id4);
+                    _ui.m_viewStack->UpdatePair(credentialId, accountId, pairId);
                 }
 
                 return true;
@@ -301,15 +300,34 @@ bool MainView::OnUpdatePair(unsigned int id1, unsigned int id2, unsigned int id3
     return false;
 }
 
-bool MainView::OnRemoveCredential(unsigned int id1)
+bool MainView::OnRemoveCredential(id_type credentialId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
         QString strText = "Are you sure to remove credential \"" + To_QString(g_Credential().GetData().GetUser())
             + "\"?\nThis operation is irreversible and the corresponding file will be deleted.";
         if (QDialog::Accepted == ConfirmDialog(strText, this).exec())
         {
+            std::vector<id_type> vtrIds{ g_Credential().GetID() };
+            g_Credential().PostorderTraversal([&vtrIds](const bnb::platform_node& platform) mutable {
+                platform.PostorderTraversal([&vtrIds](const bnb::account_node& account) mutable {
+                    account.PostorderTraversal([&vtrIds](const bnb::pair_node& pair) mutable {
+                        vtrIds.push_back(pair.GetID());
+                    });
 
+                    vtrIds.push_back(account.GetID());
+                });
+
+                vtrIds.push_back(platform.GetID());
+            });
+
+            g_Credential().Clear();
+            QFile::remove(m_strFile);
+            m_strFile.clear();
+
+            _ui.m_viewToolBar->UpdatePath(m_strFile);
+            _ui.m_treeView->RemoveCredential(credentialId);
+            _ui.m_viewStack->RemoveCredential(credentialId, vtrIds);
 
             return true;
         }
@@ -318,26 +336,26 @@ bool MainView::OnRemoveCredential(unsigned int id1)
     return false;
 }
 
-bool MainView::OnRemovePlatform(unsigned int id1, unsigned int id2)
+bool MainView::OnRemovePlatform(id_type credentialId, id_type platformId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().Find(id2))
+        if (auto ptr_platform = g_Credential().Find(platformId))
         {
             QString strText = To_QString(ptr_platform->GetData().GetName());
             if (QDialog::Accepted == ConfirmDialog("Are you sure to remove platform \"" + strText + "\"?", this).exec())
             {
-                std::vector<unsigned int> vtrIds{ ptr_platform->GetID() };
+                std::vector<id_type> vtrIds{ ptr_platform->GetID() };
                 ptr_platform->PreorderTraversal([&vtrIds](const bnb::account_node& account) mutable {
                     vtrIds.push_back(account.GetID());
                 });
 
-                if (g_Credential().Remove(id2))
+                if (g_Credential().Remove(platformId))
                 {
                     g_Credential().Save(m_strFile.toStdString().c_str());
 
-                    _ui.m_treeView->RemovePlatform(id1, id2);
-                    _ui.m_viewStack->RemovePlatform(id1, id2, vtrIds);
+                    _ui.m_treeView->RemovePlatform(credentialId, platformId);
+                    _ui.m_viewStack->RemovePlatform(credentialId, platformId, vtrIds);
 
                     return true;
                 }
@@ -352,28 +370,28 @@ bool MainView::OnRemovePlatform(unsigned int id1, unsigned int id2)
     return false;
 }
 
-bool MainView::OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3)
+bool MainView::OnRemoveAccount(id_type credentialId, id_type platformId, id_type accountId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().Find(id2))
+        if (auto ptr_platform = g_Credential().Find(platformId))
         {
-            if (auto ptr_account = ptr_platform->Find(id3))
+            if (auto ptr_account = ptr_platform->Find(accountId))
             {
                 QString strText = To_QString(ptr_account->GetData().GetName());
                 if (QDialog::Accepted == ConfirmDialog("Are you sure to remove account \"" + strText + "\"?", this).exec())
                 {
-                    std::vector<unsigned int> vtrIds{ ptr_account->GetID() };
+                    std::vector<id_type> vtrIds{ ptr_account->GetID() };
                     ptr_account->PreorderTraversal([&vtrIds](const bnb::pair_node& pair) mutable {
                         vtrIds.push_back(pair.GetID());
                     });
 
-                    if (ptr_platform->Remove(id3))
+                    if (ptr_platform->Remove(accountId))
                     {
                         g_Credential().Save(m_strFile.toStdString().c_str());
 
-                        _ui.m_treeView->RemoveAccount(id1, id2, id3);
-                        _ui.m_viewStack->RemoveAccount(id1, id2, id3, vtrIds);
+                        _ui.m_treeView->RemoveAccount(credentialId, platformId, accountId);
+                        _ui.m_viewStack->RemoveAccount(credentialId, platformId, accountId, vtrIds);
 
                         return true;
                     }
@@ -389,23 +407,23 @@ bool MainView::OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int 
     return false;
 }
 
-bool MainView::OnRemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4)
+bool MainView::OnRemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_account = g_Credential().Find(id2, id3))
+        if (auto ptr_account = g_Credential().Find(platformId, accountId))
         {
-            if (auto ptr_pair = ptr_account->Find(id4))
+            if (auto ptr_pair = ptr_account->Find(pairId))
             {
                 QString strText = To_QString(ptr_pair->GetData().GetKey());
                 if (QDialog::Accepted == ConfirmDialog("Are you sure to remove pair \"" + strText + "\"?", this).exec())
                 {
-                    if (ptr_account->Remove(id4))
+                    if (ptr_account->Remove(pairId))
                     {
                         g_Credential().Save(m_strFile.toStdString().c_str());
 
-                        _ui.m_treeView->RemovePair(id1, id2, id3, id4);
-                        _ui.m_viewStack->RemovePair(id1, id2, id3, id4);
+                        _ui.m_treeView->RemovePair(credentialId, platformId, accountId, pairId);
+                        _ui.m_viewStack->RemovePair(credentialId, platformId, accountId, pairId);
 
                         return true;
                     }
@@ -421,14 +439,16 @@ bool MainView::OnRemovePair(unsigned int id1, unsigned int id2, unsigned int id3
     return false;
 }
 
-bool MainView::OnMovePlatform(id_type id1, id_type id2, int offset)
+bool MainView::OnMovePlatform(id_type credentialId, id_type platformId, int offset)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (g_Credential().Move(id2, offset))
+        if (g_Credential().Move(platformId, offset))
         {
-            _ui.m_treeView->MovePlatform(id1, id2, offset);
-            _ui.m_viewStack->UpdateTable(id1);
+            g_Credential().Save(m_strFile.toStdString().c_str());
+
+            _ui.m_treeView->MovePlatform(credentialId, platformId, offset);
+            _ui.m_viewStack->UpdateTable(credentialId);
 
             return true;
         }
@@ -437,16 +457,18 @@ bool MainView::OnMovePlatform(id_type id1, id_type id2, int offset)
     return false;
 }
 
-bool MainView::OnMoveAccount(id_type id1, id_type id2, id_type id3, int offset)
+bool MainView::OnMoveAccount(id_type credentialId, id_type platformId, id_type accountId, int offset)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().Find(id2))
+        if (auto ptr_platform = g_Credential().Find(platformId))
         {
-            if (ptr_platform->Move(id3, offset))
+            if (ptr_platform->Move(accountId, offset))
             {
-                _ui.m_treeView->MoveAccount(id1, id2, id3, offset);
-                _ui.m_viewStack->UpdateTable(id1, id2);
+                g_Credential().Save(m_strFile.toStdString().c_str());
+
+                _ui.m_treeView->MoveAccount(credentialId, platformId, accountId, offset);
+                _ui.m_viewStack->UpdateTable(credentialId, platformId);
 
                 return true;
             }
@@ -456,16 +478,18 @@ bool MainView::OnMoveAccount(id_type id1, id_type id2, id_type id3, int offset)
     return false;
 }
 
-bool MainView::OnMovePair(id_type id1, id_type id2, id_type id3, id_type id4, int offset)
+bool MainView::OnMovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId, int offset)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_account = g_Credential().Find(id2, id3))
+        if (auto ptr_account = g_Credential().Find(platformId, accountId))
         {
-            if (ptr_account->Move(id4, offset))
+            if (ptr_account->Move(pairId, offset))
             {
-                _ui.m_treeView->MovePair(id1, id2, id3, id4, offset);
-                _ui.m_viewStack->UpdateTable(id1, id2, id3);
+                g_Credential().Save(m_strFile.toStdString().c_str());
+
+                _ui.m_treeView->MovePair(credentialId, platformId, accountId, pairId, offset);
+                _ui.m_viewStack->UpdateTable(credentialId, platformId, accountId);
 
                 return true;
             }
@@ -475,9 +499,9 @@ bool MainView::OnMovePair(id_type id1, id_type id2, id_type id3, id_type id4, in
     return false;
 }
 
-bool MainView::OnSortPlatform(id_type id1, int cln, bool ascending)
+bool MainView::OnSortPlatform(id_type credentialId, int cln, bool ascending)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
         switch (cln)
         {
@@ -501,8 +525,10 @@ bool MainView::OnSortPlatform(id_type id1, int cln, bool ascending)
             return false;
         }
 
+        g_Credential().Save(m_strFile.toStdString().c_str());
+
         _ui.m_treeView->Reschedule(g_Credential());
-        _ui.m_viewStack->UpdateTable(id1);
+        _ui.m_viewStack->UpdateTable(credentialId);
 
         return true;
     }
@@ -510,11 +536,11 @@ bool MainView::OnSortPlatform(id_type id1, int cln, bool ascending)
     return false;
 }
 
-bool MainView::OnSortAccount(id_type id1, id_type id2, int cln, bool ascending)
+bool MainView::OnSortAccount(id_type credentialId, id_type platformId, int cln, bool ascending)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_platform = g_Credential().Find(id2))
+        if (auto ptr_platform = g_Credential().Find(platformId))
         {
             switch (cln)
             {
@@ -527,8 +553,10 @@ bool MainView::OnSortAccount(id_type id1, id_type id2, int cln, bool ascending)
                 return false;
             }
 
+            g_Credential().Save(m_strFile.toStdString().c_str());
+
             _ui.m_treeView->Reschedule(*ptr_platform);
-            _ui.m_viewStack->UpdateTable(id1, id2);
+            _ui.m_viewStack->UpdateTable(credentialId, platformId);
 
             return true;
         }
@@ -537,11 +565,11 @@ bool MainView::OnSortAccount(id_type id1, id_type id2, int cln, bool ascending)
     return false;
 }
 
-bool MainView::OnSortPair(id_type id1, id_type id2, id_type id3, int cln, bool ascending)
+bool MainView::OnSortPair(id_type credentialId, id_type platformId, id_type accountId, int cln, bool ascending)
 {
-    if (id1 == g_Credential().GetID())
+    if (credentialId == g_Credential().GetID())
     {
-        if (auto ptr_account = g_Credential().Find(id2, id3))
+        if (auto ptr_account = g_Credential().Find(platformId, accountId))
         {
             switch (cln)
             {
@@ -565,8 +593,10 @@ bool MainView::OnSortPair(id_type id1, id_type id2, id_type id3, int cln, bool a
                 return false;
             }
 
+            g_Credential().Save(m_strFile.toStdString().c_str());
+
             _ui.m_treeView->Reschedule(*ptr_account);
-            _ui.m_viewStack->UpdateTable(id1, id2, id3);
+            _ui.m_viewStack->UpdateTable(credentialId, platformId, accountId);
 
             return true;
         }
@@ -588,9 +618,7 @@ void MainView::ui_type::SetupUI(MainView* pView)
     phSplitter->setChildrenCollapsible(false);
 
     m_treeView = new TreeView(pView, phSplitter);
-
     m_viewStack = new StackView(pView, phSplitter);
-
     m_viewToolBar = new ToolBar(pView, pView);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;

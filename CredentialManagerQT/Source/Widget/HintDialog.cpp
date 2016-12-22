@@ -13,7 +13,7 @@ template<typename _Ty>
 inline constexpr unsigned int _to_uint(_Ty value) { return static_cast<unsigned int>(value); }
 
 static const QColor _g_clrText[_to_uint(hint_type::ht_max)]{
-    { 0xFF, 0x00, 0x00 }, { 0xC0, 0xC0, 0x00 }, { 0x00, 0x80, 0x00 }
+    { 0xFF, 0x00, 0x00 },{ 0xC0, 0xC0, 0x00 },{ 0x00, 0x80, 0x00 }
 };
 
 static const QString _g_strTitle[_to_uint(hint_type::ht_max)]{
@@ -100,25 +100,21 @@ void ConfirmDialog::ui_type::SetupUI(ConfirmDialog * pDlg)
 
     ui_utils::SetBackgroundColor(pDlg, Qt::white);
 
-    m_labText = ui_utils::MakeDynamicLabel(pDlg, _g_clrText[_to_uint(hint_type::ht_info)], Qt::AlignCenter);
+    m_labText = new QLabel(pDlg);
     m_labText->setMinimumWidth(ui_utils::edit_default_w);
+    m_labText->setAlignment(Qt::AlignCenter);
+    m_labText->setFont(ui_utils::MakeFont());
+    m_labText->setStyleSheet("QLabel{ background:transparent; color:#008000; }");
 
     m_btnOK = ui_utils::MakeButton(pDlg);
     m_btnCancel = ui_utils::MakeButton(pDlg);
 
     m_btnOK->setDefault(true);
 
-    QHBoxLayout* phLayout = new QHBoxLayout;
-    phLayout->setContentsMargins(0, 12, 0, 12);
-    phLayout->setSpacing(0);
-    phLayout->addStretch(1);
-    phLayout->addWidget(m_btnOK);
-    phLayout->addStretch(1);
-    phLayout->addWidget(m_btnCancel);
-    phLayout->addStretch(1);
+    QHBoxLayout* phLayout = ui_utils::MakeButtonLayout(m_btnOK, m_btnCancel);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
-    pMainLayout->setMargin(4);
+    pMainLayout->setContentsMargins(8, 8, 2, 8);
     pMainLayout->setSpacing(4);
     pMainLayout->addWidget(m_labText, 1);
     pMainLayout->addLayout(phLayout);

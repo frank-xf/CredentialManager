@@ -4,9 +4,6 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QStyledItemDelegate>
 
-#include <iostream>
-
-#include "credential_qt_delegate.h"
 #include "credential_qt_utils.h"
 
 #include "Widget/NoFocusDelegate.h"
@@ -19,7 +16,7 @@ static inline unsigned int GetItemID(const QTableWidgetItem* item)
 
 QT_BEGIN_NAMESPACE
 
-DropTable::DropTable(DelegateTableView* pDelegate, QWidget * parent)
+DropTable::DropTable(delegate_type* pDelegate, QWidget * parent)
     : QTableWidget(parent)
     , _delegate(pDelegate)
 {
@@ -46,8 +43,8 @@ DropTable::DropTable(DelegateTableView* pDelegate, QWidget * parent)
     verticalHeader()->setDefaultSectionSize(ui_utils::def_widget_h);
     verticalHeader()->setVisible(false);
     horizontalHeader()->setFixedHeight(ui_utils::def_widget_h);
-	horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	horizontalHeader()->setStretchLastSection(true);
+    horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    horizontalHeader()->setStretchLastSection(true);
     horizontalHeader()->setSectionsClickable(true);
     horizontalHeader()->setHighlightSections(false);
     horizontalHeader()->setFont(ui_utils::MakeFont());
@@ -60,7 +57,7 @@ DropTable::DropTable(DelegateTableView* pDelegate, QWidget * parent)
     QObject::connect(_ui.m_actRemove, &QAction::triggered, this, &DropTable::OnRemove);
     QObject::connect(_ui.m_actMoveUp, &QAction::triggered, this, &DropTable::OnMoveUp);
     QObject::connect(_ui.m_actMoveDown, &QAction::triggered, this, &DropTable::OnMoveDown);
-	QObject::connect(horizontalHeader(), &QHeaderView::sortIndicatorChanged, this, &DropTable::OnSort);
+    QObject::connect(horizontalHeader(), &QHeaderView::sortIndicatorChanged, this, &DropTable::OnSort);
 }
 
 void DropTable::OnEdit()
@@ -99,8 +96,8 @@ void DropTable::OnMoveDown()
 
 void DropTable::OnSort(int nIndex, Qt::SortOrder order)
 {
-	if (_delegate)
-		_delegate->OnSort(nIndex, Qt::SortOrder::AscendingOrder == order);
+    if (_delegate)
+        _delegate->OnSort(nIndex, Qt::SortOrder::AscendingOrder == order);
 }
 
 void DropTable::OnTableContextMenu(const QPoint & pos)

@@ -7,7 +7,7 @@ class ToolBar;
 class StackView;
 class TreeView;
 
-class MainView : public QWidget, public DelegateMainView
+class MainView : public QWidget, public DelegateType, public ToolBar::delegate_type
 {
     struct ui_type
     {
@@ -31,30 +31,30 @@ private:
     void OnClickedNew() override;
     void OnClickedOpen() override;
     void OnClickedAbout() override;
-    bool SwitchNode(unsigned int eType, unsigned int id) override;
+    bool SwitchNode(unsigned int eType, id_type id) override;
 
-    bool OnAddPlatform(unsigned int id1) override;
-    bool OnAddAccount(unsigned int id1, unsigned int id2) override;
-    bool OnAddPair(unsigned int id1, unsigned int id2, unsigned int id3) override;
+    bool OnAddPlatform(id_type credentialId) override;
+    bool OnAddAccount(id_type credentialId, id_type platformId) override;
+    bool OnAddPair(id_type credentialId, id_type platformId, id_type accountId) override;
 
-    bool OnUpdatePassword(unsigned int id1) override;
-    bool OnUpdateCredential(unsigned int id1) override;
-    bool OnUpdatePlatform(unsigned int id1, unsigned int id2) override;
-    bool OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int id3) override;
-    bool OnUpdatePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
+    bool OnUpdatePassword(id_type credentialId) override;
+    bool OnUpdateCredential(id_type credentialId) override;
+    bool OnUpdatePlatform(id_type credentialId, id_type platformId) override;
+    bool OnUpdateAccount(id_type credentialId, id_type platformId, id_type accountId) override;
+    bool OnUpdatePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId) override;
 
-	bool OnRemoveCredential(unsigned int id1) override;
-    bool OnRemovePlatform(unsigned int id1, unsigned int id2) override;
-    bool OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3) override;
-    bool OnRemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
+    bool OnRemoveCredential(id_type credentialId) override;
+    bool OnRemovePlatform(id_type credentialId, id_type platformId) override;
+    bool OnRemoveAccount(id_type credentialId, id_type platformId, id_type accountId) override;
+    bool OnRemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId) override;
 
-    bool OnMovePlatform(id_type id1, id_type id2, int offset) override;
-    bool OnMoveAccount(id_type id1, id_type id2, id_type id3, int offset) override;
-    bool OnMovePair(id_type id1, id_type id2, id_type id3, id_type id4, int offset) override;
+    bool OnMovePlatform(id_type credentialId, id_type platformId, int offset) override;
+    bool OnMoveAccount(id_type credentialId, id_type platformId, id_type accountId, int offset) override;
+    bool OnMovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId, int offset) override;
 
-	bool OnSortPlatform(id_type id1, int cln, bool ascending) override;
-	bool OnSortAccount(id_type id1, id_type id2, int cln, bool ascending) override;
-	bool OnSortPair(id_type id1, id_type id2, id_type id3, int cln, bool ascending) override;
+    bool OnSortPlatform(id_type credentialId, int cln, bool ascending) override;
+    bool OnSortAccount(id_type credentialId, id_type platformId, int cln, bool ascending) override;
+    bool OnSortPair(id_type credentialId, id_type platformId, id_type accountId, int cln, bool ascending) override;
 
 private:
 

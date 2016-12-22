@@ -19,7 +19,30 @@ class DropTable : public QTableWidget
 
 public:
 
-    DropTable(DelegateTableView* pDelegate = nullptr, QWidget * parent = nullptr);
+    class delegate_type
+    {
+    private:
+
+        delegate_type(const delegate_type&) = delete;
+        delegate_type& operator=(const delegate_type&) = delete;
+
+    protected:
+
+        delegate_type() = default;
+
+    public:
+
+        virtual void OnAdd() = 0;
+        virtual void OnEdit(unsigned int id) = 0;
+        virtual void OnRemove(unsigned int id) = 0;
+        virtual void OnMove(unsigned int id, int offset) = 0;
+        virtual void OnSort(int cln, bool ascending) = 0;
+
+        virtual ~delegate_type() = 0 { }
+
+    };
+
+    DropTable(delegate_type* pDelegate = nullptr, QWidget * parent = nullptr);
 
 private:
 
@@ -38,7 +61,7 @@ private:
 
     ui_type _ui;
 
-    DelegateTableView* _delegate;
+    delegate_type* _delegate;
 };
 
 QT_END_NAMESPACE

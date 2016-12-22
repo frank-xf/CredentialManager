@@ -46,14 +46,7 @@ void PasswordInput::ui_type::SetupUI(PasswordInput * pDlg)
     phLayout1->addWidget(m_editPassword);
     phLayout1->addWidget(ui_utils::MakeMarkLabel(pDlg));
 
-    QHBoxLayout* phLayout2 = new QHBoxLayout;
-    phLayout2->setContentsMargins(0, 12, 0, 12);
-    phLayout2->setSpacing(0);
-    phLayout2->addStretch(1);
-    phLayout2->addWidget(m_btnOK);
-    phLayout2->addStretch(1);
-    phLayout2->addWidget(m_btnCancel);
-    phLayout2->addStretch(1);
+    QHBoxLayout* phLayout2 = ui_utils::MakeButtonLayout(m_btnOK, m_btnCancel);
 
     QVBoxLayout* pvMainLayout = new QVBoxLayout;
     pvMainLayout->setContentsMargins(4, 8, 4, 4);

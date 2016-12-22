@@ -1,5 +1,6 @@
 ﻿#include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QLabel>
+#include <QtWidgets/QTableWidget>
 #include <QtWidgets/QStackedWidget>
 
 #include "Credential/Credential.h"
@@ -7,19 +8,20 @@
 #include "credential_qt_delegate.h"
 #include "credential_qt_utils.h"
 
+#include "Widget/DropTable.h"
 #include "Widget/ContentView.h"
 #include "Major/StackView.h"
 
 QT_BEGIN_NAMESPACE
 
-StackView::StackView(DelegateMainView* pDelegate, QWidget * parent)
+StackView::StackView(DelegateType* pDelegate, QWidget * parent)
     : QStackedWidget(parent)
     , _delegate(pDelegate)
 {
     setObjectName("StackView");
     ui_utils::SetBackgroundColor(this, Qt::white);
 
-    m_labHint = new QLabel(this);
+    m_labHint = new QLabel("Please open or new a credential file !", this);
     m_labHint->setAlignment(Qt::AlignCenter);
     m_labHint->setMinimumSize(512, 256);
     m_labHint->setStyleSheet("QLabel{ background:transparent; color:#20A020; }");
@@ -102,12 +104,12 @@ bool StackView::AddPair(const bnb::pair_node & pair)
     return false;
 }
 
-bool StackView::UpdateCredential(unsigned int credential_id)
+bool StackView::UpdateCredential(id_type credentialId)
 {
     for (int i = 0; i < count(); ++i)
     {
         CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-        if (ptr && ptr->GetID() == credential_id)
+        if (ptr && ptr->GetID() == credentialId)
         {
             ptr->UpdateInfo();
             return true;
@@ -117,7 +119,7 @@ bool StackView::UpdateCredential(unsigned int credential_id)
     return false;
 }
 
-bool StackView::UpdatePlatform(unsigned int credential_id, unsigned int platform_id)
+bool StackView::UpdatePlatform(id_type credentialId, id_type platformId)
 {
     bool bResult1 = false, bResult2 = false;
 
@@ -126,7 +128,7 @@ bool StackView::UpdatePlatform(unsigned int credential_id, unsigned int platform
         if (!bResult1)
         {
             PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
-            if (ptr && ptr->GetID() == platform_id)
+            if (ptr && ptr->GetID() == platformId)
             {
                 ptr->UpdateInfo();
                 bResult1 = true;
@@ -135,9 +137,9 @@ bool StackView::UpdatePlatform(unsigned int credential_id, unsigned int platform
         if (!bResult2)
         {
             CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-            if (ptr && ptr->GetID() == credential_id)
+            if (ptr && ptr->GetID() == credentialId)
             {
-                ptr->UpdateTable(platform_id);
+                ptr->UpdateTable(platformId);
                 ptr->UpdateInfo();
                 bResult2 = true;
             }
@@ -149,7 +151,7 @@ bool StackView::UpdatePlatform(unsigned int credential_id, unsigned int platform
     return false;
 }
 
-bool StackView::UpdateAccount(unsigned int credential_id, unsigned int platform_id, unsigned int account_id)
+bool StackView::UpdateAccount(id_type credentialId, id_type platformId, id_type accountId)
 {
     bool bResult1 = false, bResult2 = false, bResult3 = false;
 
@@ -158,7 +160,7 @@ bool StackView::UpdateAccount(unsigned int credential_id, unsigned int platform_
         if (!bResult1)
         {
             AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
-            if (ptr && ptr->GetID() == account_id)
+            if (ptr && ptr->GetID() == accountId)
             {
                 ptr->UpdateInfo();
                 bResult1 = true;
@@ -167,16 +169,16 @@ bool StackView::UpdateAccount(unsigned int credential_id, unsigned int platform_
         if (!bResult2)
         {
             PlatformView* ptr = dynamic_cast<PlatformView*>(widget(i));
-            if (ptr && ptr->GetID() == platform_id)
+            if (ptr && ptr->GetID() == platformId)
             {
-                ptr->UpdateTable(account_id);
+                ptr->UpdateTable(accountId);
                 bResult2 = true;
             }
         }
         if (!bResult3)
         {
             CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-            if (ptr && ptr->GetID() == credential_id)
+            if (ptr && ptr->GetID() == credentialId)
             {
                 ptr->UpdateInfo();
                 bResult3 = true;
@@ -189,7 +191,7 @@ bool StackView::UpdateAccount(unsigned int credential_id, unsigned int platform_
     return false;
 }
 
-bool StackView::UpdatePair(unsigned int credential_id, unsigned int account_id, unsigned int pair_id)
+bool StackView::UpdatePair(id_type credentialId, id_type accountId, id_type pairId)
 {
     bool bResult1 = false, bResult2 = false;
 
@@ -198,16 +200,16 @@ bool StackView::UpdatePair(unsigned int credential_id, unsigned int account_id, 
         if (!bResult1)
         {
             AccountView* ptr = dynamic_cast<AccountView*>(widget(i));
-            if (ptr && ptr->GetID() == account_id)
+            if (ptr && ptr->GetID() == accountId)
             {
-                ptr->UpdateTable(pair_id);
+                ptr->UpdateTable(pairId);
                 bResult1 = true;
             }
         }
         if (!bResult2)
         {
             CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-            if (ptr && ptr->GetID() == credential_id)
+            if (ptr && ptr->GetID() == credentialId)
             {
                 ptr->UpdateInfo();
                 bResult2 = true;
@@ -220,12 +222,12 @@ bool StackView::UpdatePair(unsigned int credential_id, unsigned int account_id, 
     return false;
 }
 
-bool StackView::UpdateTable(unsigned int credential_id)
+bool StackView::UpdateTable(id_type credentialId)
 {
     for (int i = 0; i < count(); ++i)
     {
         CredentialView* ptr = dynamic_cast<CredentialView*>(widget(i));
-        if (ptr && ptr->GetID() == credential_id)
+        if (ptr && ptr->GetID() == credentialId)
         {
             ptr->UpdateTable();
             ptr->UpdateInfo();
@@ -236,41 +238,43 @@ bool StackView::UpdateTable(unsigned int credential_id)
     return false;
 }
 
-bool StackView::UpdateTable(unsigned int credential_id, unsigned int platform_id)
+bool StackView::UpdateTable(id_type credentialId, id_type platformId)
 {
-    return UpdateView<PlatformView>(credential_id, platform_id);
+    return UpdateView<PlatformView>(credentialId, platformId);
 }
 
-bool StackView::UpdateTable(unsigned int credential_id, unsigned int platform_id, unsigned int account_id)
+bool StackView::UpdateTable(id_type credentialId, id_type platformId, id_type accountId)
 {
-    return UpdateView<AccountView>(credential_id, account_id);
+    return UpdateView<AccountView>(credentialId, accountId);
 }
 
-bool StackView::RemoveCredential(unsigned int credential_id, const std::vector<unsigned int>& ids)
-{
-	return false;
-}
-
-bool StackView::RemovePlatform(unsigned int credential_id, unsigned int platform_id, const std::vector<unsigned int>& ids)
+bool StackView::RemoveCredential(id_type credentialId, const std::vector<id_type>& ids)
 {
     RemoveView(ids);
 
-    return UpdateTable(credential_id);
+    return false;
 }
 
-bool StackView::RemoveAccount(unsigned int credential_id, unsigned int platform_id, unsigned int account_id, const std::vector<unsigned int>& ids)
+bool StackView::RemovePlatform(id_type credentialId, id_type platformId, const std::vector<id_type>& ids)
 {
     RemoveView(ids);
 
-    return UpdateTable(credential_id, platform_id);
+    return UpdateTable(credentialId);
 }
 
-bool StackView::RemovePair(unsigned int credential_id, unsigned int platform_id, unsigned int account_id, unsigned int pair_id)
+bool StackView::RemoveAccount(id_type credentialId, id_type platformId, id_type accountId, const std::vector<id_type>& ids)
 {
-    return UpdateTable(credential_id, platform_id, account_id);
+    RemoveView(ids);
+
+    return UpdateTable(credentialId, platformId);
 }
 
-unsigned int StackView::RemoveView(const std::vector<unsigned int>& ids)
+bool StackView::RemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId)
+{
+    return UpdateTable(credentialId, platformId, accountId);
+}
+
+unsigned int StackView::RemoveView(const std::vector<id_type>& ids)
 {
     unsigned int nCount = 0;
     for (auto& id : ids)
@@ -291,7 +295,7 @@ unsigned int StackView::RemoveView(const std::vector<unsigned int>& ids)
     return nCount;
 }
 
-bool StackView::SwitchToView(bnb::credential_enum eType, unsigned int id)
+bool StackView::SwitchToView(bnb::credential_enum eType, id_type id)
 {
     for (int i = 0; i < count(); ++i)
     {
@@ -306,12 +310,9 @@ bool StackView::SwitchToView(bnb::credential_enum eType, unsigned int id)
     return false;
 }
 
-bool StackView::SwitchToHint(const QString & strText)
+void StackView::SwitchToHint()
 {
-    m_labHint->setText(strText);
     setCurrentWidget(m_labHint);
-
-    return true;
 }
 
 QT_END_NAMESPACE
