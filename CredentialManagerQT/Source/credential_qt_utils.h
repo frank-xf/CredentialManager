@@ -34,8 +34,8 @@ namespace ui_utils
     const QColor g_clrPair{ 32, 160, 32 };
     const QColor g_clrLabel{ 0, 64, 255 };
 
+	bool ValidateName(const QString& strName);
     void SetBackgroundColor(QWidget* pView, const QColor& color);
-    bool ValidateName(const QString& strName);
 
     QFont MakeFont(unsigned int size = def_text_size, bool bold = false);
 

@@ -27,7 +27,8 @@ private:
     void OnAdd();
     void OnRemove();
     void OnMoveUp();
-    void OnMoveDown();
+	void OnMoveDown();
+	void OnSort(int nIndex, Qt::SortOrder order);
     void OnTableContextMenu(const QPoint & pos);
 
     void dropEvent(QDropEvent *event) override;

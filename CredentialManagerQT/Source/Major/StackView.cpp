@@ -246,6 +246,11 @@ bool StackView::UpdateTable(unsigned int credential_id, unsigned int platform_id
     return UpdateView<AccountView>(credential_id, account_id);
 }
 
+bool StackView::RemoveCredential(unsigned int credential_id, const std::vector<unsigned int>& ids)
+{
+	return false;
+}
+
 bool StackView::RemovePlatform(unsigned int credential_id, unsigned int platform_id, const std::vector<unsigned int>& ids)
 {
     RemoveView(ids);

@@ -44,12 +44,29 @@ protected:
 
     public:
 
+		QPushButton* m_btnEdit;
+		QPushButton* m_btnRemove;
         QLineEdit* m_editText[n];
-
         DropTable* m_tabView;
 
         void SetupUI(ContentView* pView)
         {
+			m_btnEdit = new QPushButton("Edit", pView);
+			m_btnEdit->setFixedHeight(ui_utils::def_widget_h);
+			m_btnEdit->setFont(ui_utils::MakeFont());
+			m_btnEdit->setStyleSheet(
+				"QPushButton{ background-color:transparent; border:none; color:#40B040; }\n"
+				"QPushButton:hover{ color:#FF4000; }\n"
+				"QPushButton:pressed{ color:#4040FF; }");
+
+			m_btnRemove = new QPushButton("Remove", pView);
+			m_btnRemove->setFixedHeight(ui_utils::def_widget_h);
+			m_btnRemove->setFont(ui_utils::MakeFont());
+			m_btnRemove->setStyleSheet(
+				"QPushButton{ background-color:transparent; border:none; color:#40B040; }\n"
+				"QPushButton:hover{ color:#FF4000; }\n"
+				"QPushButton:pressed{ color:#4040FF; }");
+
             CreateLabel(pView);
 
             m_tabView = new DropTable(pView, pView);
@@ -66,23 +83,31 @@ protected:
                 pvLayout2->addWidget(m_editText[i]);
             }
 
-            QHBoxLayout* phLayout = new QHBoxLayout;
-            phLayout->setMargin(0);
-            phLayout->setSpacing(0);
-            phLayout->addLayout(pvLayout1);
-            phLayout->addLayout(pvLayout2);
+			QHBoxLayout* phLayout1 = new QHBoxLayout;
+			phLayout1->setMargin(0);
+			phLayout1->setSpacing(8);
+			phLayout1->addStretch(1);
+			phLayout1->addWidget(m_btnEdit);
+			phLayout1->addWidget(m_btnRemove);
+
+            QHBoxLayout* phLayout2 = new QHBoxLayout;
+			phLayout2->setContentsMargins(0, 0, 0, 16);
+			phLayout2->setSpacing(0);
+			phLayout2->addLayout(pvLayout1);
+			phLayout2->addLayout(pvLayout2);
 
             QVBoxLayout* pvMainLayout = new QVBoxLayout;
             pvMainLayout->setMargin(0);
-            pvMainLayout->setSpacing(16);
-            pvMainLayout->addLayout(phLayout);
+            pvMainLayout->setSpacing(0);
+			pvMainLayout->addLayout(phLayout1);
+			pvMainLayout->addLayout(phLayout2);
             pvMainLayout->addWidget(m_tabView, 1);
 
             QHBoxLayout* phMainLayout = new QHBoxLayout;
-            phMainLayout->setMargin(4);
+            phMainLayout->setContentsMargins(4, 0, 4, 4);
             phMainLayout->setSpacing(0);
             phMainLayout->addStretch(1);
-            phMainLayout->addLayout(pvMainLayout, 2);
+            phMainLayout->addLayout(pvMainLayout, 8);
             phMainLayout->addStretch(1);
 
             pView->setLayout(phMainLayout);
@@ -107,11 +132,17 @@ protected:
         , _delegate(pDelegate)
     {
         _ui.SetupUI(this);
+
+		QObject::connect(_ui.m_btnEdit, &QPushButton::clicked, [this]() { OnClickedEdit(); });
+		QObject::connect(_ui.m_btnRemove, &QPushButton::clicked, [this]() { OnClickedRemove(); });
     }
 
     ui_type _ui;
 
     DelegateMainView* _delegate;
+
+	virtual void OnClickedEdit() { }
+	virtual void OnClickedRemove() { }
 
 };	// class ContentView
 
@@ -133,6 +164,10 @@ private:
     void OnEdit(unsigned int id) override;
     void OnRemove(unsigned int id) override;
     void OnMove(unsigned int id, int offset) override;
+	void OnSort(int cln, bool ascending) override;
+
+	void OnClickedEdit() override;
+	void OnClickedRemove() override;
 
 private:
 
@@ -158,6 +193,10 @@ private:
     void OnEdit(unsigned int id) override;
     void OnRemove(unsigned int id) override;
     void OnMove(unsigned int id, int offset) override;
+	void OnSort(int cln, bool ascending) override;
+
+	void OnClickedEdit() override;
+	void OnClickedRemove() override;
 
 private:
 
@@ -182,7 +221,11 @@ private:
     void OnAdd() override;
     void OnEdit(unsigned int id) override;
     void OnRemove(unsigned int id) override;
-    void OnMove(unsigned int id, int offset) override;
+	void OnMove(unsigned int id, int offset) override;
+	void OnSort(int cln, bool ascending) override;
+
+	void OnClickedEdit() override;
+	void OnClickedRemove() override;
 
 private:
 

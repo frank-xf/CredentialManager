@@ -65,7 +65,7 @@ void MainView::OnClickedNew()
         g_Credential().Clear();
         g_Credential().SetWord(From_QString(dlg.GetPassword()));
         g_Credential().SetUser(From_QString(dlg.GetUserName()));
-        g_Credential().SetComment(From_QString(dlg.GetComment()));        
+        g_Credential().SetComment(From_QString(dlg.GetComment()));
         g_Credential().Save(m_strFile.toStdString().c_str());
 
         ClearCredential();
@@ -189,7 +189,7 @@ bool MainView::OnAddPair(unsigned int id1, unsigned int id2, unsigned int id3)
             return true;
         }
     }
-    
+
     return false;
 }
 
@@ -295,6 +295,23 @@ bool MainView::OnUpdatePair(unsigned int id1, unsigned int id2, unsigned int id3
 
                 return true;
             }
+        }
+    }
+
+    return false;
+}
+
+bool MainView::OnRemoveCredential(unsigned int id1)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        QString strText = "Are you sure to remove credential \"" + To_QString(g_Credential().GetData().GetUser())
+            + "\"?\nThis operation is irreversible and the corresponding file will be deleted.";
+        if (QDialog::Accepted == ConfirmDialog(strText, this).exec())
+        {
+
+
+            return true;
         }
     }
 
@@ -452,6 +469,106 @@ bool MainView::OnMovePair(id_type id1, id_type id2, id_type id3, id_type id4, in
 
                 return true;
             }
+        }
+    }
+
+    return false;
+}
+
+bool MainView::OnSortPlatform(id_type id1, int cln, bool ascending)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        switch (cln)
+        {
+        case 0:
+            g_Credential().Sort([&ascending](const bnb::platform_type& a, const bnb::platform_type& b) {
+                if (a.GetName() == b.GetName())
+                    return (ascending ? (a.GetUrl() < b.GetUrl()) : (b.GetUrl() < a.GetUrl()));
+                else
+                    return (ascending ? (a.GetName() < b.GetName()) : (b.GetName() < a.GetName()));
+            });
+            break;
+        case 1:
+            g_Credential().Sort([&ascending](const bnb::platform_type& a, const bnb::platform_type& b) {
+                if (a.GetUrl() == b.GetUrl())
+                    return (ascending ? (a.GetName() < b.GetName()) : (b.GetName() < a.GetName()));
+                else
+                    return (ascending ? (a.GetUrl() < b.GetUrl()) : (b.GetUrl() < a.GetUrl()));
+            });
+            break;
+        default:
+            return false;
+        }
+
+        _ui.m_treeView->Reschedule(g_Credential());
+        _ui.m_viewStack->UpdateTable(id1);
+
+        return true;
+    }
+
+    return false;
+}
+
+bool MainView::OnSortAccount(id_type id1, id_type id2, int cln, bool ascending)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_platform = g_Credential().Find(id2))
+        {
+            switch (cln)
+            {
+            case 0:
+                ptr_platform->Sort([&ascending](const bnb::account_type& a, const bnb::account_type& b) {
+                    return (ascending ? (a.GetName() < b.GetName()) : (b.GetName() < a.GetName()));
+                });
+                break;
+            default:
+                return false;
+            }
+
+            _ui.m_treeView->Reschedule(*ptr_platform);
+            _ui.m_viewStack->UpdateTable(id1, id2);
+
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool MainView::OnSortPair(id_type id1, id_type id2, id_type id3, int cln, bool ascending)
+{
+    if (id1 == g_Credential().GetID())
+    {
+        if (auto ptr_account = g_Credential().Find(id2, id3))
+        {
+            switch (cln)
+            {
+            case 0:
+                ptr_account->Sort([&ascending](const bnb::pair_type& a, const bnb::pair_type& b) {
+                    if (a.GetKey() == b.GetKey())
+                        return (ascending ? (a.GetValue() < b.GetValue()) : (b.GetValue() < a.GetValue()));
+                    else
+                        return (ascending ? (a.GetKey() < b.GetKey()) : (b.GetKey() < a.GetKey()));
+                });
+                break;
+            case 1:
+                ptr_account->Sort([&ascending](const bnb::pair_type& a, const bnb::pair_type& b) {
+                    if (a.GetValue() == b.GetValue())
+                        return (ascending ? (a.GetKey() < b.GetKey()) : (b.GetKey() < a.GetKey()));
+                    else
+                        return (ascending ? (a.GetValue() < b.GetValue()) : (b.GetValue() < a.GetValue()));
+                });
+                break;
+            default:
+                return false;
+            }
+
+            _ui.m_treeView->Reschedule(*ptr_account);
+            _ui.m_viewStack->UpdateTable(id1, id2, id3);
+
+            return true;
         }
     }
 

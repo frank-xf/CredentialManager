@@ -25,7 +25,8 @@ public:
     bool UpdateTable(unsigned int credential_id, unsigned int platform_id);
     bool UpdateTable(unsigned int credential_id, unsigned int platform_id, unsigned int account_id);
 
-    bool RemovePlatform(unsigned int credential_id, unsigned int platform_id, const std::vector<unsigned int>& ids);
+	bool RemoveCredential(unsigned int credential_id, const std::vector<unsigned int>& ids);
+	bool RemovePlatform(unsigned int credential_id, unsigned int platform_id, const std::vector<unsigned int>& ids);
     bool RemoveAccount(unsigned int credential_id, unsigned int platform_id, unsigned int account_id, const std::vector<unsigned int>& ids);
     bool RemovePair(unsigned int credential_id, unsigned int platform_id, unsigned int account_id, unsigned int pair_id);
     unsigned int RemoveView(const std::vector<unsigned int>& ids);

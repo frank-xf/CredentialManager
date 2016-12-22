@@ -43,6 +43,7 @@ private:
     bool OnUpdateAccount(unsigned int id1, unsigned int id2, unsigned int id3) override;
     bool OnUpdatePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
 
+	bool OnRemoveCredential(unsigned int id1) override;
     bool OnRemovePlatform(unsigned int id1, unsigned int id2) override;
     bool OnRemoveAccount(unsigned int id1, unsigned int id2, unsigned int id3) override;
     bool OnRemovePair(unsigned int id1, unsigned int id2, unsigned int id3, unsigned int id4) override;
@@ -50,6 +51,10 @@ private:
     bool OnMovePlatform(id_type id1, id_type id2, int offset) override;
     bool OnMoveAccount(id_type id1, id_type id2, id_type id3, int offset) override;
     bool OnMovePair(id_type id1, id_type id2, id_type id3, id_type id4, int offset) override;
+
+	bool OnSortPlatform(id_type id1, int cln, bool ascending) override;
+	bool OnSortAccount(id_type id1, id_type id2, int cln, bool ascending) override;
+	bool OnSortPair(id_type id1, id_type id2, id_type id3, int cln, bool ascending) override;
 
 private:
 

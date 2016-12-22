@@ -478,7 +478,8 @@ void TreeView::OnTreeContextMenu(const QPoint & pos)
         {
         case bnb::credential_enum::credential:
             treeMenu.addAction(_ui.m_actEditCredential);
-            treeMenu.addAction(_ui.m_actModifyPassword);
+			treeMenu.addAction(_ui.m_actModifyPassword);
+			treeMenu.addAction(_ui.m_actDelCredential);
             treeMenu.addSeparator();
             treeMenu.addAction(_ui.m_actAddPlatform);
             break;
@@ -645,6 +646,14 @@ void TreeView::OnRemovePair()
                                         _delegate->OnRemovePair(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_pair));
 }
 
+void TreeView::OnRemoveCredential()
+{
+	if (QTreeWidgetItem* item_credential = currentItem())
+		if (bnb::credential_enum::credential == GetItemType(item_credential))
+			if (_delegate)
+				_delegate->OnRemoveCredential(GetItemID(item_credential));
+}
+
 QTreeWidgetItem * TreeView::_AddCredential(const bnb::Credential & credential)
 {
     QTreeWidgetItem* item_credential = new QTreeWidgetItem(this, { '[' + To_QString(credential.GetData().GetUser()) + ']' });
@@ -746,7 +755,8 @@ void TreeView::ui_type::SetupUI(TreeView* pView)
     m_actEditPlatform = new QAction(pView);
     m_actEditPair = new QAction(pView);
     m_actModifyPassword = new QAction(pView);
-    m_actEditCredential = new QAction(pView);
+	m_actEditCredential = new QAction(pView);
+	m_actDelCredential = new QAction(pView);
 
     RetranslateUI(pView);
 }
@@ -763,7 +773,8 @@ void TreeView::ui_type::RetranslateUI(TreeView * pView)
     m_actEditPlatform->setText("Edit Platform");
     m_actEditPair->setText("Edit Pair");
     m_actModifyPassword->setText("Modify Password");
-    m_actEditCredential->setText("Edit Credential");
+	m_actEditCredential->setText("Edit Credential");
+	m_actEditCredential->setText("Remove Credential");
 }
 
 QT_END_NAMESPACE

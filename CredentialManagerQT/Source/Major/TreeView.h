@@ -20,7 +20,7 @@ private:
         QAction* m_actEditPair;
         QAction* m_actModifyPassword;
         QAction* m_actEditCredential;
-        QAction* m_actRemoveCredential;
+        QAction* m_actDelCredential;
 
         void SetupUI(TreeView* pView);
         void RetranslateUI(TreeView* pView);
@@ -75,7 +75,8 @@ private:
     void OnMotifyPassword();
     void OnRemovePlatform();
     void OnRemoveAccount();
-    void OnRemovePair();
+	void OnRemovePair();
+	void OnRemoveCredential();
 
     QTreeWidgetItem* _AddCredential(const bnb::Credential & credential);
     QTreeWidgetItem* _AddPlatform(QTreeWidgetItem * parent, const bnb::platform_node& pp);

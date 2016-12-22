@@ -2,6 +2,7 @@
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
+#include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableWidget>
 
 #include "Credential/Credential.h"
@@ -66,7 +67,7 @@ void CredentialView::UpdateTable()
             ++nIndex;
         });
 
-        _ui.m_tabView->resizeColumnsToContents();
+        // _ui.m_tabView->resizeColumnsToContents();
     }
 }
 
@@ -118,6 +119,24 @@ void CredentialView::OnMove(unsigned int id, int offset)
 {
     if (_delegate)
         _delegate->OnMovePlatform(m_Credential.GetID(), id, offset);
+}
+
+void CredentialView::OnSort(int cln, bool ascending)
+{
+	if (_delegate)
+		_delegate->OnSortPlatform(m_Credential.GetID(), cln, ascending);
+}
+
+void CredentialView::OnClickedEdit()
+{
+	if (_delegate)
+		_delegate->OnUpdateCredential(m_Credential.GetID());
+}
+
+void CredentialView::OnClickedRemove()
+{
+	if (_delegate)
+		_delegate->OnRemoveCredential(m_Credential.GetID());
 }
 
 //------------------------------------------------------------------------------
@@ -181,7 +200,7 @@ void PlatformView::UpdateTable()
             ++nIndex;
         });
 
-        _ui.m_tabView->resizeColumnsToContents();
+        // _ui.m_tabView->resizeColumnsToContents();
     }
 }
 
@@ -233,9 +252,30 @@ void PlatformView::OnRemove(unsigned int id)
 
 void PlatformView::OnMove(unsigned int id, int offset)
 {
-    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
-        if (_delegate)
-            _delegate->OnMoveAccount(ptr_credential->GetID(), m_Platform.GetID(), id, offset);
+	if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+		if (_delegate)
+			_delegate->OnMoveAccount(ptr_credential->GetID(), m_Platform.GetID(), id, offset);
+}
+
+void PlatformView::OnSort(int cln, bool ascending)
+{
+	if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+		if (_delegate)
+			_delegate->OnSortAccount(ptr_credential->GetID(), m_Platform.GetID(), cln, ascending);
+}
+
+void PlatformView::OnClickedEdit()
+{
+	if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+		if (_delegate)
+			_delegate->OnUpdatePlatform(ptr_credential->GetID(), m_Platform.GetID());
+}
+
+void PlatformView::OnClickedRemove()
+{
+	if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+		if (_delegate)
+			_delegate->OnRemovePlatform(ptr_credential->GetID(), m_Platform.GetID());
 }
 
 //------------------------------------------------------------------------------
@@ -298,7 +338,7 @@ void AccountView::UpdateTable()
             ++nIndex;
         });
 
-        _ui.m_tabView->resizeColumnsToContents();
+        // _ui.m_tabView->resizeColumnsToContents();
     }
 }
 
@@ -357,6 +397,30 @@ void AccountView::OnMove(unsigned int id, int offset)
         if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
             if (_delegate)
                 _delegate->OnMovePair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), id, offset);
+}
+
+void AccountView::OnSort(int cln, bool ascending)
+{
+	if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+		if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+			if (_delegate)
+				_delegate->OnSortPair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), cln, ascending);
+}
+
+void AccountView::OnClickedEdit()
+{
+	if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+		if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+			if (_delegate)
+				_delegate->OnUpdateAccount(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID());
+}
+
+void AccountView::OnClickedRemove()
+{
+	if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+		if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+			if (_delegate)
+				_delegate->OnRemoveAccount(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID());
 }
 
 //------------------------------------------------------------------------------
