@@ -7,6 +7,7 @@
 
 #include "Credential/Credential.h"
 
+#include "credential_qt_string.h"
 #include "credential_qt_utils.h"
 
 #include "Widget/NewDialog.h"
@@ -41,7 +42,7 @@ void NewDialog::OnClickedOK()
         return;
     }
 
-    if (!ui_utils::ValidateName(_ui.m_editUserName->text()))
+    if (!bnb::Credential::ValidateName(From_QString(_ui.m_editUserName->text())))
     {
         _ui.m_labHint->setText("The user name you entered is invalidate !");
         return;
@@ -99,11 +100,11 @@ void NewDialog::ui_type::SetupUI(NewDialog * pView)
 
     m_labHint = ui_utils::MakeDynamicLabel(pView, Qt::red, Qt::AlignCenter);
 
-    m_editUserName = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
-    m_editPassword = ui_utils::MakePasswordLine(pView, ui_utils::edit_path_w);
-    m_editValidate = ui_utils::MakePasswordLine(pView, ui_utils::edit_path_w);
-    m_editComment = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
-    m_editFilePath = ui_utils::MakeLineEdit(pView, ui_utils::edit_path_w);
+    m_editUserName = ui_utils::MakeLineEdit(pView, ui_utils::edit_default_w);
+    m_editPassword = ui_utils::MakePasswordLine(pView, ui_utils::edit_default_w);
+    m_editValidate = ui_utils::MakePasswordLine(pView, ui_utils::edit_default_w);
+    m_editComment = ui_utils::MakeLineEdit(pView, ui_utils::edit_default_w);
+    m_editFilePath = ui_utils::MakeLineEdit(pView, ui_utils::edit_default_w);
 
     m_btnBrowse = new QPushButton(pView);
     m_btnBrowse->setFixedHeight(ui_utils::def_widget_h);

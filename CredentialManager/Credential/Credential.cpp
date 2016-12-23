@@ -355,6 +355,27 @@ namespace bnb
         return false;
     }
 
+    bool Credential::ValidateName(const string_type & strName)
+    {
+        if (strName.empty()) return false;
+
+        for (auto character : strName)
+        {
+            switch (character)
+            {
+            case '\\': case '\'': case '\"': case '\n': case '\t':
+            case '~': case '!': case '#': case '$': case '%': case '^':
+            case '&': case '*': case '(': case ')': case '[': case ']':
+            case '{': case '}': case '<': case '>': case '+': case '|':
+            case ':': case ';': case ',': case '?': case '/': return false;
+            default:
+                break;
+            }
+        }
+
+        return true;
+    }
+
     bool Credential::Encoding(memory_type & mt, const byte_type * key, size_t n)
     {
         if (key && n)

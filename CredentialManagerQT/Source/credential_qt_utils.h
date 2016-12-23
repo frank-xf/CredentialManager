@@ -17,12 +17,10 @@ namespace ui_utils
         def_widget_h = 24,
 
         lab_mark_w = 16,
-        lab_password_w = 100,
         btn_default_w = 64,
         tree_item_w = 160,
-        edit_default_w = 280,
+        edit_default_w = 320,
         edit_password_w = 240,
-        edit_path_w = 320,
 
         tree_view_min_w = 160,
         tree_view_max_w = tree_view_min_w << 1
@@ -35,7 +33,6 @@ namespace ui_utils
     const QColor g_clrPair{ 32, 160, 32 };
     const QColor g_clrLabel{ 0, 64, 255 };
 
-	bool ValidateName(const QString& strName);
     void SetBackgroundColor(QWidget* pView, const QColor& color);
 
     QFont MakeFont(unsigned int size = def_text_size, bool bold = false);

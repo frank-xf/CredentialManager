@@ -39,7 +39,7 @@ void EditCredentialDialog::OnClickedOK()
         return;
     }
 
-    if (!ui_utils::ValidateName(_ui.m_editText[0]->text()))
+    if (!bnb::Credential::ValidateName(From_QString(_ui.m_editText[0]->text())))
     {
         _ui.m_labHint->setText("The user name you entered is invalid !");
         return;
@@ -212,7 +212,7 @@ void EditPlatformDialog::OnClickedOK()
         return;
     }
 
-    if (!ui_utils::ValidateName(_ui.m_editText[0]->text()))
+    if (!bnb::Credential::ValidateName(From_QString(_ui.m_editText[0]->text())))
     {
         _ui.m_labHint->setText("The platform you entered is invalid !");
         return;
@@ -325,7 +325,7 @@ void EditAccountDialog::OnClickedOK()
         return;
     }
 
-    if (!ui_utils::ValidateName(_ui.m_editText[1]->text()))
+    if (!bnb::Credential::ValidateName(From_QString(_ui.m_editText[1]->text())))
     {
         _ui.m_labHint->setText("The account you entered is invalid !");
         return;
@@ -434,7 +434,7 @@ void EditPairDialog::OnClickedOK()
         return;
     }
 
-    if (!ui_utils::ValidateName(_ui.m_editText[1]->text()))
+    if (!bnb::Credential::ValidateName(From_QString(_ui.m_editText[1]->text())))
     {
         _ui.m_labHint->setText("The key you entered is invalid !");
         return;
@@ -454,7 +454,7 @@ void EditPairDialog::OnClickedOK()
 
         if (!m_Account.Update(m_Pair->GetData(), pair))
         {
-            _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
+            _ui.m_labHint->setText("The key you entered already exists or is invalid !");
             return;
         }
     }
@@ -463,7 +463,7 @@ void EditPairDialog::OnClickedOK()
         m_Pair = m_Account.PushBack(pair);
         if (nullptr == m_Pair)
         {
-            _ui.m_labHint->setText("The account name you entered already exists or is invalid !");
+            _ui.m_labHint->setText("The key you entered already exists or is invalid !");
             return;
         }
     }

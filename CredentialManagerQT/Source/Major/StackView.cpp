@@ -21,7 +21,7 @@ StackView::StackView(DelegateType* pDelegate, QWidget * parent)
     setObjectName("StackView");
     ui_utils::SetBackgroundColor(this, Qt::white);
 
-    m_labHint = new QLabel("Please open or new a credential file !", this);
+    m_labHint = new QLabel("Please open or new a credential file.", this);
     m_labHint->setAlignment(Qt::AlignCenter);
     m_labHint->setMinimumSize(512, 256);
     m_labHint->setStyleSheet("QLabel{ background:transparent; color:#20A020; }");

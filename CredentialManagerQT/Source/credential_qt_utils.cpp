@@ -120,47 +120,6 @@ namespace ui_utils
         return phLayout;
     }
 
-    bool ValidateName(const QString & strName)
-    {
-        if (strName.isEmpty()) return false;
-
-        if (def_text_length < strName.size()) return false;
-
-        for (auto character : strName)
-        {
-            if ('~' == character) return false;
-            if ('!' == character) return false;
-            if ('#' == character) return false;
-            if ('$' == character) return false;
-            if ('%' == character) return false;
-            if ('^' == character) return false;
-            if ('&' == character) return false;
-            if ('*' == character) return false;
-            if ('(' == character) return false;
-            if (')' == character) return false;
-            if ('[' == character) return false;
-            if (']' == character) return false;
-            if ('{' == character) return false;
-            if ('}' == character) return false;
-            if ('<' == character) return false;
-            if ('>' == character) return false;
-            if ('+' == character) return false;
-            if ('|' == character) return false;
-            if (':' == character) return false;
-            if (';' == character) return false;
-            if (',' == character) return false;
-            if ('?' == character) return false;
-            if ('/' == character) return false;
-            if ('\\' == character) return false;
-            if ('\'' == character) return false;
-            if ('\"' == character) return false;
-            if ('\n' == character) return false;
-            if ('\t' == character) return false;
-        }
-
-        return true;
-    }
-
 }
 
 QT_END_NAMESPACE

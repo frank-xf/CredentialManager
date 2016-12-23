@@ -761,6 +761,7 @@ namespace bnb
         const account_node* Find(id_type id1, id_type id2) const;
         const pair_node* Find(id_type id1, id_type id2, id_type id3) const;
 
+        static bool ValidateName(const string_type& strName);
         static bool Encoding(memory_type& mt, const byte_type* key, size_t n);
         static bool Decoding(memory_type& mt, const byte_type* key, size_t n);
         static bool CheckFile(const char* file, memory_type* dst);
