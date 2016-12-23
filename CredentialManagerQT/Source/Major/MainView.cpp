@@ -1,3 +1,9 @@
+#include <Windows.h>
+
+#ifdef GetUserName
+#undef GetUserName
+#endif
+
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QTreeWidget>
@@ -33,7 +39,6 @@ MainView::MainView(QWidget *parent)
     : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
-    setWindowOpacity(0.96);
 
     _ui.SetupUI(this);
 }
@@ -603,6 +608,39 @@ bool MainView::OnSortPair(id_type credentialId, id_type platformId, id_type acco
     }
 
     return false;
+}
+
+bool MainView::nativeEvent(const QByteArray &eventType, void *pMessage, long *pResult)
+{
+    if (MSG* pMsg = static_cast<MSG*>(pMessage))
+    {
+        switch (pMsg->message)
+        {
+        case WM_ACTIVATE:
+        {
+            switch (pMsg->wParam)
+            {
+            case WA_INACTIVE:
+            {
+                if (g_Credential().GetData().IsValid())
+                    setWindowOpacity(0.16);
+                break;
+            }
+            case WA_ACTIVE:
+            case WA_CLICKACTIVE:
+                setWindowOpacity(0.96);
+                break;
+            default:
+                break;
+            }
+            break;
+        }
+        default:
+            break;
+        }
+    }
+
+    return QWidget::nativeEvent(eventType, pMessage, pResult);
 }
 
 void MainView::ui_type::SetupUI(MainView* pView)

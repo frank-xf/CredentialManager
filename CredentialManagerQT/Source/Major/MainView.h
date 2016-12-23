@@ -56,6 +56,8 @@ private:
     bool OnSortAccount(id_type credentialId, id_type platformId, int cln, bool ascending) override;
     bool OnSortPair(id_type credentialId, id_type platformId, id_type accountId, int cln, bool ascending) override;
 
+    bool nativeEvent(const QByteArray &eventType, void *pMessage, long *pResult) override;
+
 private:
 
     ui_type _ui;
