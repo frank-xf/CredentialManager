@@ -1,3 +1,7 @@
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
+
 #include <Windows.h>
 
 #ifdef GetUserName
@@ -29,8 +33,8 @@
 
 bnb::Credential& g_Credential()
 {
-    static bnb::Credential _just_a_credential_;
-    return (_just_a_credential_);
+    static bnb::Credential _just_a_credential_object_;
+    return (_just_a_credential_object_);
 }
 
 QT_BEGIN_NAMESPACE

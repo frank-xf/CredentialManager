@@ -2,11 +2,9 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTableWidget>
-#include <QtWidgets/QStyledItemDelegate>
 
 #include "credential_qt_utils.h"
 
-#include "Widget/NoFocusDelegate.h"
 #include "Widget/DropTable.h"
 
 static inline unsigned int GetItemID(const QTableWidgetItem* item)
@@ -22,22 +20,21 @@ DropTable::DropTable(delegate_type* pDelegate, QWidget * parent)
 {
     _ui.SetupUI(this);
 
-    setItemDelegate(new NoFocusDelegate);
     setMinimumSize(512, 128);
+    setFocusPolicy(Qt::NoFocus);
+    setContextMenuPolicy(Qt::CustomContextMenu);
 
     setShowGrid(true);
     setAcceptDrops(true);
     setDragEnabled(true);
-    setDropIndicatorShown(true);
+    setDropIndicatorShown(false);
     setDragDropOverwriteMode(false);
 
     setSelectionBehavior(QAbstractItemView::SelectRows);
     setSelectionMode(QAbstractItemView::SingleSelection);
     setDefaultDropAction(Qt::MoveAction);
     setDragDropMode(QAbstractItemView::InternalMove);
-
     setEditTriggers(QAbstractItemView::NoEditTriggers);
-    setContextMenuPolicy(Qt::CustomContextMenu);
 
     verticalHeader()->setSectionResizeMode(QHeaderView::Fixed);
     verticalHeader()->setDefaultSectionSize(ui_utils::def_widget_h);
@@ -50,8 +47,9 @@ DropTable::DropTable(delegate_type* pDelegate, QWidget * parent)
     horizontalHeader()->setFont(ui_utils::MakeFont());
     horizontalHeader()->setStyleSheet("QHeaderView::section{ background-color:#F0F0F0; color: #FF4080; }");
 
-    QObject::connect(this, &QTableWidget::customContextMenuRequested, this, &DropTable::OnTableContextMenu);
+    setStyleSheet("QTableView::item:selected:!active{ background:#1080F0; color:white; }");
 
+    QObject::connect(this, &QTableWidget::customContextMenuRequested, this, &DropTable::OnTableContextMenu);
     QObject::connect(_ui.m_actAdd, &QAction::triggered, this, &DropTable::OnAdd);
     QObject::connect(_ui.m_actEdit, &QAction::triggered, this, &DropTable::OnEdit);
     QObject::connect(_ui.m_actRemove, &QAction::triggered, this, &DropTable::OnRemove);

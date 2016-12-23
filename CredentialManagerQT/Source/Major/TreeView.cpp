@@ -3,7 +3,6 @@
 #include <QtWidgets/QHeaderView>
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QStyleFactory>
-#include <QtWidgets/QStyledItemDelegate>
 
 #include "Credential/Credential.h"
 
@@ -11,7 +10,6 @@
 #include "credential_qt_utils.h"
 #include "credential_qt_delegate.h"
 
-#include "Widget/NoFocusDelegate.h"
 #include "Major/TreeView.h"
 
 QT_BEGIN_NAMESPACE
@@ -83,7 +81,7 @@ TreeView::TreeView(DelegateType* pDelegate, QWidget * parent)
 {
     _ui.SetupUI(this);
 
-    setItemDelegate(new NoFocusDelegate);
+    setFocusPolicy(Qt::NoFocus);
 
     setMinimumWidth(ui_utils::tree_view_min_w);
     setMaximumWidth(ui_utils::tree_view_max_w);
@@ -95,12 +93,9 @@ TreeView::TreeView(DelegateType* pDelegate, QWidget * parent)
     setHeaderHidden(true);
     setRootIsDecorated(false);
 
-    setStyleSheet(
-        "QToolTip{ background:white; border:1px solid #C0C0C0; opacity:192; color:black; }\n"
+    setStyleSheet("QToolTip{ background:white; border:1px solid #C0C0C0; opacity:192; color:black; }\n"
         "QTreeView::item{ border: none; }\n"
         "QTreeView::item:hover{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #B0FFB0, stop:1 #F0FFF0); }\n"
-        "QTreeView::item:selected{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #F04020, stop:1 #F0FFF0); }\n"
-        "QTreeView::item:selected:active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #FF2040, stop:1 #F0FFF0); color:white; }\n"
         "QTreeView::item:selected:!active{ background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop:0 #20B020, stop:1 #F0FFF0); color:white; }");
 
     QObject::connect(this, &QTreeWidget::customContextMenuRequested, this, &TreeView::OnTreeContextMenu);
@@ -674,8 +669,6 @@ QTreeWidgetItem* TreeView::_AddCredential(const bnb::Credential & credential)
                 _AddPair(item_account, pair);
             });
         });
-
-        item_platform->setExpanded(true);
     });
 
     item_credential->setExpanded(true);

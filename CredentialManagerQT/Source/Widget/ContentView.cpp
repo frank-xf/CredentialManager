@@ -66,8 +66,6 @@ void CredentialView::UpdateTable()
 
             ++nIndex;
         });
-
-        // _ui.m_tabView->resizeColumnsToContents();
     }
 }
 
@@ -199,8 +197,6 @@ void PlatformView::UpdateTable()
 
             ++nIndex;
         });
-
-        // _ui.m_tabView->resizeColumnsToContents();
     }
 }
 
@@ -337,8 +333,6 @@ void AccountView::UpdateTable()
 
             ++nIndex;
         });
-
-        // _ui.m_tabView->resizeColumnsToContents();
     }
 }
 
