@@ -2,15 +2,11 @@
 #include <string>
 #include <fstream>
 
-#include<iostream>
-
 #include "encrypt/RC4.h"
 #include "encrypt/sha256.h"
 #include "pugixml/pugixml.hpp"
 
 #include "Credential.h"
-
-void UTF8toANSI(std::string &strUTF8);
 
 namespace bnb
 {
@@ -54,11 +50,11 @@ namespace bnb
         L"encoding"
     };
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
 #define _sKey(k) ::bnb::_credential_key_string[static_cast<unsigned int>(::bnb::_credential_key_index::k)]
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
     inline size_t _hash_seq(const byte_type *ptr, size_t n)
     {
@@ -73,7 +69,7 @@ namespace bnb
         return (_value);
     }
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
     struct xml_memory_writer : pugi::xml_writer
     {
@@ -92,7 +88,7 @@ namespace bnb
 
     };
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
     void account_node::Updated(param_type aType)
     {
@@ -100,7 +96,7 @@ namespace bnb
             ptr->Updated(aType, static_cast<param_type>(credential_enum::pair));
     }
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
     void platform_node::Updated(param_type aType)
     {
@@ -113,7 +109,7 @@ namespace bnb
             ptr->Updated(aType, cType);
     }
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
     unsigned long long credential_type::_GetTime()
     {
@@ -138,23 +134,18 @@ namespace bnb
         return true;
     }
 
-    //------------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 
-    void Credential::SetWord(const string_type& strWord)
+    void Credential::UpdateWord(const string_type & strWord)
     {
-        _data.m_strWord = strWord;
+        SetWord(strWord);
         Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::credential));
     }
 
-    void Credential::SetUser(const string_type& strUser)
+    void Credential::UpdateInfo(const string_type & strUser, const string_type& strComment)
     {
-        _data.m_strUser = strUser;
-        Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::credential));
-    }
-
-    void Credential::SetComment(const string_type& strComment)
-    {
-        _data.m_strComment = strComment;
+        SetUser(strUser);
+        SetComment(strComment);
         Updated(static_cast<param_type>(action_type::at_update), static_cast<param_type>(credential_enum::credential));
     }
 
@@ -168,6 +159,11 @@ namespace bnb
         Updated(static_cast<param_type>(action_type::at_clear), static_cast<param_type>(credential_enum::credential));
     }
 
+    void Credential::RegisterHandle(const updated_handle_type& pFunc)
+    {
+        _UpdatedHandle = pFunc;
+    }
+
     void Credential::Updated(param_type aType)
     {
         Updated(aType, static_cast<param_type>(credential_enum::platform));
@@ -177,31 +173,8 @@ namespace bnb
     {
         _data.UpdateTime();
 
-        switch (static_cast<action_type>(aType))
-        {
-        case action_type::at_insert:
-        case action_type::at_delete:
-        case action_type::at_update:
-        case action_type::at_clear:
-        case action_type::at_move:
-        case action_type::at_sort:
-        case action_type::at_none:
-        default:
-            break;
-        }
-
-        const char* str1[] = { "none", "insert" , "delete" , "update" , "move" , "sort", "clear" };
-        const char* str2[] = { "credential", "platform" , "account" , "pair" };
-
-        memory_type xml;
-
-        ToXml(xml);
-        std::string _xml((char*)xml.c_str(), xml.size());
-        UTF8toANSI(_xml);
-
-        std::cout << str1[aType] << ": " << str2[cType] << std::endl;
-        std::cout << _xml << std::endl;
-        std::cout << "-------------------------------------------" << std::endl << std::endl;
+        if (_UpdatedHandle)
+            _UpdatedHandle(*this, aType, cType);
     }
 
     account_node* Credential::Find(id_type id1, id_type id2)
@@ -455,25 +428,4 @@ namespace bnb
         return result;
     }
 
-}
-
-#include <windows.h>
-
-void UTF8toANSI(std::string &strUTF8)
-{
-    //获取转换为多字节后需要的缓冲区大小，创建多字节缓冲区  
-    unsigned int nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, NULL, NULL);
-    wchar_t *wszBuffer = new wchar_t[nLen + 1];
-    nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, wszBuffer, nLen);
-    wszBuffer[nLen] = 0;
-
-    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, NULL, NULL, NULL, NULL);
-    char *szBuffer = new char[nLen + 1];
-    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, szBuffer, nLen, NULL, NULL);
-    szBuffer[nLen] = 0;
-
-    strUTF8 = szBuffer;
-    //清理内存  
-    delete[]szBuffer;
-    delete[]wszBuffer;
 }

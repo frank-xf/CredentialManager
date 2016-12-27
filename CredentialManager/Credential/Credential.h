@@ -1,11 +1,14 @@
 #ifndef _bnb_Credential_H_
 #define _bnb_Credential_H_
 
+#include <functional>
+
 namespace std
 {
     template<typename _Ty> class allocator;
     template<typename _Ty> struct char_traits;
     template<typename _Ty, typename _Traits, typename _Alloc> class basic_string;
+    template<class _Fty> class function;
 }
 
 namespace bnb
@@ -35,7 +38,7 @@ namespace bnb
         using id_type = unsigned int;
 
         index_type() : _id(_NextID()) { }
-        index_type(const index_type&) : _id(_NextID()) { }
+        index_type(const index_type&) : index_type() { }
         index_type& operator = (const index_type&) { return *this; }
         virtual ~index_type() { }
 
@@ -736,14 +739,22 @@ namespace bnb
         Credential(const Credential&) = delete;
         Credential& operator=(const Credential&) = delete;
 
+        using updated_handle_type = std::function<void(const Credential&, param_type, param_type)>;
+        updated_handle_type _UpdatedHandle;
+
     public:
 
         Credential() = default;
 
+        void SetWord(const string_type& strWord) { _data.m_strWord = strWord; }
+        void SetUser(const string_type& strUser) { _data.m_strUser = strUser; }
+        void SetComment(const string_type& strComment) { _data.m_strComment = strComment; }
+
+        void RegisterHandle(const updated_handle_type& pFunc);
+
         void Clear();
-        void SetWord(const string_type& strWord);
-        void SetUser(const string_type& strUser);
-        void SetComment(const string_type& strDisplay);
+        void UpdateWord(const string_type& strWord);
+        void UpdateInfo(const string_type& strUser, const string_type& strComment);
 
         void Updated(param_type aType) override;
         void Updated(param_type aType, param_type cType);

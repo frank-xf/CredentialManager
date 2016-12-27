@@ -22,10 +22,12 @@ public:
     int c{3};
 };
 
+int sub(int a, int b) { return a - b; }
+
 
 int main()
 {
-	fun1();
+	//fun1();
     /*
     TypeA a;
     TypeA b(10);
@@ -38,6 +40,12 @@ int main()
     d.Show();
 
     */
+    int a = 3, b = 8;
+    auto f = std::bind(sub, a, std::placeholders::_1);
+    int x = f(2);
+    a = 7;
+    int y = f(4);
+
     return (0);
 }
 

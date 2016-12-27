@@ -27,6 +27,7 @@ private:
 
     void AddCredential();
     void ClearCredential();
+    void CredentialUpdated(unsigned long aType, unsigned long cType);
 
     void OnClickedNew() override;
     void OnClickedOpen() override;

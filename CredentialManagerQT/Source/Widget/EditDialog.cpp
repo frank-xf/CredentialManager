@@ -54,8 +54,7 @@ void EditCredentialDialog::OnClickedOK()
         return;
     }
 
-    m_Credential.SetUser(strUserName);
-    m_Credential.SetComment(strComment);
+    m_Credential.UpdateInfo(strUserName, strComment);
 
     accept();
 }
@@ -127,7 +126,7 @@ void EditPasswordDialog::OnClickedOK()
         return;
     }
 
-    m_Credential.SetWord(From_QString(_ui.m_editText[1]->text()));
+    m_Credential.UpdateWord(From_QString(_ui.m_editText[1]->text()));
 
     accept();
 }

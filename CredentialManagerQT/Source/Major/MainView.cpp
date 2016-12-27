@@ -31,6 +31,10 @@
 #include "Major/TreeView.h"
 #include "Major/MainView.h"
 
+#include<iostream>
+
+void UTF8toANSI(std::string &strUTF8);
+
 bnb::Credential& g_Credential()
 {
     static bnb::Credential _just_a_credential_object_;
@@ -45,6 +49,8 @@ MainView::MainView(QWidget *parent)
     setAttribute(Qt::WA_DeleteOnClose, true);
 
     _ui.SetupUI(this);
+
+    g_Credential().RegisterHandle(std::bind(&MainView::CredentialUpdated, this, std::placeholders::_2, std::placeholders::_3));
 }
 
 void MainView::AddCredential()
@@ -60,6 +66,37 @@ void MainView::ClearCredential()
 {
     _ui.m_treeView->ClearCredential();
     _ui.m_viewStack->ClearCredential();
+}
+
+void MainView::CredentialUpdated(unsigned long aType, unsigned long cType)
+{
+    g_Credential().Save(m_strFile.toStdString().c_str());
+
+    switch (static_cast<bnb::action_type>(aType))
+    {
+    case bnb::action_type::at_insert:
+    case bnb::action_type::at_delete:
+    case bnb::action_type::at_update:
+    case bnb::action_type::at_clear:
+    case bnb::action_type::at_move:
+    case bnb::action_type::at_sort:
+    case bnb::action_type::at_none:
+    default:
+        break;
+    }
+
+    const char* str1[] = { "none", "insert" , "delete" , "update" , "move" , "sort", "clear" };
+    const char* str2[] = { "credential", "platform" , "account" , "pair" };
+
+    bnb::memory_type xml;
+
+    g_Credential().ToXml(xml);
+    std::string _xml((char*)xml.c_str(), xml.size());
+    UTF8toANSI(_xml);
+
+    std::cout << str1[aType] << ": " << str2[cType] << std::endl;
+    std::cout << _xml << std::endl;
+    std::cout << "-------------------------------------------" << std::endl << std::endl;
 }
 
 void MainView::OnClickedNew()
@@ -112,13 +149,13 @@ void MainView::OnClickedOpen()
                 return;
             }
 
-            g_Credential().SetWord(password);
-
             if (!g_Credential().FromXml(_xml))
             {
                 HintDialog(hint_type::ht_error, "Anaylze file failed !", this).exec();
                 return;
             }
+
+            g_Credential().SetWord(password);
 
             m_strFile = strFile;
 
@@ -145,8 +182,6 @@ bool MainView::OnAddPlatform(id_type credentialId)
         EditPlatformDialog dlg(g_Credential(), nullptr, this);
         if (QDialog::Accepted == dlg.exec())
         {
-            g_Credential().Save(m_strFile.toStdString().c_str());
-
             _ui.m_treeView->AddPlatform(*dlg.GetPlatform());
             _ui.m_viewStack->AddPlatform(*dlg.GetPlatform());
         }
@@ -166,8 +201,6 @@ bool MainView::OnAddAccount(id_type credentialId, id_type platformId)
             EditAccountDialog dlg(*ptr_platform, nullptr, this);
             if (QDialog::Accepted == dlg.exec())
             {
-                g_Credential().Save(m_strFile.toStdString().c_str());
-
                 _ui.m_treeView->AddAccount(*dlg.GetAccount());
                 _ui.m_viewStack->AddAccount(*dlg.GetAccount());
             }
@@ -188,8 +221,6 @@ bool MainView::OnAddPair(id_type credentialId, id_type platformId, id_type accou
             EditPairDialog dlg(*ptr_account, nullptr, this);
             if (QDialog::Accepted == dlg.exec())
             {
-                g_Credential().Save(m_strFile.toStdString().c_str());
-
                 _ui.m_treeView->AddPair(*dlg.GetPair());
                 _ui.m_viewStack->AddPair(*dlg.GetPair());
             }
@@ -208,8 +239,6 @@ bool MainView::OnUpdatePassword(id_type credentialId)
         EditPasswordDialog dlg(g_Credential(), this);
         if (QDialog::Accepted == dlg.exec())
         {
-            g_Credential().Save(m_strFile.toStdString().c_str());
-
             _ui.m_viewStack->UpdateCredential(credentialId);
         }
 
@@ -226,8 +255,6 @@ bool MainView::OnUpdateCredential(id_type credentialId)
         EditCredentialDialog dlg(g_Credential(), this);
         if (QDialog::Accepted == dlg.exec())
         {
-            g_Credential().Save(m_strFile.toStdString().c_str());
-
             _ui.m_treeView->UpdateCredential(g_Credential());
             _ui.m_viewStack->UpdateCredential(credentialId);
         }
@@ -247,8 +274,6 @@ bool MainView::OnUpdatePlatform(id_type credentialId, id_type platformId)
             EditPlatformDialog dlg(g_Credential(), ptr_platform, this);
             if (QDialog::Accepted == dlg.exec())
             {
-                g_Credential().Save(m_strFile.toStdString().c_str());
-
                 _ui.m_treeView->UpdatePlatform(*dlg.GetPlatform());
                 _ui.m_viewStack->UpdatePlatform(credentialId, platformId);
             }
@@ -271,8 +296,6 @@ bool MainView::OnUpdateAccount(id_type credentialId, id_type platformId, id_type
                 EditAccountDialog dlg(*ptr_platform, ptr_account, this);
                 if (QDialog::Accepted == dlg.exec())
                 {
-                    g_Credential().Save(m_strFile.toStdString().c_str());
-
                     _ui.m_treeView->UpdateAccount(*dlg.GetAccount());
                     _ui.m_viewStack->UpdateAccount(credentialId, platformId, accountId);
                 }
@@ -295,8 +318,6 @@ bool MainView::OnUpdatePair(id_type credentialId, id_type platformId, id_type ac
                 EditPairDialog dlg(*ptr_account, ptr_pair, this);
                 if (QDialog::Accepted == dlg.exec())
                 {
-                    g_Credential().Save(m_strFile.toStdString().c_str());
-
                     _ui.m_treeView->UpdatePair(*dlg.GetPair());
                     _ui.m_viewStack->UpdatePair(credentialId, accountId, pairId);
                 }
@@ -361,8 +382,6 @@ bool MainView::OnRemovePlatform(id_type credentialId, id_type platformId)
 
                 if (g_Credential().Remove(platformId))
                 {
-                    g_Credential().Save(m_strFile.toStdString().c_str());
-
                     _ui.m_treeView->RemovePlatform(credentialId, platformId);
                     _ui.m_viewStack->RemovePlatform(credentialId, platformId, vtrIds);
 
@@ -397,8 +416,6 @@ bool MainView::OnRemoveAccount(id_type credentialId, id_type platformId, id_type
 
                     if (ptr_platform->Remove(accountId))
                     {
-                        g_Credential().Save(m_strFile.toStdString().c_str());
-
                         _ui.m_treeView->RemoveAccount(credentialId, platformId, accountId);
                         _ui.m_viewStack->RemoveAccount(credentialId, platformId, accountId, vtrIds);
 
@@ -429,8 +446,6 @@ bool MainView::OnRemovePair(id_type credentialId, id_type platformId, id_type ac
                 {
                     if (ptr_account->Remove(pairId))
                     {
-                        g_Credential().Save(m_strFile.toStdString().c_str());
-
                         _ui.m_treeView->RemovePair(credentialId, platformId, accountId, pairId);
                         _ui.m_viewStack->RemovePair(credentialId, platformId, accountId, pairId);
 
@@ -454,8 +469,6 @@ bool MainView::OnMovePlatform(id_type credentialId, id_type platformId, int offs
     {
         if (g_Credential().Move(platformId, offset))
         {
-            g_Credential().Save(m_strFile.toStdString().c_str());
-
             _ui.m_treeView->MovePlatform(credentialId, platformId, offset);
             _ui.m_viewStack->UpdateTable(credentialId);
 
@@ -474,8 +487,6 @@ bool MainView::OnMoveAccount(id_type credentialId, id_type platformId, id_type a
         {
             if (ptr_platform->Move(accountId, offset))
             {
-                g_Credential().Save(m_strFile.toStdString().c_str());
-
                 _ui.m_treeView->MoveAccount(credentialId, platformId, accountId, offset);
                 _ui.m_viewStack->UpdateTable(credentialId, platformId);
 
@@ -495,8 +506,6 @@ bool MainView::OnMovePair(id_type credentialId, id_type platformId, id_type acco
         {
             if (ptr_account->Move(pairId, offset))
             {
-                g_Credential().Save(m_strFile.toStdString().c_str());
-
                 _ui.m_treeView->MovePair(credentialId, platformId, accountId, pairId, offset);
                 _ui.m_viewStack->UpdateTable(credentialId, platformId, accountId);
 
@@ -534,8 +543,6 @@ bool MainView::OnSortPlatform(id_type credentialId, int cln, bool ascending)
             return false;
         }
 
-        g_Credential().Save(m_strFile.toStdString().c_str());
-
         _ui.m_treeView->Reschedule(g_Credential());
         _ui.m_viewStack->UpdateTable(credentialId);
 
@@ -561,8 +568,6 @@ bool MainView::OnSortAccount(id_type credentialId, id_type platformId, int cln, 
             default:
                 return false;
             }
-
-            g_Credential().Save(m_strFile.toStdString().c_str());
 
             _ui.m_treeView->Reschedule(*ptr_platform);
             _ui.m_viewStack->UpdateTable(credentialId, platformId);
@@ -601,8 +606,6 @@ bool MainView::OnSortPair(id_type credentialId, id_type platformId, id_type acco
             default:
                 return false;
             }
-
-            g_Credential().Save(m_strFile.toStdString().c_str());
 
             _ui.m_treeView->Reschedule(*ptr_account);
             _ui.m_viewStack->UpdateTable(credentialId, platformId, accountId);
@@ -692,4 +695,23 @@ void Init()
 {
     QT_PREPEND_NAMESPACE(MainView)* _viewMain = new QT_PREPEND_NAMESPACE(MainView);
     _viewMain->show();
+}
+
+void UTF8toANSI(std::string &strUTF8)
+{
+    //获取转换为多字节后需要的缓冲区大小，创建多字节缓冲区  
+    unsigned int nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, NULL, NULL);
+    wchar_t *wszBuffer = new wchar_t[nLen + 1];
+    nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, wszBuffer, nLen);
+    wszBuffer[nLen] = 0;
+
+    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, NULL, NULL, NULL, NULL);
+    char *szBuffer = new char[nLen + 1];
+    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, szBuffer, nLen, NULL, NULL);
+    szBuffer[nLen] = 0;
+
+    strUTF8 = szBuffer;
+    //清理内存  
+    delete[]szBuffer;
+    delete[]wszBuffer;
 }
