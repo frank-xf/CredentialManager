@@ -8,7 +8,6 @@ namespace std
     template<typename _Ty> class allocator;
     template<typename _Ty> struct char_traits;
     template<typename _Ty, typename _Traits, typename _Alloc> class basic_string;
-    template<class _Fty> class function;
 }
 
 namespace bnb
@@ -393,7 +392,7 @@ namespace bnb
             return (_Find([&key](const node_type& node) { return (&key == &node.GetData() || key == node.GetData()); }));
         }
 
-        node_type* PushBack(const node_item& item)
+        node_type* Add(const node_item& item)
         {
             for (node_type* ptr = _first; ptr; ptr = ptr->_next)
                 if (item == ptr->GetData())
@@ -415,9 +414,19 @@ namespace bnb
 
             ++_nCount;
 
-            Updated(static_cast<param_type>(action_type::at_insert));
-
             return ptr;
+        }
+
+        node_type* PushBack(const node_item& item)
+        {
+            if (auto ptr = Add(item))
+            {
+                Updated(static_cast<param_type>(action_type::at_insert));
+
+                return ptr;
+            }
+
+            return nullptr;
         }
 
         node_type* PushFront(const node_item& item)
@@ -762,7 +771,8 @@ namespace bnb
         bool FromXml(const memory_type& mt);
         bool ToXml(memory_type& mt) const;
 
-        bool Load(const char* file);
+        bool Load(const char* file, const string_type& password);
+        bool Load(const char* file, const byte_type* password, size_type n);
         bool Save(const char* file) const;
 
         using list_base::Find;

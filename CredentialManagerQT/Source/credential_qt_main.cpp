@@ -1,12 +1,17 @@
 #include <QtWidgets/QApplication>
 
+QT_BEGIN_NAMESPACE
+    void Init();
+QT_END_NAMESPACE
+
 int main(int argc, char *argv[])
 {
-    extern void Init();
+    QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
 
 	QApplication app(argc, argv);
 
-    Init();
+    QT_PREPEND_NAMESPACE(Init)();
 
 	return app.exec();
 }

@@ -224,8 +224,8 @@ namespace bnb
             auto name_attr_platform = node_platform.attribute(_sKey(sk_name));
             if (name_attr_platform.empty()) return false;
 
-            auto ptr_platform = PushBack({
-                name_attr_platform.value(), node_platform.attribute(_sKey(sk_url)).value(), node_platform.attribute(_sKey(sk_comment)).value() }
+            auto ptr_platform = Add(
+                { name_attr_platform.value(), node_platform.attribute(_sKey(sk_url)).value(), node_platform.attribute(_sKey(sk_comment)).value() }
             );
 
             for (auto node_account : node_platform.children(_sKey(sk_account)))
@@ -233,7 +233,7 @@ namespace bnb
                 auto name_attr_account = node_account.attribute(_sKey(sk_name));
                 if (name_attr_account.empty()) return false;
 
-                auto ptr_account = ptr_platform->PushBack({ name_attr_account.value(), node_account.attribute(_sKey(sk_comment)).value() });
+                auto ptr_account = ptr_platform->Add({ name_attr_account.value(), node_account.attribute(_sKey(sk_comment)).value() });
 
                 for (auto node_pair : node_account.children(_sKey(sk_pair)))
                 {
@@ -245,7 +245,7 @@ namespace bnb
                     {
                         if (pugi::node_cdata != node_value.type()) return false;
 
-                        ptr_account->PushBack({ name_attr_pair.value(), node_value.value() });
+                        ptr_account->Add({ name_attr_pair.value(), node_value.value() });
                     }
                 }
             }
@@ -295,12 +295,23 @@ namespace bnb
         return true;
     }
 
-    bool Credential::Load(const char * file)
+    bool Credential::Load(const char * file, const string_type& password)
+    {
+        if (Load(file, (const byte_type*)password.data(), password.size() * sizeof(char_type)))
+        {
+            SetWord(password);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool Credential::Load(const char * file, const byte_type* password, size_type n)
     {
         memory_type dst;
 
         if (CheckFile(file, &dst))
-            if (Decoding(dst, (const byte_type*)_data.GetWord().c_str(), _data.GetWord().size() * sizeof(char_type)))
+            if (Decoding(dst, password, n))
                 if (FromXml(dst))
                     return true;
 

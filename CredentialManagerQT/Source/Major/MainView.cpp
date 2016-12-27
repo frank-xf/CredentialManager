@@ -8,6 +8,9 @@
 #undef GetUserName
 #endif
 
+#include <QtCore/QMimeData>
+#include <QtCore/QFileInfo>
+#include <QtGui/QDragEnterEvent>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QTreeWidget>
@@ -41,12 +44,20 @@ bnb::Credential& g_Credential()
     return (_just_a_credential_object_);
 }
 
+static inline std::string QStringToString(const QString& str)
+{
+    auto strLocal = str.toLocal8Bit();
+    return { strLocal.data() };
+}
+
 QT_BEGIN_NAMESPACE
 
 MainView::MainView(QWidget *parent)
     : QWidget(parent)
 {
     setAttribute(Qt::WA_DeleteOnClose, true);
+    setAcceptDrops(true);
+    
 
     _ui.SetupUI(this);
 
@@ -68,19 +79,69 @@ void MainView::ClearCredential()
     _ui.m_viewStack->ClearCredential();
 }
 
+void MainView::OpenFile(const QString & strFile)
+{
+    if (g_Credential().GetData().IsValid())
+    {
+        if (0 == strFile.compare(m_strFile, Qt::CaseInsensitive))
+        {
+            return;
+        }
+    }
+
+    bnb::memory_type _xml;
+
+    auto strLocal = QStringToString(strFile);
+    if (!bnb::Credential::CheckFile(strLocal.c_str(), &_xml))
+    {
+        HintDialog(hint_type::ht_error, "You selected file invalid !", this).exec();
+        return;
+    }
+
+    PasswordInput dlg(this);
+    if (QDialog::Accepted == dlg.exec())
+    {
+        bnb::string_type password = From_QString(dlg.GetPassword());
+        if (password.empty())
+        {
+            HintDialog(hint_type::ht_error, "Please input a password !", this).exec();
+            return;
+        }
+
+        if (!bnb::Credential::Decoding(_xml, (const unsigned char*)password.c_str(), password.size() * sizeof(bnb::char_type)))
+        {
+            HintDialog(hint_type::ht_error, "You input password error !", this).exec();
+            return;
+        }
+
+        if (!g_Credential().FromXml(_xml))
+        {
+            HintDialog(hint_type::ht_error, "Anaylze file failed !", this).exec();
+            return;
+        }
+
+        g_Credential().SetWord(password);
+
+        m_strFile = strFile;
+
+        ClearCredential();
+        AddCredential();
+    }
+}
+
 void MainView::CredentialUpdated(unsigned long aType, unsigned long cType)
 {
-    g_Credential().Save(m_strFile.toStdString().c_str());
-
     switch (static_cast<bnb::action_type>(aType))
     {
     case bnb::action_type::at_insert:
     case bnb::action_type::at_delete:
     case bnb::action_type::at_update:
-    case bnb::action_type::at_clear:
     case bnb::action_type::at_move:
     case bnb::action_type::at_sort:
     case bnb::action_type::at_none:
+        g_Credential().Save(QStringToString(m_strFile).c_str());
+        break;
+    case bnb::action_type::at_clear:
     default:
         break;
     }
@@ -111,7 +172,7 @@ void MainView::OnClickedNew()
         g_Credential().SetWord(From_QString(dlg.GetPassword()));
         g_Credential().SetUser(From_QString(dlg.GetUserName()));
         g_Credential().SetComment(From_QString(dlg.GetComment()));
-        g_Credential().Save(m_strFile.toStdString().c_str());
+        g_Credential().Save(QStringToString(m_strFile).c_str());
 
         ClearCredential();
         AddCredential();
@@ -124,45 +185,7 @@ void MainView::OnClickedOpen()
         this, "Please select a credential file", ".", "credential file(*.credential)");
 
     if (!strFile.isEmpty())
-    {
-        bnb::memory_type _xml;
-
-        if (!bnb::Credential::CheckFile(strFile.toStdString().c_str(), &_xml))
-        {
-            HintDialog(hint_type::ht_error, "You selected file invalid !", this).exec();
-            return;
-        }
-
-        PasswordInput dlg(this);
-        if (QDialog::Accepted == dlg.exec())
-        {
-            bnb::string_type password = From_QString(dlg.GetPassword());
-            if (password.empty())
-            {
-                HintDialog(hint_type::ht_error, "Please input a password !", this).exec();
-                return;
-            }
-
-            if (!bnb::Credential::Decoding(_xml, (const unsigned char*)password.c_str(), password.size() * sizeof(bnb::char_type)))
-            {
-                HintDialog(hint_type::ht_error, "You input password error !", this).exec();
-                return;
-            }
-
-            if (!g_Credential().FromXml(_xml))
-            {
-                HintDialog(hint_type::ht_error, "Anaylze file failed !", this).exec();
-                return;
-            }
-
-            g_Credential().SetWord(password);
-
-            m_strFile = strFile;
-
-            ClearCredential();
-            AddCredential();
-        }
-    }
+        OpenFile(strFile);
 }
 
 void MainView::OnClickedAbout()
@@ -650,6 +673,32 @@ bool MainView::nativeEvent(const QByteArray &eventType, void *pMessage, long *pR
     return QWidget::nativeEvent(eventType, pMessage, pResult);
 }
 
+void MainView::dragEnterEvent(QDragEnterEvent *qDrag)
+{
+    if (qDrag->mimeData()->hasUrls())
+    {
+        if (1 == qDrag->mimeData()->urls().size())
+        {
+            QFileInfo qfi(qDrag->mimeData()->urls().front().toLocalFile());
+            if (0 == qfi.suffix().compare("credential", Qt::CaseInsensitive))
+                qDrag->acceptProposedAction();
+        }
+    }
+}
+
+void MainView::dropEvent(QDropEvent *qDrop)
+{
+    if (qDrop->mimeData()->hasUrls())
+    {
+        if (1 == qDrop->mimeData()->urls().size())
+        {
+            QString strFile = qDrop->mimeData()->urls().front().toLocalFile();
+            if (!strFile.isEmpty())
+                OpenFile(strFile);
+        }
+    }
+}
+
 void MainView::ui_type::SetupUI(MainView* pView)
 {
     pView->setObjectName("MainView");
@@ -679,6 +728,12 @@ void MainView::ui_type::SetupUI(MainView* pView)
 
 void MainView::ui_type::RetranslateUI(MainView * pView) { }
 
+void Init()
+{
+    MainView* _viewMain = new MainView;
+    _viewMain->show();
+}
+
 QT_END_NAMESPACE
 
 bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str)
@@ -689,12 +744,6 @@ bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str)
 QT_PREPEND_NAMESPACE(QString) To_QString(const bnb::string_type& str)
 {
     return QT_PREPEND_NAMESPACE(QString)::fromStdWString(str);
-}
-
-void Init()
-{
-    QT_PREPEND_NAMESPACE(MainView)* _viewMain = new QT_PREPEND_NAMESPACE(MainView);
-    _viewMain->show();
 }
 
 void UTF8toANSI(std::string &strUTF8)

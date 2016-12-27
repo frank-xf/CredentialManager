@@ -27,6 +27,7 @@ private:
 
     void AddCredential();
     void ClearCredential();
+    void OpenFile(const QString& strFile);
     void CredentialUpdated(unsigned long aType, unsigned long cType);
 
     void OnClickedNew() override;
@@ -58,6 +59,8 @@ private:
     bool OnSortPair(id_type credentialId, id_type platformId, id_type accountId, int cln, bool ascending) override;
 
     bool nativeEvent(const QByteArray &eventType, void *pMessage, long *pResult) override;
+    void dragEnterEvent(QDragEnterEvent *dee) override;
+    void dropEvent(QDropEvent *dee) override;
 
 private:
 
