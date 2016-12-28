@@ -46,6 +46,7 @@ namespace ui_utils
     QLineEdit* MakePasswordLine(QWidget* parent, unsigned int w = edit_password_w);
     QLineEdit* MakeShowLine(QWidget* parent, const QColor& clr = Qt::black);
 
+    QPushButton* MakeTransparentButton(QWidget* parent);
     QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w);
     QHBoxLayout* MakeButtonLayout(QPushButton* btnOK, QPushButton* btnCancel);
 

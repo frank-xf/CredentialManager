@@ -58,7 +58,26 @@ public:
     bool Reschedule(const bnb::account_node& account);
 
     QTreeWidgetItem* FindItem(id_type id);
-    QTreeWidgetItem* FindItem(QTreeWidgetItem* parent, id_type id);
+
+    template<typename _Ty1, typename ... _Ty2>
+    QTreeWidgetItem* FindItem(_Ty1 id, _Ty2 ... ids)
+    {
+        static_assert(std::is_same<_Ty1, id_type>::value, "The type of parameter must be id_type.");
+
+        return (_FindItem(FindItem(id), ids ...));
+    }
+
+    template<typename ... _Ty>
+    bool SwitchToNode(_Ty ... ids)
+    {
+        if (auto pItem = FindItem(ids ...))
+        {
+            setCurrentItem(pItem);
+            return true;
+        }
+
+        return false;
+    }
 
 private:
 
@@ -89,6 +108,18 @@ private:
     void _EditPlatform(QTreeWidgetItem* item_platform);
     void _EditAccount(QTreeWidgetItem* item_account);
     void _EditPair(QTreeWidgetItem* item_pair);
+
+    QTreeWidgetItem* _FindItem(QTreeWidgetItem * parent, id_type id);
+
+    template<typename _Ty1, typename ... _Ty2>
+    QTreeWidgetItem* _FindItem(QTreeWidgetItem* parent, _Ty1 id, _Ty2 ... ids)
+    {
+        static_assert(std::is_same<_Ty1, id_type>::value, "The type of parameter must be id_type.");
+
+        if (parent) return (_FindItem(_FindItem(parent, id), ids ...));
+
+        return nullptr;
+    }
 
 private:
 

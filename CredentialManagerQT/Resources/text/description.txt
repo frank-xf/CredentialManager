@@ -1,6 +1,6 @@
 App Name: CredentialManager
-Version: 1.0.0.2
-Date: 2016-12-24
+Version: 1.0.0.3
+Date: 2016-12-28
 
 Author: Frank
 Email: Frank_Xiong_@outlook.com

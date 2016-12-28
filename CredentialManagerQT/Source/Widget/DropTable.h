@@ -37,6 +37,7 @@ public:
         virtual void OnRemove(unsigned int id) = 0;
         virtual void OnMove(unsigned int id, int offset) = 0;
         virtual void OnSort(int cln, bool ascending) = 0;
+        virtual void OnDoubleClicked(unsigned int id) = 0;
 
         virtual ~delegate_type() = 0 { }
 

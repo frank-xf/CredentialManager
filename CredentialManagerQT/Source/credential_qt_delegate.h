@@ -41,7 +41,11 @@ public:
 	virtual bool OnSortAccount(id_type credentialId, id_type platformId, int cln, bool ascending) = 0;
 	virtual bool OnSortPair(id_type credentialId, id_type platformId, id_type accountId, int cln, bool ascending) = 0;
 
-    virtual bool SwitchNode(unsigned int eType, id_type id) = 0;
+    virtual void SwitchToNode(id_type credentialId) = 0;
+    virtual void SwitchToNode(id_type credentialId, id_type platformId) = 0;
+    virtual void SwitchToNode(id_type credentialId, id_type platformId, id_type accountId) = 0;
+    virtual void SwitchToNode(id_type credentialId, id_type platformId, id_type accountId, id_type pairId) = 0;
+    virtual void SwitchToView(unsigned int eType, id_type id) = 0;
 
     virtual ~DelegateType() = 0 { }
 

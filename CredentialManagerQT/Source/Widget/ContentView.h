@@ -46,6 +46,7 @@ protected:
 
     public:
 
+        QPushButton* m_btnBack;
 		QPushButton* m_btnEdit;
 		QPushButton* m_btnRemove;
         QLineEdit* m_editText[n];
@@ -53,21 +54,9 @@ protected:
 
         void SetupUI(ContentView* pView)
         {
-			m_btnEdit = new QPushButton("Edit", pView);
-			m_btnEdit->setFixedHeight(ui_utils::def_widget_h);
-			m_btnEdit->setFont(ui_utils::MakeFont());
-			m_btnEdit->setStyleSheet(
-				"QPushButton{ background-color:transparent; border:none; color:#40B040; }\n"
-				"QPushButton:hover{ color:#FF4000; }\n"
-				"QPushButton:pressed{ color:#4040FF; }");
-
-			m_btnRemove = new QPushButton("Remove", pView);
-			m_btnRemove->setFixedHeight(ui_utils::def_widget_h);
-			m_btnRemove->setFont(ui_utils::MakeFont());
-			m_btnRemove->setStyleSheet(
-				"QPushButton{ background-color:transparent; border:none; color:#40B040; }\n"
-				"QPushButton:hover{ color:#FF4000; }\n"
-				"QPushButton:pressed{ color:#4040FF; }");
+            m_btnBack = ui_utils::MakeTransparentButton(pView);
+            m_btnEdit = ui_utils::MakeTransparentButton(pView);
+            m_btnRemove = ui_utils::MakeTransparentButton(pView);
 
             CreateLabel(pView);
 
@@ -88,7 +77,8 @@ protected:
 			QHBoxLayout* phLayout1 = new QHBoxLayout;
 			phLayout1->setMargin(0);
 			phLayout1->setSpacing(8);
-			phLayout1->addStretch(1);
+            phLayout1->addStretch(1);
+            phLayout1->addWidget(m_btnBack);
 			phLayout1->addWidget(m_btnEdit);
 			phLayout1->addWidget(m_btnRemove);
 
@@ -114,6 +104,10 @@ protected:
 
             pView->setLayout(phMainLayout);
 
+            m_btnBack->setText("<--");
+            m_btnEdit->setText("Edit");
+            m_btnRemove->setText("Remove");
+
             RetranslateUI(pView);
         }
 
@@ -135,16 +129,18 @@ protected:
     {
         _ui.SetupUI(this);
 
-		QObject::connect(_ui.m_btnEdit, &QPushButton::clicked, [this]() { OnClickedEdit(); });
+        QObject::connect(_ui.m_btnBack, &QPushButton::clicked, [this]() { OnClickedBack(); });
+        QObject::connect(_ui.m_btnEdit, &QPushButton::clicked, [this]() { OnClickedEdit(); });
 		QObject::connect(_ui.m_btnRemove, &QPushButton::clicked, [this]() { OnClickedRemove(); });
     }
+
+	virtual void OnClickedBack() { }
+    virtual void OnClickedEdit() { }
+    virtual void OnClickedRemove() { }
 
     ui_type _ui;
 
     DelegateType* _delegate;
-
-	virtual void OnClickedEdit() { }
-	virtual void OnClickedRemove() { }
 
 };	// class ContentView
 
@@ -166,7 +162,8 @@ private:
     void OnEdit(unsigned int id) override;
     void OnRemove(unsigned int id) override;
     void OnMove(unsigned int id, int offset) override;
-	void OnSort(int cln, bool ascending) override;
+    void OnSort(int cln, bool ascending) override;
+    void OnDoubleClicked(unsigned int id) override;
 
 	void OnClickedEdit() override;
 	void OnClickedRemove() override;
@@ -196,8 +193,10 @@ private:
     void OnRemove(unsigned int id) override;
     void OnMove(unsigned int id, int offset) override;
 	void OnSort(int cln, bool ascending) override;
+    void OnDoubleClicked(unsigned int id) override;
 
-	void OnClickedEdit() override;
+    void OnClickedBack() override;
+    void OnClickedEdit() override;
 	void OnClickedRemove() override;
 
 private:
@@ -225,7 +224,9 @@ private:
     void OnRemove(unsigned int id) override;
 	void OnMove(unsigned int id, int offset) override;
 	void OnSort(int cln, bool ascending) override;
+    void OnDoubleClicked(unsigned int id) override;
 
+    void OnClickedBack() override;
 	void OnClickedEdit() override;
 	void OnClickedRemove() override;
 

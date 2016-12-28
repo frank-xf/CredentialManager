@@ -170,7 +170,7 @@ void DropTable::mouseDoubleClickEvent(QMouseEvent * event)
     if (auto pItem = itemAt(event->pos()))
     {
         if (_delegate)
-            _delegate->OnEdit(GetItemID(pItem));
+            _delegate->OnDoubleClicked(GetItemID(pItem));
 
         event->accept();
         return;

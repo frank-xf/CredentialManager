@@ -145,7 +145,7 @@ QTreeWidgetItem* TreeView::AddAccount(const bnb::account_node& account)
     {
         if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
         {
-            if (auto item_platform = FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()))
+            if (auto item_platform = FindItem(ptr_credential->GetID(), ptr_platform->GetID()))
             {
                 item_platform->setExpanded(true);
                 return (_AddAccount(item_platform, account));
@@ -164,7 +164,7 @@ QTreeWidgetItem* TreeView::AddPair(const bnb::pair_node& pair)
         {
             if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
             {
-                if (auto item_account = FindItem(FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()), ptr_account->GetID()))
+                if (auto item_account = FindItem(ptr_credential->GetID(), ptr_platform->GetID(), ptr_account->GetID()))
                 {
                     item_account->setExpanded(true);
                     return (_AddPair(item_account, pair));
@@ -191,7 +191,7 @@ QTreeWidgetItem* TreeView::UpdatePlatform(const bnb::platform_node & platform)
 {
     if (auto ptr_credential = dynamic_cast<bnb::Credential*>(platform.GetParent()))
     {
-        if (auto item_platform = FindItem(FindItem(ptr_credential->GetID()), platform.GetID()))
+        if (auto item_platform = FindItem(ptr_credential->GetID(), platform.GetID()))
         {
             item_platform->setText(0, To_QString(platform.GetData().GetName()));
             return item_platform;
@@ -207,7 +207,7 @@ QTreeWidgetItem* TreeView::UpdateAccount(const bnb::account_node & account)
     {
         if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
         {
-            if (auto item_account = FindItem(FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()), account.GetID()))
+            if (auto item_account = FindItem(ptr_credential->GetID(), ptr_platform->GetID(), account.GetID()))
             {
                 item_account->setText(0, To_QString(account.GetData().GetName()));
                 return item_account;
@@ -226,7 +226,7 @@ QTreeWidgetItem* TreeView::UpdatePair(const bnb::pair_node & pair)
         {
             if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
             {
-                if (auto item_pair = FindItem(FindItem(FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()), ptr_account->GetID()), pair.GetID()))
+                if (auto item_pair = FindItem(ptr_credential->GetID(), ptr_platform->GetID(), ptr_account->GetID(), pair.GetID()))
                 {
                     item_pair->setText(0, To_QString(pair.GetData().GetKey()));
                     return item_pair;
@@ -255,7 +255,7 @@ QTreeWidgetItem* TreeView::MovePlatform(id_type credentialId, id_type platformId
 
 QTreeWidgetItem* TreeView::MoveAccount(id_type credentialId, id_type platformId, id_type accountId, int offset)
 {
-    if (auto item_platform = FindItem(FindItem(credentialId), platformId))
+    if (auto item_platform = FindItem(credentialId, platformId))
     {
         for (int i = 0; i < item_platform->childCount(); ++i)
         {
@@ -270,7 +270,7 @@ QTreeWidgetItem* TreeView::MoveAccount(id_type credentialId, id_type platformId,
 
 QTreeWidgetItem* TreeView::MovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId, int offset)
 {
-    if (auto item_account = FindItem(FindItem(FindItem(credentialId), platformId), accountId))
+    if (auto item_account = FindItem(credentialId, platformId, accountId))
     {
         for (int i = 0; i < item_account->childCount(); ++i)
         {
@@ -303,7 +303,7 @@ bool TreeView::RemovePlatform(id_type credentialId, id_type platformId)
 {
     if (auto item_credential = FindItem(credentialId))
     {
-        if (auto item_platform = FindItem(item_credential, platformId))
+        if (auto item_platform = _FindItem(item_credential, platformId))
         {
             item_credential->removeChild(item_platform);
             delete item_platform;
@@ -317,9 +317,9 @@ bool TreeView::RemovePlatform(id_type credentialId, id_type platformId)
 
 bool TreeView::RemoveAccount(id_type credentialId, id_type platformId, id_type accountId)
 {
-    if (auto item_platform = FindItem(FindItem(credentialId), platformId))
+    if (auto item_platform = FindItem(credentialId, platformId))
     {
-        if (auto item_account = FindItem(item_platform, accountId))
+        if (auto item_account = _FindItem(item_platform, accountId))
         {
             item_platform->removeChild(item_account);
             delete item_account;
@@ -333,9 +333,9 @@ bool TreeView::RemoveAccount(id_type credentialId, id_type platformId, id_type a
 
 bool TreeView::RemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId)
 {
-    if (auto item_account = FindItem(FindItem(FindItem(credentialId), platformId), accountId))
+    if (auto item_account = FindItem(credentialId, platformId, accountId))
     {
-        if (auto item_pair = FindItem(item_account, pairId))
+        if (auto item_pair = _FindItem(item_account, pairId))
         {
             item_account->removeChild(item_pair);
             delete item_pair;
@@ -366,7 +366,7 @@ bool TreeView::Reschedule(const bnb::platform_node & platform)
 {
     if (auto ptr_credential = dynamic_cast<bnb::Credential*>(platform.GetParent()))
     {
-        if (auto item_platform = FindItem(FindItem(ptr_credential->GetID()), platform.GetID()))
+        if (auto item_platform = FindItem(ptr_credential->GetID(), platform.GetID()))
         {
             auto listItem = item_platform->takeChildren();
             platform.PreorderTraversal([&listItem, &item_platform](const bnb::account_node& item) mutable {
@@ -386,7 +386,7 @@ bool TreeView::Reschedule(const bnb::account_node & account)
     {
         if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
         {
-            if (auto item_account = FindItem(FindItem(FindItem(ptr_credential->GetID()), ptr_platform->GetID()), account.GetID()))
+            if (auto item_account = FindItem(ptr_credential->GetID(), ptr_platform->GetID(), account.GetID()))
             {
                 auto listItem = item_account->takeChildren();
                 account.PreorderTraversal([&listItem, &item_account](const bnb::pair_node& item) mutable {
@@ -408,21 +408,6 @@ QTreeWidgetItem* TreeView::FindItem(id_type id)
         auto child = topLevelItem(i);
         if (id == GetItemID(child))
             return child;
-    }
-
-    return nullptr;
-}
-
-QTreeWidgetItem* TreeView::FindItem(QTreeWidgetItem * parent, id_type id)
-{
-    if (parent)
-    {
-        for (int i = 0; i < parent->childCount(); ++i)
-        {
-            auto child = parent->child(i);
-            if (id == GetItemID(child))
-                return child;
-        }
     }
 
     return nullptr;
@@ -536,7 +521,7 @@ void TreeView::OnItemChanged(QTreeWidgetItem * cur, QTreeWidgetItem * pre)
         }
 
         if (_delegate)
-            _delegate->SwitchNode(static_cast<unsigned int>(eType), id);
+            _delegate->SwitchToView(static_cast<unsigned int>(eType), id);
     }
 }
 
@@ -733,6 +718,21 @@ void TreeView::_EditPair(QTreeWidgetItem * item_pair)
                         if (bnb::credential_enum::credential == GetItemType(item_credential))
                             if (_delegate)
                                 _delegate->OnUpdatePair(GetItemID(item_credential), GetItemID(item_platform), GetItemID(item_account), GetItemID(item_pair));
+}
+
+QTreeWidgetItem* TreeView::_FindItem(QTreeWidgetItem * parent, bnb::Credential::id_type id)
+{
+    if (parent)
+    {
+        for (int i = 0; i < parent->childCount(); ++i)
+        {
+            auto child = parent->child(i);
+            if (id == GetItemID(child))
+                return child;
+        }
+    }
+
+    return nullptr;
 }
 
 //------------------------------------------------------------------------------

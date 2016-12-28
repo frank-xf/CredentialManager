@@ -10,8 +10,7 @@
 
 #include <QtCore/QCoreApplication>
 #include <QtCore/QMimeData>
-#include <QtCore/QFileInfo>
-#include <QtGui/QDragEnterEvent>
+#include <QtGui/QDropEvent>
 #include <QtWidgets/QBoxLayout>
 #include <QtWidgets/QFileDialog>
 #include <QtWidgets/QTreeWidget>
@@ -34,10 +33,6 @@
 #include "Major/StackView.h"
 #include "Major/TreeView.h"
 #include "Major/MainView.h"
-
-#include<iostream>
-
-void UTF8toANSI(std::string &strUTF8);
 
 bnb::Credential& g_Credential()
 {
@@ -140,6 +135,7 @@ void MainView::CredentialUpdated(unsigned long aType, unsigned long cType)
 {
     g_Credential().Save(QStringToString(m_strFile).c_str());
 
+    /*
     switch (static_cast<bnb::action_type>(aType))
     {
     case bnb::action_type::at_insert:
@@ -155,16 +151,8 @@ void MainView::CredentialUpdated(unsigned long aType, unsigned long cType)
 
     const char* str1[] = { "none", "insert" , "delete" , "update" , "move" , "sort", "reset" };
     const char* str2[] = { "credential", "platform" , "account" , "pair" };
-
-    bnb::memory_type xml;
-
-    g_Credential().ToXml(xml);
-    std::string _xml((char*)xml.c_str(), xml.size());
-    UTF8toANSI(_xml);
-
     std::cout << str1[aType] << ": " << str2[cType] << std::endl;
-    std::cout << _xml << std::endl;
-    std::cout << "-------------------------------------------" << std::endl << std::endl;
+    */
 }
 
 void MainView::OnClickedNew()
@@ -200,9 +188,32 @@ void MainView::OnClickedAbout()
     AboutDialog().exec();
 }
 
-bool MainView::SwitchNode(unsigned int eType, id_type id)
+void MainView::SwitchToView(unsigned int eType, id_type id)
 {
-    return (_ui.m_viewStack->SwitchToView(static_cast<bnb::credential_enum>(eType), id));
+    _ui.m_viewStack->SwitchToView(static_cast<bnb::credential_enum>(eType), id);
+}
+
+void MainView::SwitchToNode(id_type credentialId)
+{
+    _ui.m_treeView->SwitchToNode(credentialId);
+    _ui.m_viewStack->SwitchToView(bnb::credential_enum::credential, credentialId);
+}
+
+void MainView::SwitchToNode(id_type credentialId, id_type platformId)
+{
+    _ui.m_treeView->SwitchToNode(credentialId, platformId);
+    _ui.m_viewStack->SwitchToView(bnb::credential_enum::platform, platformId);
+}
+
+void MainView::SwitchToNode(id_type credentialId, id_type platformId, id_type accountId)
+{
+    _ui.m_treeView->SwitchToNode(credentialId, platformId, accountId);
+    _ui.m_viewStack->SwitchToView(bnb::credential_enum::account, accountId);
+}
+
+void MainView::SwitchToNode(id_type credentialId, id_type platformId, id_type accountId, id_type pairId)
+{
+    _ui.m_treeView->SwitchToNode(credentialId, platformId, accountId, pairId);
 }
 
 bool MainView::OnAddPlatform(id_type credentialId)
@@ -751,23 +762,4 @@ bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str)
 QT_PREPEND_NAMESPACE(QString) To_QString(const bnb::string_type& str)
 {
     return QT_PREPEND_NAMESPACE(QString)::fromStdWString(str);
-}
-
-void UTF8toANSI(std::string &strUTF8)
-{
-    //获取转换为多字节后需要的缓冲区大小，创建多字节缓冲区  
-    unsigned int nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, NULL, NULL);
-    wchar_t *wszBuffer = new wchar_t[nLen + 1];
-    nLen = MultiByteToWideChar(CP_UTF8, NULL, strUTF8.c_str(), -1, wszBuffer, nLen);
-    wszBuffer[nLen] = 0;
-
-    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, NULL, NULL, NULL, NULL);
-    char *szBuffer = new char[nLen + 1];
-    nLen = WideCharToMultiByte(936, NULL, wszBuffer, -1, szBuffer, nLen, NULL, NULL);
-    szBuffer[nLen] = 0;
-
-    strUTF8 = szBuffer;
-    //清理内存  
-    delete[]szBuffer;
-    delete[]wszBuffer;
 }

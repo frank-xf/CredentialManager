@@ -33,7 +33,11 @@ private:
     void OnClickedNew() override;
     void OnClickedOpen() override;
     void OnClickedAbout() override;
-    bool SwitchNode(unsigned int eType, id_type id) override;
+    void SwitchToView(unsigned int eType, id_type id) override;
+    void SwitchToNode(id_type credentialId) override;
+    void SwitchToNode(id_type credentialId, id_type platformId) override;
+    void SwitchToNode(id_type credentialId, id_type platformId, id_type accountId) override;
+    void SwitchToNode(id_type credentialId, id_type platformId, id_type accountId, id_type pairId) override;
 
     bool OnAddPlatform(id_type credentialId) override;
     bool OnAddAccount(id_type credentialId, id_type platformId) override;

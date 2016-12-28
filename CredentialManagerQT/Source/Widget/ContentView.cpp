@@ -125,6 +125,12 @@ void CredentialView::OnSort(int cln, bool ascending)
         _delegate->OnSortPlatform(m_Credential.GetID(), cln, ascending);
 }
 
+void CredentialView::OnDoubleClicked(unsigned int id)
+{
+    if (_delegate)
+        _delegate->SwitchToNode(m_Credential.GetID(), id);
+}
+
 void CredentialView::OnClickedEdit()
 {
     if (_delegate)
@@ -142,6 +148,7 @@ void CredentialView::OnClickedRemove()
 template<>
 void CredentialView::base_type::ui_type::RetranslateUI(CredentialView::base_type* pView)
 {
+    m_btnBack->hide();
     m_tabView->setColumnCount(3);
     m_tabView->setHorizontalHeaderLabels({ "    Platform    ", "        Url        ", "        Description        " });
 
@@ -258,6 +265,20 @@ void PlatformView::OnSort(int cln, bool ascending)
     if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
         if (_delegate)
             _delegate->OnSortAccount(ptr_credential->GetID(), m_Platform.GetID(), cln, ascending);
+}
+
+void PlatformView::OnDoubleClicked(unsigned int id)
+{
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->SwitchToNode(ptr_credential->GetID(), m_Platform.GetID(), id);
+}
+
+void PlatformView::OnClickedBack()
+{
+    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(m_Platform.GetParent()))
+        if (_delegate)
+            _delegate->SwitchToNode(ptr_credential->GetID());
 }
 
 void PlatformView::OnClickedEdit()
@@ -399,6 +420,29 @@ void AccountView::OnSort(int cln, bool ascending)
         if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
             if (_delegate)
                 _delegate->OnSortPair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), cln, ascending);
+}
+
+void AccountView::OnDoubleClicked(unsigned int id)
+{
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+    {
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+        {
+            if (_delegate)
+            {
+                _delegate->SwitchToNode(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), id);
+                _delegate->OnUpdatePair(ptr_credential->GetID(), ptr_platform->GetID(), m_Account.GetID(), id);
+            }
+        }
+    }
+}
+
+void AccountView::OnClickedBack()
+{
+    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(m_Account.GetParent()))
+        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
+            if (_delegate)
+                _delegate->SwitchToNode(ptr_credential->GetID(), ptr_platform->GetID());
 }
 
 void AccountView::OnClickedEdit()

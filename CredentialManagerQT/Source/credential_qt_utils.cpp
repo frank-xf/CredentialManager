@@ -106,6 +106,19 @@ namespace ui_utils
         return button;
     }
 
+    QPushButton* MakeTransparentButton(QWidget* parent)
+    {
+        QPushButton* button = new QPushButton(parent);
+        button->setFixedHeight(ui_utils::def_widget_h);
+        button->setFont(ui_utils::MakeFont());
+        button->setStyleSheet(
+            "QPushButton{ background-color:transparent; border:none; color:#40B040; }\n"
+            "QPushButton:hover{ color:#FF4000; }\n"
+            "QPushButton:pressed{ color:#4040FF; }");
+
+        return button;
+    }
+
     QHBoxLayout * MakeButtonLayout(QPushButton * btnOK, QPushButton * btnCancel)
     {
         QHBoxLayout* phLayout = new QHBoxLayout;
