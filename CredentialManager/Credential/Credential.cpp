@@ -156,7 +156,13 @@ namespace bnb
         _data.m_strWord.clear();
         _data.m_strUser.clear();
         _data.m_strComment.clear();
-        Updated(static_cast<param_type>(action_type::at_clear), static_cast<param_type>(credential_enum::credential));
+    }
+
+    void Credential::Reset()
+    {
+        Clear();
+
+        Updated(static_cast<param_type>(action_type::at_reset), static_cast<param_type>(credential_enum::credential));
     }
 
     void Credential::RegisterHandle(const updated_handle_type& pFunc)

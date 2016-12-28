@@ -8,6 +8,7 @@
 #undef GetUserName
 #endif
 
+#include <QtCore/QCoreApplication>
 #include <QtCore/QMimeData>
 #include <QtCore/QFileInfo>
 #include <QtGui/QDragEnterEvent>
@@ -48,6 +49,12 @@ static inline std::string QStringToString(const QString& str)
 {
     auto strLocal = str.toLocal8Bit();
     return { strLocal.data() };
+}
+
+static inline bool ValidPath(const QString& strFile)
+{
+    QFileInfo qfi(strFile);
+    return (qfi.exists() && qfi.isFile() && 0 == qfi.suffix().compare("credential", Qt::CaseInsensitive));
 }
 
 QT_BEGIN_NAMESPACE
@@ -131,6 +138,8 @@ void MainView::OpenFile(const QString & strFile)
 
 void MainView::CredentialUpdated(unsigned long aType, unsigned long cType)
 {
+    g_Credential().Save(QStringToString(m_strFile).c_str());
+
     switch (static_cast<bnb::action_type>(aType))
     {
     case bnb::action_type::at_insert:
@@ -139,14 +148,12 @@ void MainView::CredentialUpdated(unsigned long aType, unsigned long cType)
     case bnb::action_type::at_move:
     case bnb::action_type::at_sort:
     case bnb::action_type::at_none:
-        g_Credential().Save(QStringToString(m_strFile).c_str());
-        break;
-    case bnb::action_type::at_clear:
+    case bnb::action_type::at_reset:
     default:
         break;
     }
 
-    const char* str1[] = { "none", "insert" , "delete" , "update" , "move" , "sort", "clear" };
+    const char* str1[] = { "none", "insert" , "delete" , "update" , "move" , "sort", "reset" };
     const char* str2[] = { "credential", "platform" , "account" , "pair" };
 
     bnb::memory_type xml;
@@ -676,14 +683,9 @@ bool MainView::nativeEvent(const QByteArray &eventType, void *pMessage, long *pR
 void MainView::dragEnterEvent(QDragEnterEvent *qDrag)
 {
     if (qDrag->mimeData()->hasUrls())
-    {
         if (1 == qDrag->mimeData()->urls().size())
-        {
-            QFileInfo qfi(qDrag->mimeData()->urls().front().toLocalFile());
-            if (0 == qfi.suffix().compare("credential", Qt::CaseInsensitive))
+            if (ValidPath(qDrag->mimeData()->urls().front().toLocalFile()))
                 qDrag->acceptProposedAction();
-        }
-    }
 }
 
 void MainView::dropEvent(QDropEvent *qDrop)
@@ -693,7 +695,7 @@ void MainView::dropEvent(QDropEvent *qDrop)
         if (1 == qDrop->mimeData()->urls().size())
         {
             QString strFile = qDrop->mimeData()->urls().front().toLocalFile();
-            if (!strFile.isEmpty())
+            if (ValidPath(strFile))
                 OpenFile(strFile);
         }
     }
@@ -732,6 +734,11 @@ void Init()
 {
     MainView* _viewMain = new MainView;
     _viewMain->show();
+
+    auto args = QCoreApplication::arguments();
+    if (1 < args.size())
+        if (ValidPath(args[1]))
+            _viewMain->OpenFile(args[1]);
 }
 
 QT_END_NAMESPACE

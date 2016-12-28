@@ -6,12 +6,14 @@ QT_END_NAMESPACE
 
 int main(int argc, char *argv[])
 {
+    QT_USE_NAMESPACE
+
     QApplication::setAttribute(Qt::AA_UseHighDpiPixmaps, true);
     QApplication::setAttribute(Qt::AA_EnableHighDpiScaling, true);
 
-	QApplication app(argc, argv);
+    QApplication app(argc, argv);
 
-    QT_PREPEND_NAMESPACE(Init)();
+    Init();
 
 	return app.exec();
 }

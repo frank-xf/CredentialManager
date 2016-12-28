@@ -22,12 +22,12 @@ class MainView : public QWidget, public DelegateType, public ToolBar::delegate_t
 public:
 
     MainView(QWidget *parent = nullptr);
+    void OpenFile(const QString& strFile);
 
 private:
 
     void AddCredential();
     void ClearCredential();
-    void OpenFile(const QString& strFile);
     void CredentialUpdated(unsigned long aType, unsigned long cType);
 
     void OnClickedNew() override;

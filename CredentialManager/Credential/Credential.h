@@ -27,7 +27,7 @@ namespace bnb
 
     enum class action_type : unsigned char
     {
-        at_none, at_insert, at_delete, at_update, at_move, at_sort, at_clear
+        at_none, at_insert, at_delete, at_update, at_move, at_sort, at_reset
     };
 
     class index_type
@@ -300,8 +300,13 @@ namespace bnb
 
             _last = nullptr;
             _nCount = 0;
+        }
 
-            Updated(static_cast<param_type>(action_type::at_clear));
+        void Reset()
+        {
+            Clear();
+
+            Updated(static_cast<param_type>(action_type::at_reset));
         }
 
         template<typename _actionT>
@@ -762,6 +767,7 @@ namespace bnb
         void RegisterHandle(const updated_handle_type& pFunc);
 
         void Clear();
+        void Reset();
         void UpdateWord(const string_type& strWord);
         void UpdateInfo(const string_type& strUser, const string_type& strComment);
 
