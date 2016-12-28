@@ -104,7 +104,7 @@ protected:
 
             pView->setLayout(phMainLayout);
 
-            m_btnBack->setText("<--");
+            m_btnBack->setText("<-- ");
             m_btnEdit->setText("Edit");
             m_btnRemove->setText("Remove");
 
