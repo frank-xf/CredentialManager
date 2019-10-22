@@ -6,39 +6,9 @@
 void fun1();
 void fun2();
 
-class TypeA {
-public:
-    TypeA() = default;
-    TypeA(int m) : a(m) {}
-    TypeA(int m, int n) : a(m), b(n) {}
-    TypeA(int m, int n, int x) : a(m), b(n), c(x) {}
-
-    void Show() {
-        std::cout << a << " " << b << " " << c << std::endl;
-    }
-
-    int a{1};
-    int b{2};
-    int c{3};
-};
-
-int sub(int a, int b) { return a - b; }
-
 int main()
 {
-	//fun1();
-    /*
-    TypeA a;
-    TypeA b(10);
-    TypeA c(10, 20);
-    TypeA d(10, 20, 30);
-
-    a.Show();
-    b.Show();
-    c.Show();
-    d.Show();
-
-    */
+    fun2();
 
     return (0);
 }
@@ -184,32 +154,43 @@ void fun1()
 	xx.Save("def.credential");
 }
 
-
-class TBase {
-public:
-
-	TBase() { fun(); }
-
-	void fun() { std::cout << "I\'m base." << std::endl; }
-};
-
-class T1 : public TBase {
-	void fun() { std::cout << "I\'m T1." << std::endl; }
-};
-class T2 : public TBase {
-	void fun() { std::cout << "I\'m T2." << std::endl; }
-};
-
-void Print(void* ptr)
-{
-	std::cout << (ptr ? "yes" : "null") << std::endl;
-}
-
 void fun2()
 {
-	TBase* tb = new TBase();
-	TBase* t1 = new T1();
-	TBase* t2 = new T2();
+    bnb::memory_type _xml;
+    std::string file(R"()");
 
+    if (!bnb::Credential::CheckFile(file.c_str(), &_xml))
+    {
+        std::cout << "the file is invalid !" <<std::endl;
+        return;
+    }
 
+    std::wstring password(L"");
+    if (!bnb::Credential::Decoding(_xml, (const unsigned char*)password.c_str(), password.size() * sizeof(bnb::char_type)))
+    {
+        std::cout << "password error !" << std::endl;
+        return;
+    }
+
+    static bnb::Credential c;
+
+    if (!c.FromXml(_xml))
+    {
+        std::cout << "Anaylze file failed !" << std::endl;
+        return;
+    }
+
+    bnb::memory_type mt;
+    std::cout << (c.ToXml(mt) ? "true" : "false") << std::endl;
+    // std::cout << mt.c_str() << std::endl;
+    // std::wstring ws((wchar_t*)mt.c_str());
+    // std::wcout << (const wchar_t*)(mt.c_str()) << std::endl;
+ 
+    wchar_t a[4096]{ 0 };
+    char b[4096]{ 0 };
+    auto x = std::mbstowcs(a, (const char*)(mt.c_str()), 4096);
+    auto y = std::wcstombs(b, (const wchar_t*)(mt.c_str()), 4096);
+
+    std::cout << x << ", " << y << std::endl;
 }
+
