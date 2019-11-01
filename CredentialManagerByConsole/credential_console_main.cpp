@@ -180,17 +180,7 @@ void fun2()
         return;
     }
 
-    bnb::memory_type mt;
-    std::cout << (c.ToXml(mt) ? "true" : "false") << std::endl;
-    // std::cout << mt.c_str() << std::endl;
-    // std::wstring ws((wchar_t*)mt.c_str());
-    // std::wcout << (const wchar_t*)(mt.c_str()) << std::endl;
- 
-    wchar_t a[4096]{ 0 };
-    char b[4096]{ 0 };
-    auto x = std::mbstowcs(a, (const char*)(mt.c_str()), 4096);
-    auto y = std::wcstombs(b, (const wchar_t*)(mt.c_str()), 4096);
+    std::cout << (c.ToXml(R"()") ? "true" : "false") << std::endl;
 
-    std::cout << x << ", " << y << std::endl;
 }
 

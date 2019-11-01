@@ -776,6 +776,7 @@ namespace bnb
 
         bool FromXml(const memory_type& mt);
         bool ToXml(memory_type& mt) const;
+        bool ToXml(const char* file) const;
 
         bool Load(const char* file, const string_type& password);
         bool Load(const char* file, const byte_type* password, size_type n);

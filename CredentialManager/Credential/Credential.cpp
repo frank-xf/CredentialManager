@@ -301,6 +301,41 @@ namespace bnb
         return true;
     }
 
+    bool Credential::ToXml(const char* file) const
+    {
+        pugi::xml_document doc;
+
+        auto declare = doc.append_child(pugi::node_declaration);
+        declare.append_attribute(_sKey(sk_version)).set_value(L"1.0");
+        declare.append_attribute(_sKey(sk_encoding)).set_value(L"UTF-8");
+
+        auto node_credential = doc.append_child(_sKey(sk_credential));
+        node_credential.append_attribute(_sKey(sk_time)).set_value(_data.GetTime());
+        node_credential.append_attribute(_sKey(sk_user)).set_value(_data.GetUser().c_str());
+        node_credential.append_attribute(_sKey(sk_comment)).set_value(_data.GetComment().c_str());
+
+        PreorderTraversal([&node_credential](const platform_node& platform) {
+            auto node_platform = node_credential.append_child(_sKey(sk_platform));
+            node_platform.append_attribute(_sKey(sk_name)).set_value(platform.GetData().GetName().c_str());
+            node_platform.append_attribute(_sKey(sk_url)).set_value(platform.GetData().GetUrl().c_str());
+            node_platform.append_attribute(_sKey(sk_comment)).set_value(platform.GetData().GetComment().c_str());
+
+            platform.PreorderTraversal([&node_platform](const account_node& account) {
+                auto node_account = node_platform.append_child(_sKey(sk_account));
+                node_account.append_attribute(_sKey(sk_name)).set_value(account.GetData().GetName().c_str());
+                node_account.append_attribute(_sKey(sk_comment)).set_value(account.GetData().GetComment().c_str());
+
+                account.PreorderTraversal([&node_account](const pair_node& pair) {
+                    auto node_pair = node_account.append_child(_sKey(sk_pair));
+                    node_pair.append_attribute(_sKey(sk_name)).set_value(pair.GetData().GetKey().c_str());
+                    node_pair.append_child(pugi::node_cdata).set_value(pair.GetData().GetValue().c_str());
+                                          });
+                                       });
+                          });
+
+        return doc.save_file(file, L"    ", pugi::format_default, pugi::encoding_utf8);
+    }
+
     bool Credential::Load(const char * file, const string_type& password)
     {
         if (Load(file, (const byte_type*)password.data(), password.size() * sizeof(char_type)))
