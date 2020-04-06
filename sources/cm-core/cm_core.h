@@ -6,8 +6,6 @@ namespace xf::credential
 {
     inline const char* version() { return "1.2.0"; }
 
-    using string_t = std::string;
-
     struct pair_item : public credential_t {
         string_t key, value;
         pair_item() : credential_t(credential_type::ct_pair) { }
@@ -23,11 +21,6 @@ namespace xf::credential
         platform_item() : credential_t(credential_type::ct_platform) { }
     };
 
-    struct credential_item : public credential_t {
-        string_t username, version;
-        credential_item() : credential_t(credential_type::ct_credential) { }
-    };
-
     struct pair_t : public node_t<pair_item, pair_t> {
         using base_type::base_type;
     };
@@ -40,13 +33,26 @@ namespace xf::credential
         using base_type::base_type;
     };
 
-    class CredentialMgr : public credential_item, public list_t<platform_t>
+    class CredentialMgr : public credential_t, public list_t<platform_t>
     {
+    private:
 
+        string_t username, version, description;
 
+    public:
 
+        CredentialMgr() : credential_t(credential_type::ct_credential) { }
 
+        bool Serialize(memory_t& mem) const;
+        bool Deserialize(const memory_t& mem);
 
+        bool Load(const char* file);
+        bool Save(const char* file);
+
+        static bool ValidateName(const string_t& strName);
+        static bool Encoding(memory_t& mt, const byte_t* key, std::size_t n);
+        static bool Decoding(memory_t& mt, const byte_t* key, std::size_t n);
+        static bool Check(const char* file);
 
     };  // class CredentialMgr
 

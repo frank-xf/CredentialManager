@@ -5,6 +5,10 @@
 namespace xf::credential
 {
 
+    using byte_t = std::uint8_t;
+    using string_t = std::string;
+    using memory_t = std::string;
+
     enum class credential_type : unsigned char {
         ct_credential, ct_platform, ct_account, ct_pair
     };  // enum credential_type
