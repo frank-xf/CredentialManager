@@ -6,6 +6,7 @@ namespace xf::credential
 {
 
     using byte_t = std::uint8_t;
+    using char_t = char;
     using string_t = std::string;
     using memory_t = std::string;
 
@@ -17,14 +18,18 @@ namespace xf::credential
         at_add, at_delete, at_update, at_move, at_sort, at_clear
     };  // enum action_type
 
+    std::uint64_t CurrentTime();
+
     struct ItemBase
     {
         const credential_type type;
         std::uint64_t time;
 
-        ItemBase(credential_type t) : type(t) { }
+        ItemBase(credential_type t) : type(t), time(CurrentTime()) { }
 
-        virtual void Event(action_type at, credential_type ct);
+        virtual void Event(action_type at, credential_type ct) {
+            time = CurrentTime();
+        }
 
     };  // class ItemBase
 

@@ -4,7 +4,7 @@
 
 namespace xf::credential
 {
-    inline const char* version() { return "1.2.0"; }
+    inline const char_t* version() { return "1.2.0"; }
 
     struct PairItem : public ItemBase {
         string_t key, value;
@@ -12,7 +12,7 @@ namespace xf::credential
     };
 
     struct AccountItem : public ItemBase {
-        string_t account, description;
+        string_t name, description;
         AccountItem() : ItemBase(credential_type::ct_account) { }
     };
 
