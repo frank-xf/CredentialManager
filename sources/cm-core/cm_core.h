@@ -1,10 +1,23 @@
 ﻿#pragma once
 
-#include "cm_type.h"
+#include <string>
 
 namespace xf::credential
 {
+    using char_t = char;
+    using byte_t = std::uint8_t;
+    using time_t = std::uint64_t;
+    using string_t = std::string;
+    using memory_t = std::string;
+
     inline const char_t* version() { return "1.2.0"; }
+
+    time_t CurrentTime();
+
+    bool LoadFile(const char* file, memory_t& data);
+    bool SaveFile(const char* file, const memory_t& data);
+
+#include "cm_type.inl"
 
     struct PairItem : public ItemBase<credential_type::ct_pair> {
         string_t key, value;
@@ -68,11 +81,35 @@ namespace xf::credential
         bool Deserialize(const string_t& str);
 
         bool Load(const char* file);
-        bool Save(const char* file);
+        bool Save(const char* file) const;
 
+        template<typename FuncType>
+        bool Load(const char* file, FuncType decoding, const byte_t* key, std::size_t n)
+        {
+            memory_t data;
+            if (!LoadFile(file, data)) return false;
+
+            string_t str;
+            if (!decoding(str, data, key, n)) return false;
+
+            return Deserialize(str);
+        }
+
+        template<typename FuncType>
+        bool Save(const char* file, FuncType encodeing, const byte_t* key, std::size_t n) const
+        {
+            string_t str;
+            if (!Serialize(str)) return false;
+
+            memory_t data;
+            if (!encodeing(data, str, key, n)) return false;
+
+            return SaveFile(file, data);
+        }
+
+        static bool Encoding(memory_t& data, const string_t& str, const byte_t* key, std::size_t n);
+        static bool Decoding(string_t& str, const memory_t& data, const byte_t* key, std::size_t n);
         static bool ValidateName(const string_t& strName);
-        static bool Encoding(memory_t& mt, const byte_t* key, std::size_t n);
-        static bool Decoding(memory_t& mt, const byte_t* key, std::size_t n);
         static bool Check(const char* file);
 
     };  // class CredentialMgr

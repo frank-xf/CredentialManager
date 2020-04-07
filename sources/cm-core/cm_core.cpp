@@ -1,18 +1,61 @@
 ﻿#include <chrono>
+#include <fstream>
+#include <sstream>
 
 #include "../third/pugixml/pugixml.hpp"
 
 #include "cm_core.h"
 
-
 namespace xf::credential
 {
-#define _str_text(x) x
+    void _string_to_memory(const string_t& str, memory_t& data)
+    {
+        if constexpr (std::is_same<string_t, memory_t>::value)
+            data = str;
+        else
+            data.assign((memory_t::value_type*)str.c_str(), str.size() * sizeof(string_t::value_type));
+    }
+
+    void _memory_to_string(const memory_t& data, string_t& str)
+    {
+        if constexpr (std::is_same<string_t, memory_t>::value)
+            str = data;
+        else
+            str.assign((string_t::value_type*)str.c_str(), data.size() / sizeof(string_t::value_type));
+    }
 
     std::uint64_t CurrentTime()
     {
-        auto t = std::chrono::steady_clock::now().time_since_epoch();
+        auto t = std::chrono::system_clock::now().time_since_epoch();
         return std::chrono::duration_cast<std::chrono::milliseconds>(t).count();
+    }
+
+    bool LoadFile(const char* file, memory_t& data)
+    {
+        std::ifstream fin(file);
+        if (fin.is_open())
+        {
+            std::ostringstream os;
+            os << fin.rdbuf();
+            data.assign(os.str());
+
+            return true;
+        }
+
+        return false;
+    }
+
+    bool SaveFile(const char* file, const memory_t& data)
+    {
+        std::ofstream fout(file);
+        if (fout.is_open())
+        {
+            fout.write(data.c_str(), data.size());
+
+            return true;
+        }
+
+        return false;
     }
 
     class _xml_string_writer : public pugi::xml_writer {
@@ -26,6 +69,8 @@ namespace xf::credential
             _memory.append(static_cast<const char*>(data), n);
         }
     };
+
+#define _str_text(x) x
 
     bool CredentialMgr::Serialize(string_t& str) const
     {
@@ -57,7 +102,8 @@ namespace xf::credential
                 account.Traversal([&node_account](const pair_t& pair) {
                     auto node_pair = node_account.append_child(_str_text("pair"));
                     node_pair.append_attribute(_str_text("time")).set_value(pair.GetData().time);
-                    auto node_key = node_pair.append_child(_str_text("key")).set_value(pair.GetData().key.c_str());
+                    auto node_key = node_pair.append_child(_str_text("key"));
+                    node_key.append_child(pugi::node_pcdata).set_value(pair.GetData().key.c_str());
                     auto node_value = node_pair.append_child(_str_text("value"));
                     node_value.append_child(pugi::node_cdata).set_value(pair.GetData().value.c_str());
                  });
@@ -122,10 +168,28 @@ namespace xf::credential
 
     bool CredentialMgr::Load(const char* file)
     {
+        return Load(file,
+                    [](string_t& str, const memory_t& data, const byte_t*, std::size_t)
+                    { _memory_to_string(data, str); return true; },
+                    nullptr,
+                    0);
+    }
+
+    bool CredentialMgr::Save(const char* file) const
+    {
+        return Save(file,
+                    [](memory_t& data, const string_t& str, const byte_t*, std::size_t)
+                    { _string_to_memory(str, data); return true; },
+                    nullptr,
+                    0);
+    }
+
+    bool CredentialMgr::Encoding(memory_t& data, const string_t& str, const byte_t* key, std::size_t n)
+    {
         return false;
     }
 
-    bool CredentialMgr::Save(const char* file)
+    bool CredentialMgr::Decoding(string_t& str, const memory_t& data, const byte_t* key, std::size_t n)
     {
         return false;
     }
@@ -135,40 +199,9 @@ namespace xf::credential
         return false;
     }
 
-    bool CredentialMgr::Encoding(memory_t& mt, const byte_t* key, std::size_t n)
-    {
-        return false;
-    }
-
-    bool CredentialMgr::Decoding(memory_t& mt, const byte_t* key, std::size_t n)
-    {
-        return false;
-    }
-
     bool CredentialMgr::Check(const char* file)
     {
         return false;
-    }
-
-    void f()
-    {
-        CredentialMgr mgr;
-
-        mgr.Traversal([](platform_t& p) {
-
-            p.GetData().type;
-            p.Traversal([](account_t& a) {
-                        
-                a.GetData().type;
-                a.Traversal([](pair_t& p) {
-
-                    p.GetData().type;
-
-                            });
-                        
-                        });
-
-                      });
     }
 
 }   // namespace xf::credential

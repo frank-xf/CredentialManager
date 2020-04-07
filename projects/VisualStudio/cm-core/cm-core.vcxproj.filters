@@ -5,18 +5,33 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
+    <Filter Include="third">
+      <UniqueIdentifier>{38be90f4-6f43-4528-9a6f-289488026176}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="third\pugixml">
+      <UniqueIdentifier>{39483b43-10b7-4e97-bd34-dbe7f7d06b46}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\sources\cm-core\cm_type.h">
-      <Filter>sources</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\sources\cm-core\cm_core.h">
       <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\cm-core\cm_type.inl">
+      <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\third\pugixml\pugiconfig.hpp">
+      <Filter>third\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\third\pugixml\pugixml.hpp">
+      <Filter>third\pugixml</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\sources\cm-core\cm_core.cpp">
       <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sources\third\pugixml\pugixml.cpp">
+      <Filter>third\pugixml</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
