@@ -5,8 +5,9 @@
 namespace xf::credential
 {
 
-    using byte_t = std::uint8_t;
     using char_t = char;
+    using byte_t = std::uint8_t;
+    using time_t = std::uint64_t;
     using string_t = std::string;
     using memory_t = std::string;
 
@@ -18,14 +19,18 @@ namespace xf::credential
         at_add, at_delete, at_update, at_move, at_sort, at_clear
     };  // enum action_type
 
-    std::uint64_t CurrentTime();
+    time_t CurrentTime();
 
+    template<credential_type ct>
     struct ItemBase
     {
-        const credential_type type;
-        std::uint64_t time;
+        using base_type = ItemBase;
 
-        ItemBase(credential_type t) : type(t), time(CurrentTime()) { }
+        const credential_type type = ct;
+        time_t time;
+
+        ItemBase() : ItemBase(CurrentTime()) { }
+        ItemBase(time_t t) : time(t) { }
 
         virtual void Event(action_type at, credential_type ct) {
             time = CurrentTime();
@@ -43,6 +48,7 @@ namespace xf::credential
 
         using node_t = typename NodeType::node_type;
         using item_t = typename NodeType::item_type;
+        using parent_t = typename NodeType::parent_type;
 
         node_t* _first{ nullptr };
         node_t* _last{ nullptr };
@@ -109,7 +115,7 @@ namespace xf::credential
         {
             if (Find(item)) return nullptr;
 
-            node_t* ptr = new node_t(this, item);
+            node_t* ptr = new node_t(dynamic_cast<parent_t*>(this), item);
 
             if (IsEmpty())
             {
@@ -214,9 +220,6 @@ namespace xf::credential
     template<typename ItemType, typename NodeType, typename ParentType>
     class node_t
     {
-        static_assert(std::is_base_of<ItemBase, ItemType>::value,
-                      R"(the template parameter "ItemType" must be inherit from ItemBase)");
-
     private:
 
         node_t(const node_t&) = delete;

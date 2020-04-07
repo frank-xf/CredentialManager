@@ -1,4 +1,4 @@
-﻿#include <ctime>
+﻿#include <chrono>
 
 #include "../third/pugixml/pugixml.hpp"
 
@@ -11,24 +11,20 @@ namespace xf::credential
 
     std::uint64_t CurrentTime()
     {
-
+        auto t = std::chrono::steady_clock::now().time_since_epoch();
+        return std::chrono::duration_cast<std::chrono::milliseconds>(t).count();
     }
 
-    struct xml_string_writer : pugi::xml_writer
-    {
-    public:
-
-        explicit xml_string_writer(string_t& mt) : _memory(mt) { }
-
-        void write(const void* data, size_t n) override
-        {
-            _memory.append(static_cast<const char*>(data), n);
-        }
-
-    private:
-
+    class _xml_string_writer : public pugi::xml_writer {
         string_t& _memory;
 
+    public:
+
+        explicit _xml_string_writer(string_t& mt) : _memory(mt) { }
+
+        void write(const void* data, size_t n) override {
+            _memory.append(static_cast<const char*>(data), n);
+        }
     };
 
     bool CredentialMgr::Serialize(string_t& str) const
@@ -60,22 +56,68 @@ namespace xf::credential
 
                 account.Traversal([&node_account](const pair_t& pair) {
                     auto node_pair = node_account.append_child(_str_text("pair"));
-                    node_pair.append_attribute(_str_text("name")).set_value(pair.GetData().key.c_str());
                     node_pair.append_attribute(_str_text("time")).set_value(pair.GetData().time);
-                    node_pair.append_child(pugi::node_cdata).set_value(pair.GetData().value.c_str());
+                    auto node_key = node_pair.append_child(_str_text("key")).set_value(pair.GetData().key.c_str());
+                    auto node_value = node_pair.append_child(_str_text("value"));
+                    node_value.append_child(pugi::node_cdata).set_value(pair.GetData().value.c_str());
                  });
             });
         });
 
-        xml_string_writer writer(str);
-        doc.save(writer, "    ", pugi::format_default, pugi::encoding_utf8);
+        _xml_string_writer _writer(str);
+        doc.save(_writer, "    ", pugi::format_default, pugi::encoding_utf8);
 
-        return false;
+        return true;
     }
 
     bool CredentialMgr::Deserialize(const string_t& str)
     {
-        return false;
+        pugi::xml_document doc;
+        if (!doc.load_buffer(str.c_str(), str.size(), pugi::parse_default, pugi::encoding_utf8)) return false;
+
+        auto node_credential = doc.child(_str_text("credential"));
+        if (pugi::node_element != node_credential.type()) return false;
+
+        Clear();
+
+        for (auto node_platform : node_credential.children(_str_text("platform")))
+        {
+            auto name_attr_platform = node_platform.attribute(_str_text("name"));
+            if (name_attr_platform.empty()) return false;
+
+            auto ptr_platform = Add(
+                { name_attr_platform.value(), node_platform.attribute(_str_text("url")).value(), node_platform.attribute(_str_text("comment")).value() }
+            );
+
+            for (auto node_account : node_platform.children(_str_text("account")))
+            {
+                auto name_attr_account = node_account.attribute(_str_text("name"));
+                if (name_attr_account.empty()) return false;
+
+                auto ptr_account = ptr_platform->Add({ name_attr_account.value(), node_account.attribute(_str_text("comment")).value() });
+
+                for (auto node_pair : node_account.children(_str_text("pair")))
+                {
+                    auto name_attr_pair = node_pair.attribute(_str_text("name"));
+                    if (name_attr_pair.empty()) return false;
+
+                    auto node_value = node_pair.first_child();
+                    if (!node_value.empty())
+                    {
+                        if (pugi::node_cdata != node_value.type()) return false;
+
+                        ptr_account->Add({ name_attr_pair.value(), node_value.value() });
+                    }
+                }
+            }
+        }
+
+        time = node_credential.attribute(_str_text("time")).as_ullong();
+        username = node_credential.attribute(_str_text("user")).value();
+        description = node_credential.attribute(_str_text("comment")).value();
+        version = xf::credential::version();
+
+        return true;
     }
 
     bool CredentialMgr::Load(const char* file)
