@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include "cm_type.h"
 
@@ -6,34 +6,39 @@ namespace xf::credential
 {
     inline const char* version() { return "1.2.0"; }
 
-    struct pair_item : public credential_t {
+    struct PairItem : public ItemBase {
         string_t key, value;
-        pair_item() : credential_t(credential_type::ct_pair) { }
+        PairItem() : ItemBase(credential_type::ct_pair) { }
     };
 
-    struct account_item : public credential_t {
+    struct AccountItem : public ItemBase {
         string_t account, description;
-        account_item() : credential_t(credential_type::ct_account) { }
+        AccountItem() : ItemBase(credential_type::ct_account) { }
     };
 
-    struct platform_item : public credential_t {
+    struct PlatformItem : public ItemBase {
         string_t name, url, description;
-        platform_item() : credential_t(credential_type::ct_platform) { }
+        PlatformItem() : ItemBase(credential_type::ct_platform) { }
     };
 
-    struct pair_t : public node_t<pair_item, pair_t> {
+    struct pair_t;
+    struct account_t;
+    struct platform_t;
+    class CredentialMgr;
+
+    struct pair_t : public node_t<PairItem, pair_t, account_t> {
         using base_type::base_type;
     };
 
-    struct account_t : public node_t<account_item, account_t>, public list_t<pair_t> {
+    struct account_t : public node_t<AccountItem, account_t, platform_t>, public list_t<pair_t> {
         using base_type::base_type;
     };
 
-    struct platform_t : public node_t<platform_item, platform_t>, public list_t<account_t> {
+    struct platform_t : public node_t<PlatformItem, platform_t, CredentialMgr>, public list_t<account_t> {
         using base_type::base_type;
     };
 
-    class CredentialMgr : public credential_t, public list_t<platform_t>
+    class CredentialMgr : public ItemBase, public list_t<platform_t>
     {
     private:
 
@@ -41,10 +46,10 @@ namespace xf::credential
 
     public:
 
-        CredentialMgr() : credential_t(credential_type::ct_credential) { }
+        CredentialMgr() : ItemBase(credential_type::ct_credential) { }
 
-        bool Serialize(memory_t& mem) const;
-        bool Deserialize(const memory_t& mem);
+        bool Serialize(string_t& str) const;
+        bool Deserialize(const string_t& str);
 
         bool Load(const char* file);
         bool Save(const char* file);

@@ -1,21 +1,24 @@
-#include <ctime>
+﻿#include <ctime>
+
+#include "../third/pugixml/pugixml.hpp"
+
 #include "cm_core.h"
 
 
 namespace xf::credential
 {
-    void credential_t::Updated(action_type at, credential_type ct)
+    void ItemBase::Event(action_type at, credential_type ct)
     {
         time = std::time(nullptr);
     }
 
 
-    bool CredentialMgr::Serialize(memory_t& mem) const
+    bool CredentialMgr::Serialize(string_t& str) const
     {
         return false;
     }
 
-    bool CredentialMgr::Deserialize(const memory_t& mem)
+    bool CredentialMgr::Deserialize(const string_t& str)
     {
         return false;
     }

@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <string>
 
@@ -17,26 +17,27 @@ namespace xf::credential
         at_add, at_delete, at_update, at_move, at_sort, at_clear
     };  // enum action_type
 
-    struct credential_t
+    struct ItemBase
     {
         const credential_type type;
         std::uint64_t time;
 
-        credential_t(credential_type t) : type(t) { }
+        ItemBase(credential_type t) : type(t) { }
 
-        virtual void Updated(action_type at, credential_type ct);
+        virtual void Event(action_type at, credential_type ct);
 
-    };  // class credential_t
+    };  // class ItemBase
 
     template<typename NodeType>
     class list_t
     {
-    protected:
+    private:
+
+        list_t(const list_t&) = delete;
+        list_t& operator=(const list_t&) = delete;
 
         using node_t = typename NodeType::node_type;
         using item_t = typename NodeType::item_type;
-
-    private:
 
         node_t* _first{ nullptr };
         node_t* _last{ nullptr };
@@ -205,11 +206,11 @@ namespace xf::credential
 
     };  // class list_t
 
-    template<typename ItemType, typename NodeType>
+    template<typename ItemType, typename NodeType, typename ParentType>
     class node_t
     {
-        static_assert(std::is_base_of<credential_t, ItemType>::value,
-                      R"(the template parameter "ItemType" must be inherit from credential_t)");
+        static_assert(std::is_base_of<ItemBase, ItemType>::value,
+                      R"(the template parameter "ItemType" must be inherit from ItemBase)");
 
     private:
 
@@ -221,7 +222,7 @@ namespace xf::credential
         using base_type = node_t;
         using node_type = NodeType;
         using item_type = ItemType;
-        using parent_type = list_t<node_type>;
+        using parent_type = ParentType;
 
         node_t() = default;
         node_t(parent_type* ptr, const item_type& item) : _parent(ptr), _data(item) { }
@@ -230,11 +231,11 @@ namespace xf::credential
         const item_type& GetData() const { return _data; }
         void SetData(const item_type& item) { _data = item; }
 
-        void Updated(action_type at, credential_type ct)
+        void Event(action_type at, credential_type ct)
         {
-            _data.Updated(at, ct);
+            _data.Event(at, ct);
             if (_parent)
-                _parent->Updated(at, ct);
+                _parent->Event(at, ct);
         }
 
     protected:
@@ -245,7 +246,7 @@ namespace xf::credential
         node_type* _next{ nullptr };
         parent_type* _parent{ nullptr };
 
-        friend parent_type;
+        friend list_t<node_type>;
     };  // class node_t
 
 }   // namespace xf::credential
