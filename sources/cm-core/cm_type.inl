@@ -60,7 +60,7 @@ private:
         return nullptr;
     }
 
-    void _Remove(node_t* ptr)
+    void _Take(node_t* ptr)
     {
         if (_first == ptr)
             _first = ptr->_next;
@@ -71,9 +71,39 @@ private:
             _last = ptr->_prev;
         else
             ptr->_next->_prev = ptr->_prev;
+    }
 
+    void _Remove(node_t* ptr)
+    {
+        _Take(ptr);
         --_count;
         delete ptr;
+    }
+
+    void _InsertAfter(node_t* ptr, node_t* where)
+    {
+        ptr->_prev = where;
+        ptr->_next = where->_next;
+
+        if (_last == where)
+            _last = ptr;
+        else
+            where->_next->_prev = ptr;
+
+        where->_next = ptr;
+    }
+
+    void _InsertBefore(node_t* ptr, node_t* where)
+    {
+        ptr->_prev = where->_prev;
+        ptr->_next = where;
+
+        if (_first == where)
+            _first = ptr;
+        else
+            where->_prev->_next = ptr;
+
+        where->_prev = ptr;
     }
 
 public:
@@ -165,6 +195,41 @@ public:
     const node_t* Find(const item_t& key) const
     {
         return (_Find([&key](const item_t& item) { return (&key == &item || key == item); }));
+    }
+
+    int _Move(node_t* ptr, int offset)
+    {
+        int i = 0;
+
+        if (0 < offset)
+        {
+            node_t* where = ptr;
+            for (; i < offset && where != _last; ++i)
+                where = where->_next;
+
+            if (ptr != where)
+            {
+                _Take(ptr);
+                _InsertAfter(ptr, where);
+            }
+        }
+
+        if (offset < 0)
+        {
+            node_t* where = ptr;
+            for (; offset < i && where != _first; --i)
+                where = where->_prev;
+
+            if (ptr != where)
+            {
+                _Take(ptr);
+                _InsertBefore(ptr, where);
+            }
+        }
+
+        // Updated(static_cast<param_type>(action_type::at_move));
+
+        return i;
     }
 
     template<typename FuncType>
