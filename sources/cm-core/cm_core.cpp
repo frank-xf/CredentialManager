@@ -8,22 +8,6 @@
 
 namespace xf::credential
 {
-    void _string_to_memory(const string_t& str, memory_t& data)
-    {
-        if constexpr (std::is_same<string_t, memory_t>::value)
-            data = str;
-        else
-            data.assign((memory_t::value_type*)str.c_str(), str.size() * sizeof(string_t::value_type));
-    }
-
-    void _memory_to_string(const memory_t& data, string_t& str)
-    {
-        if constexpr (std::is_same<string_t, memory_t>::value)
-            str = data;
-        else
-            str.assign((string_t::value_type*)str.c_str(), data.size() / sizeof(string_t::value_type));
-    }
-
     std::uint64_t CurrentTime()
     {
         auto t = std::chrono::system_clock::now().time_since_epoch();
@@ -41,7 +25,7 @@ namespace xf::credential
 
             return true;
         }
-
+        
         return false;
     }
 
@@ -111,7 +95,7 @@ namespace xf::credential
         });
 
         _xml_string_writer _writer(str);
-        doc.save(_writer, "    ", pugi::format_default, pugi::encoding_utf8);
+        doc.save(_writer, _str_text("    "), pugi::format_default, pugi::encoding_utf8);
 
         return true;
     }
@@ -166,30 +150,12 @@ namespace xf::credential
         return true;
     }
 
-    bool CredentialMgr::Load(const char* file)
-    {
-        return Load(file,
-                    [](string_t& str, const memory_t& data, const byte_t*, std::size_t)
-                    { _memory_to_string(data, str); return true; },
-                    nullptr,
-                    0);
-    }
-
-    bool CredentialMgr::Save(const char* file) const
-    {
-        return Save(file,
-                    [](memory_t& data, const string_t& str, const byte_t*, std::size_t)
-                    { _string_to_memory(str, data); return true; },
-                    nullptr,
-                    0);
-    }
-
-    bool CredentialMgr::Encoding(memory_t& data, const string_t& str, const byte_t* key, std::size_t n)
+    bool CredentialMgr::Encoding(memory_t& data, const byte_t* key, std::size_t n)
     {
         return false;
     }
 
-    bool CredentialMgr::Decoding(string_t& str, const memory_t& data, const byte_t* key, std::size_t n)
+    bool CredentialMgr::Decoding(memory_t& data, const byte_t* key, std::size_t n)
     {
         return false;
     }

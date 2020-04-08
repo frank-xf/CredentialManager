@@ -7,12 +7,32 @@ namespace xf::credential
     using char_t = char;
     using byte_t = std::uint8_t;
     using time_t = std::uint64_t;
-    using string_t = std::string;
-    using memory_t = std::string;
+
+    template<typename CharType>
+    using _string_type = std::basic_string<CharType, std::char_traits<CharType>, std::allocator<CharType>>;
+
+    using string_t = _string_type<char_t>;
+    using memory_t = _string_type<char>;
 
     inline const char_t* version() { return "1.2.0"; }
 
     time_t CurrentTime();
+
+    inline memory_t string_to_memory(const string_t& str)
+    {
+        if constexpr (std::is_same<string_t, memory_t>::value)
+            return str;
+        else
+            return memory_t((memory_t::value_type*)str.c_str(), str.size() * sizeof(string_t::value_type));
+    }
+
+    inline string_t memory_to_string(const memory_t& data)
+    {
+        if constexpr (std::is_same<string_t, memory_t>::value)
+            return data;
+        else
+            return string_t((string_t::value_type*)data.c_str(), data.size() / sizeof(string_t::value_type));
+    }
 
     bool LoadFile(const char* file, memory_t& data);
     bool SaveFile(const char* file, const memory_t& data);
@@ -80,8 +100,15 @@ namespace xf::credential
         bool Serialize(string_t& str) const;
         bool Deserialize(const string_t& str);
 
-        bool Load(const char* file);
-        bool Save(const char* file) const;
+        bool Load(const char* file)
+        {
+            return Load(file, [](memory_t&, const byte_t*, std::size_t) { return true; }, nullptr, 0);
+        }
+
+        bool Save(const char* file) const
+        {
+            return Save(file, [](memory_t&, const byte_t*, std::size_t) { return true; }, nullptr, 0);
+        }
 
         template<typename FuncType>
         bool Load(const char* file, FuncType decoding, const byte_t* key, std::size_t n)
@@ -89,10 +116,9 @@ namespace xf::credential
             memory_t data;
             if (!LoadFile(file, data)) return false;
 
-            string_t str;
-            if (!decoding(str, data, key, n)) return false;
+            if (!decoding(data, key, n)) return false;
 
-            return Deserialize(str);
+            return Deserialize(memory_to_string(data));
         }
 
         template<typename FuncType>
@@ -101,14 +127,14 @@ namespace xf::credential
             string_t str;
             if (!Serialize(str)) return false;
 
-            memory_t data;
-            if (!encodeing(data, str, key, n)) return false;
+            memory_t data = string_to_memory(str);
+            if (!encodeing(data, key, n)) return false;
 
             return SaveFile(file, data);
         }
 
-        static bool Encoding(memory_t& data, const string_t& str, const byte_t* key, std::size_t n);
-        static bool Decoding(string_t& str, const memory_t& data, const byte_t* key, std::size_t n);
+        static bool Encoding(memory_t& data, const byte_t* key, std::size_t n);
+        static bool Decoding(memory_t& data, const byte_t* key, std::size_t n);
         static bool ValidateName(const string_t& strName);
         static bool Check(const char* file);
 

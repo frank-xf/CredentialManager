@@ -1,16 +1,15 @@
-#include "../cm-core/cm_core.h"
+﻿
+#include <iostream>
+#include <clocale>
 
+#include "../cm-core/cm_core.h"
 
 int main()
 {
-    xf::credential::CredentialMgr mgr;
+    std::setlocale(LC_ALL, "en_US.utf8");
 
-    mgr.Load(R"(E:\Workspace\Practice\Test\fb.xml)");
-    mgr.Save(R"(E:\Workspace\Practice\Test\fb-new.xml)");
+    xf::credential::memory_t data;
+    xf::credential::LoadFile(R"()", data);
 
-
-
-
-
-    return 0;
+    std::cout << "string-> " << data << std::endl;
 }
