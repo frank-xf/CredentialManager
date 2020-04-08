@@ -18,7 +18,7 @@ struct ItemBase
     ItemBase() : ItemBase(CurrentTime()) { }
     ItemBase(time_t t) : time(t) { }
 
-    virtual void Event(action_type at, credential_type ct) {
+    virtual void Event(action_type e, credential_type c) {
         time = CurrentTime();
     }
 

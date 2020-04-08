@@ -4,12 +4,12 @@
 
 #include "../cm-core/cm_core.h"
 
-int main()
+int main(int argc, char *argv[])
 {
-    std::setlocale(LC_ALL, "en_US.utf8");
+    // std::setlocale(LC_ALL, "en_US.utf8");
 
     xf::credential::memory_t data;
-    xf::credential::LoadFile(R"()", data);
+    xf::credential::LoadFile(R"(resources/credential-demo.xml)", data);
 
-    std::cout << "string-> " << data << std::endl;
+    std::cout << data << std::endl;
 }
