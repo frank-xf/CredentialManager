@@ -3,9 +3,9 @@ enum class credential_type : unsigned char {
     ct_credential, ct_platform, ct_account, ct_pair
 };  // enum credential_type
 
-enum class action_type : unsigned char {
-    at_add, at_delete, at_update, at_move, at_sort, at_clear
-};  // enum action_type
+enum class event_type : unsigned char {
+    et_add, et_delete, et_update, et_move, et_sort, et_clear
+};  // enum event_type
 
 template<credential_type ct>
 struct ItemBase
@@ -18,7 +18,7 @@ struct ItemBase
     ItemBase() : ItemBase(CurrentTime()) { }
     ItemBase(time_t t) : time(t) { }
 
-    virtual void Event(action_type e, credential_type c) {
+    virtual void Event(event_type e, credential_type c) {
         time = CurrentTime();
     }
 
@@ -222,10 +222,25 @@ public:
     node_t(parent_type* ptr, const item_type& item) : _parent(ptr), _data(item) { }
 
     parent_type* Parent() const { return _parent; }
-    const item_type& GetData() const { return _data; }
-    void SetData(const item_type& item) { _data = item; }
+    const item_type& Item() const { return _data; }
 
-    void Event(action_type at, credential_type ct)
+    bool UpdateItem(const item_type& item)
+    {
+        for (node_type* ptr = _prev; ptr; ptr = ptr->_prev)
+            if (item == ptr->_data)
+                return false;
+
+        for (node_type* ptr = _next; ptr; ptr = ptr->_next)
+            if (item == ptr->_data)
+                return false;
+
+        _data = item;
+        Event(event_type::et_update, _data.type);
+
+        return true;
+    }
+
+    void Event(event_type at, credential_type ct)
     {
         _data.Event(at, ct);
         if (_parent)

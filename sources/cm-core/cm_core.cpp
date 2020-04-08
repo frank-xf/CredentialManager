@@ -72,24 +72,24 @@ namespace xf::credential
 
         Traversal([&node_credential](const platform_t& platform) {
             auto node_platform = node_credential.append_child(_str_text("platform"));
-            node_platform.append_attribute(_str_text("time")).set_value(platform.GetData().time);
-            node_platform.append_attribute(_str_text("name")).set_value(platform.GetData().name.c_str());
-            node_platform.append_attribute(_str_text("url")).set_value(platform.GetData().url.c_str());
-            node_platform.append_attribute(_str_text("description")).set_value(platform.GetData().description.c_str());
+            node_platform.append_attribute(_str_text("time")).set_value(platform.Item().time);
+            node_platform.append_attribute(_str_text("name")).set_value(platform.Item().name.c_str());
+            node_platform.append_attribute(_str_text("url")).set_value(platform.Item().url.c_str());
+            node_platform.append_attribute(_str_text("description")).set_value(platform.Item().description.c_str());
 
             platform.Traversal([&node_platform](const account_t& account) {
                 auto node_account = node_platform.append_child(_str_text("account"));
-                node_account.append_attribute(_str_text("time")).set_value(account.GetData().time);
-                node_account.append_attribute(_str_text("name")).set_value(account.GetData().name.c_str());
-                node_account.append_attribute(_str_text("description")).set_value(account.GetData().description.c_str());
+                node_account.append_attribute(_str_text("time")).set_value(account.Item().time);
+                node_account.append_attribute(_str_text("name")).set_value(account.Item().name.c_str());
+                node_account.append_attribute(_str_text("description")).set_value(account.Item().description.c_str());
 
                 account.Traversal([&node_account](const pair_t& pair) {
                     auto node_pair = node_account.append_child(_str_text("pair"));
-                    node_pair.append_attribute(_str_text("time")).set_value(pair.GetData().time);
+                    node_pair.append_attribute(_str_text("time")).set_value(pair.Item().time);
                     auto node_key = node_pair.append_child(_str_text("key"));
-                    node_key.append_child(pugi::node_pcdata).set_value(pair.GetData().key.c_str());
+                    node_key.append_child(pugi::node_pcdata).set_value(pair.Item().key.c_str());
                     auto node_value = node_pair.append_child(_str_text("value"));
-                    node_value.append_child(pugi::node_cdata).set_value(pair.GetData().value.c_str());
+                    node_value.append_child(pugi::node_cdata).set_value(pair.Item().value.c_str());
                  });
             });
         });
@@ -99,7 +99,7 @@ namespace xf::credential
 
         return true;
     }
-
+    /* // old version
     bool CredentialMgr::Deserialize(const string_t& str)
     {
         pugi::xml_document doc;
@@ -149,7 +149,63 @@ namespace xf::credential
 
         return true;
     }
+    /*/
+    bool CredentialMgr::Deserialize(const string_t& str)
+    {
+        pugi::xml_document doc;
+        if (!doc.load_buffer(str.c_str(), str.size(), pugi::parse_default, pugi::encoding_utf8)) return false;
 
+        auto node_credential = doc.child(_str_text("credential"));
+        if (pugi::node_element != node_credential.type()) return false;
+
+        Clear();
+
+        for (auto node_platform : node_credential.children(_str_text("platform")))
+        {
+            auto platform_name = node_platform.attribute(_str_text("name"));
+            if (platform_name.empty()) return false;
+
+            auto ptr_platform = Add(
+                { platform_name.value(),
+                  node_platform.attribute(_str_text("url")).value(),
+                  node_platform.attribute(_str_text("description")).value(),
+                  node_platform.attribute(_str_text("time")).as_ullong() }
+            );
+
+            for (auto node_account : node_platform.children(_str_text("account")))
+            {
+                auto account_name = node_account.attribute(_str_text("name"));
+                if (account_name.empty()) return false;
+
+                auto ptr_account = ptr_platform->Add({ account_name.value(),
+                                                       node_account.attribute(_str_text("description")).value(),
+                                                       node_account.attribute(_str_text("time")).as_ullong() });
+
+                for (auto node_pair : node_account.children(_str_text("pair")))
+                {
+                    auto pair_time = node_pair.attribute(_str_text("time"));
+
+                    auto node_key = node_pair.child("key");
+                    auto k = node_key.first_child();
+                    if (k.empty() || pugi::node_pcdata != k.type()) return false;
+
+                    auto node_value = node_pair.child("value");
+                    auto v = node_value.first_child();
+                    if (v.empty() || pugi::node_cdata != v.type()) return false;
+
+                    ptr_account->Add({ k.value(), v.value(), pair_time.as_ullong() });
+                }
+            }
+        }
+
+        time = node_credential.attribute(_str_text("time")).as_ullong();
+        username = node_credential.attribute(_str_text("username")).value();
+        description = node_credential.attribute(_str_text("description")).value();
+        version = node_credential.attribute(_str_text("version")).value();
+
+        return true;
+    }
+    /**/
     bool CredentialMgr::Encoding(memory_t& data, const byte_t* key, std::size_t n)
     {
         return false;
