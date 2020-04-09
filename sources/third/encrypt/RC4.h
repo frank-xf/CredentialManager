@@ -1,11 +1,9 @@
-#ifndef _bnb_RC4_H_
-#define _bnb_RC4_H_
+﻿#pragma once
 
-namespace bnb
+namespace xf::encrypt
 {
 
-	unsigned int RC4Encoding(unsigned char* dst, const unsigned char* src, unsigned int nsrc, const unsigned char* key, unsigned int nkey);
+	unsigned int rc4(unsigned char* dst, const unsigned char* src, unsigned int nsrc, const unsigned char* key, unsigned int nkey);
 
 }
 
-#endif  // _bnb_RC4_H_

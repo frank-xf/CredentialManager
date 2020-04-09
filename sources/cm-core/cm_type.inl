@@ -12,7 +12,8 @@ struct ItemBase
 {
     using base_type = ItemBase;
 
-    const credential_type type = ct;
+    static constexpr credential_type type = ct;
+
     time_t time;
 
     ItemBase() : ItemBase(CurrentTime()) { }
@@ -40,26 +41,6 @@ private:
     node_t* _last{ nullptr };
     std::size_t _count{ 0 };
 
-    template<typename FuncType>
-    node_t* _Find(FuncType func)
-    {
-        for (node_t* ptr = _first; ptr; ptr = ptr->_next)
-            if (func(ptr->_data))
-                return ptr;
-
-        return nullptr;
-    }
-
-    template<typename FuncType>
-    const node_t* _Find(FuncType func) const
-    {
-        for (node_t* ptr = _first; ptr; ptr = ptr->_next)
-            if (func(ptr->_data))
-                return ptr;
-
-        return nullptr;
-    }
-
     void _Take(node_t* ptr)
     {
         if (_first == ptr)
@@ -78,6 +59,8 @@ private:
         _Take(ptr);
         --_count;
         delete ptr;
+
+        Event(event_type::et_delete, item_t::type);
     }
 
     void _InsertAfter(node_t* ptr, node_t* where)
@@ -104,97 +87,6 @@ private:
             where->_prev->_next = ptr;
 
         where->_prev = ptr;
-    }
-
-public:
-
-    list_t() = default;
-    virtual ~list_t() { Clear(); }
-
-    std::size_t Size() const { return _count; }
-    bool IsEmpty() const { return (0 == Size()); }
-
-    void Clear()
-    {
-        while (_first)
-        {
-            node_t* ptr = _first;
-            _first = _first->_next;
-            delete ptr;
-        }
-
-        _last = nullptr;
-        _count = 0;
-    }
-
-    node_t* Add(const item_t& item)
-    {
-        if (Find(item)) return nullptr;
-
-        node_t* ptr = new node_t(dynamic_cast<parent_t*>(this), item);
-
-        if (IsEmpty())
-        {
-            _first = ptr;
-            _last = ptr;
-        }
-        else
-        {
-            ptr->_prev = _last;
-            _last->_next = ptr;
-            _last = ptr;
-        }
-
-        ++_count;
-
-        return ptr;
-    }
-
-    bool Remove(node_t* where)
-    {
-        for (node_t* ptr = _first; ptr; ptr = ptr->_next)
-        {
-            if (ptr == where)
-            {
-                _Remove(ptr);
-                return true;
-            }
-        }
-
-        return false;
-    }
-
-    template<typename FuncType>
-    bool Remove(FuncType func)
-    {
-        if (node_t* ptr = _Find(func))
-        {
-            _Remove(ptr);
-            return true;
-        }
-
-        return false;
-    }
-
-    bool Remove(const item_t& item)
-    {
-        if (node_t* ptr = Find(item))
-        {
-            _Remove(ptr);
-            return true;
-        }
-
-        return false;
-    }
-
-    node_t* Find(const item_t& key)
-    {
-        return (_Find([&key](const item_t& item) { return (&key == &item || key == item); }));
-    }
-
-    const node_t* Find(const item_t& key) const
-    {
-        return (_Find([&key](const item_t& item) { return (&key == &item || key == item); }));
     }
 
     int _Move(node_t* ptr, int offset)
@@ -227,23 +119,211 @@ public:
             }
         }
 
-        // Updated(static_cast<param_type>(action_type::at_move));
+        if (0 != i) Event(event_type::et_move, item_t::type);
 
         return i;
     }
 
-    template<typename FuncType>
-    void Traversal(FuncType func)
+    bool _Update(node_t* where, const item_t& item)
     {
-        for (node_t* ptr = _first; ptr; ptr = ptr->_next)
-            func(*ptr);
+        for (node_t* ptr = where->_prev; ptr; ptr = ptr->_prev)
+            if (item == ptr->_data)
+                return false;
+
+        for (node_t* ptr = where->_next; ptr; ptr = ptr->_next)
+            if (item == ptr->_data)
+                return false;
+
+        where->_data = item;
+        Event(event_type::et_update, item_t::type);
+
+        return true;
+    }
+
+public:
+
+    list_t() = default;
+    virtual ~list_t() { Clear(); }
+
+    std::size_t Size() const { return _count; }
+    bool IsEmpty() const { return (0 == Size()); }
+
+    void Clear()
+    {
+        while (_first)
+        {
+            node_t* ptr = _first;
+            _first = _first->_next;
+            delete ptr;
+        }
+
+        _last = nullptr;
+        _count = 0;
+    }
+
+    node_t* Add(const item_t& item)
+    {
+        if (Find(item)) return nullptr;
+
+        node_t* ptr = new node_t(dynamic_cast<parent_t*>(this), item);
+
+        if (IsEmpty())
+            _first = _last = ptr;
+        else
+            _InsertAfter(ptr, _last);
+
+        ++_count;
+
+        return ptr;
+    }
+
+    node_t* PushBack(const item_t& item)
+    {
+        if (node_t* ptr = Add(item))
+        {
+            Event(event_type::et_add, item_t::type);
+
+            return ptr;
+        }
+
+        return nullptr;
+    }
+
+    node_t* PushFront(const item_t& item)
+    {
+        if (Find(item)) return nullptr;
+
+        node_t* ptr = new node_t(dynamic_cast<parent_t*>(this), item);
+
+        if (IsEmpty())
+            _first = _last = ptr;
+        else
+            _InsertBefore(ptr, _first);
+
+        ++_count;
+
+        Event(event_type::et_add, item_t::type);
+        return ptr;
     }
 
     template<typename FuncType>
-    void Traversal(FuncType func) const
+    bool Remove(FuncType func)
+    {
+        if (node_t* ptr = Find(func))
+        {
+            _Remove(ptr);
+            return true;
+        }
+
+        return false;
+    }
+
+    bool Remove(const item_t& key)
+    {
+        return Remove([&key](const item_t& item) { return (&key == &item || key == item); });
+    }
+
+    bool Remove(std::size_t index)
+    {
+        if (node_t* ptr = operator[](index))
+        {
+            _Remove(ptr);
+            return true;
+        }
+
+        return false;
+    }
+
+    template<typename FuncType>
+    bool Update(FuncType func, const item_t& item)
+    {
+        if (node_t* ptr = Find(func))
+            return _Update(ptr, item);
+
+        return false;
+    }
+
+    bool Update(const item_t& key, const item_t& item)
+    {
+        return Update([&key](const item_t& item) { return (&key == &item || key == item); }, item);
+    }
+
+    bool Update(std::size_t index, const item_t& item)
+    {
+        if (node_t* ptr = operator[](index))
+            return _Update(ptr, item);
+
+        return false;
+    }
+
+    int Move(const item_t& key, int offset)
+    {
+        if (node_t* ptr = Find(key))
+            return _Move(ptr, offset);
+
+        return 0;
+    }
+
+    int Move(std::size_t index, int offset)
+    {
+        if (node_t* ptr = operator[](index))
+            return _Move(ptr, offset);
+
+        return 0;
+    }
+
+    template<typename FuncType>
+    bool Sort(FuncType compareFunc)
+    {
+        if (1 < _count)
+        {
+            for (node_t* ptr = _first->_next; ptr;)
+            {
+                node_t* next = ptr->_next;
+                if (compareFunc(ptr->_data, ptr->_prev->_data))
+                {
+                    _Take(ptr);
+                    _InsertBefore(ptr, Find([&ptr](const item_t& item) { return !(item < ptr->_data); }));
+                }
+
+                ptr = next;
+            }
+
+            Event(event_type::et_sort, item_t::type);
+            return true;
+        }
+
+        return false;
+    }
+
+    template<typename FuncType>
+    node_t* Find(FuncType func)
     {
         for (node_t* ptr = _first; ptr; ptr = ptr->_next)
-            func(*ptr);
+            if (func(ptr->_data))
+                return ptr;
+
+        return nullptr;
+    }
+
+    template<typename FuncType>
+    const node_t* Find(FuncType func) const
+    {
+        for (node_t* ptr = _first; ptr; ptr = ptr->_next)
+            if (func(ptr->_data))
+                return ptr;
+
+        return nullptr;
+    }
+
+    node_t* Find(const item_t& key)
+    {
+        return (Find([&key](const item_t& item) { return (&key == &item || key == item); }));
+    }
+
+    const node_t* Find(const item_t& key) const
+    {
+        return (Find([&key](const item_t& item) { return (&key == &item || key == item); }));
     }
 
     node_t* operator[](std::size_t index)
@@ -264,6 +344,20 @@ public:
                 return ptr;
 
         return nullptr;
+    }
+
+    template<typename FuncType>
+    void Traversal(FuncType func)
+    {
+        for (node_t* ptr = _first; ptr; ptr = ptr->_next)
+            func(*ptr);
+    }
+
+    template<typename FuncType>
+    void Traversal(FuncType func) const
+    {
+        for (node_t* ptr = _first; ptr; ptr = ptr->_next)
+            func(*ptr);
     }
 
 };  // class list_t
@@ -288,22 +382,6 @@ public:
 
     parent_type* Parent() const { return _parent; }
     const item_type& Item() const { return _data; }
-
-    bool UpdateItem(const item_type& item)
-    {
-        for (node_type* ptr = _prev; ptr; ptr = ptr->_prev)
-            if (item == ptr->_data)
-                return false;
-
-        for (node_type* ptr = _next; ptr; ptr = ptr->_next)
-            if (item == ptr->_data)
-                return false;
-
-        _data = item;
-        Event(event_type::et_update, _data.type);
-
-        return true;
-    }
 
     void Event(event_type at, credential_type ct)
     {

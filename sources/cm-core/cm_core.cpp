@@ -176,7 +176,7 @@ namespace xf::credential
             {
                 auto account_name = node_account.attribute(_str_text("name"));
                 if (account_name.empty()) return false;
-
+                
                 auto ptr_account = ptr_platform->Add({ account_name.value(),
                                                        node_account.attribute(_str_text("description")).value(),
                                                        node_account.attribute(_str_text("time")).as_ullong() });

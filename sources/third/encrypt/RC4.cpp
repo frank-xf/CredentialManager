@@ -1,4 +1,4 @@
-namespace bnb {
+﻿namespace xf::encrypt {
 
 /*
 const unsigned char _just_my_favourite[] = {
@@ -15,7 +15,7 @@ const unsigned char _just_my_favourite[] = {
 };
 */
 
-	unsigned int RC4Encoding(unsigned char* dst, const unsigned char* src, unsigned int nsrc, const unsigned char* key, unsigned int nkey)
+	unsigned int rc4(unsigned char* dst, const unsigned char* src, unsigned int nsrc, const unsigned char* key, unsigned int nkey)
 	{
 		if (dst && src && 0 < nsrc)
 		{

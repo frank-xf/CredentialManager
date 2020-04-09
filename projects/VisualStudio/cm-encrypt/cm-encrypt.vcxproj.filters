@@ -1,0 +1,37 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="sources">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="sources\third">
+      <UniqueIdentifier>{26fa727c-145f-4adb-ae22-20be05c21b71}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="sources\third\encrypt">
+      <UniqueIdentifier>{5f48564a-ca19-49fd-9c0a-98f432b0599c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\sources\third\encrypt\RC4.cpp">
+      <Filter>sources\third\encrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sources\third\encrypt\sha256.cpp">
+      <Filter>sources\third\encrypt</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sources\cm-encrypt\cm_encrypt.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\sources\third\encrypt\RC4.h">
+      <Filter>sources\third\encrypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\third\encrypt\sha256.h">
+      <Filter>sources\third\encrypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\cm-encrypt\cm_encrypt.h">
+      <Filter>sources</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

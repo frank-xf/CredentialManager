@@ -1,4 +1,4 @@
-namespace bnb
+﻿namespace xf::encrypt
 {
 
 #define ROTLEFT(a, b)   (((a) << (b)) | ((a) >> (32-(b))))
@@ -103,7 +103,7 @@ namespace bnb
         sha256_transform(_state, _data);
     }
 
-    void SHA_256(unsigned char(&out_arr)[0x20], const unsigned char* in_str, unsigned int n)
+    void sha_256(unsigned char(&out_arr)[0x20], const unsigned char* in_str, unsigned int n)
     {
         unsigned int state[]{ 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
         unsigned int datalen{ 0 };
@@ -160,10 +160,10 @@ namespace bnb
         out_arr[0x1f] = (state[7]) & 0xff;
     }
 
-    void SHA_256(char(&out_arr)[0x40], const unsigned char * in_str, unsigned int n)
+    void sha_256(char(&out_arr)[0x40], const unsigned char * in_str, unsigned int n)
     {
         unsigned char _arr[32]{ 0 };
-        SHA_256(_arr, in_str, n);
+        sha_256(_arr, in_str, n);
 
         for (unsigned int i = 0; i < 0x20; ++i)
         {
