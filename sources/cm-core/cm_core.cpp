@@ -56,6 +56,20 @@ namespace xf::credential
 
 #define _str_text(x) x
 
+    void platform_t::Event(event_type et, credential_type ct)
+    {
+        _data.Updated();
+        if (_parent)
+            _parent->Event(et, ct);
+    }
+
+    void account_t::Event(event_type et, credential_type ct)
+    {
+        _data.Updated();
+        if (_parent)
+            _parent->Event(et, ct);
+    }
+
     bool CredentialMgr::Serialize(string_t& str) const
     {
         pugi::xml_document doc;

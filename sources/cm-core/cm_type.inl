@@ -18,8 +18,9 @@ struct ItemBase
 
     ItemBase() : ItemBase(CurrentTime()) { }
     ItemBase(time_t t) : time(t) { }
+    ~ItemBase() { }
 
-    virtual void Event(event_type e, credential_type c) {
+    void Updated() {
         time = CurrentTime();
     }
 
@@ -144,6 +145,8 @@ public:
 
     list_t() = default;
     virtual ~list_t() { Clear(); }
+
+    virtual void Event(event_type et, credential_type ct) { }
 
     std::size_t Size() const { return _count; }
     bool IsEmpty() const { return (0 == Size()); }
@@ -283,7 +286,7 @@ public:
                 if (compareFunc(ptr->_data, ptr->_prev->_data))
                 {
                     _Take(ptr);
-                    _InsertBefore(ptr, Find([&ptr](const item_t& item) { return !(item < ptr->_data); }));
+                    _InsertBefore(ptr, Find([&ptr](const item_t& item) { return !compareFunc(item < ptr->_data); }));
                 }
 
                 ptr = next;
@@ -382,6 +385,7 @@ public:
 
     parent_type* Parent() const { return _parent; }
     const item_type& Item() const { return _data; }
+    void SetItem(item_type item) { _data = item; _data.Updated(); }
 
     void Event(event_type at, credential_type ct)
     {

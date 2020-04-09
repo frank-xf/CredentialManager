@@ -81,10 +81,12 @@ namespace xf::credential
 
     struct account_t : public node_t<AccountItem, account_t, platform_t>, public list_t<pair_t> {
         using base_type::base_type;
+        void Event(event_type at, credential_type ct) override;
     };
 
     struct platform_t : public node_t<PlatformItem, platform_t, CredentialMgr>, public list_t<account_t> {
         using base_type::base_type;
+        void Event(event_type at, credential_type ct) override;
     };
 
     class CredentialMgr : public ItemBase<credential_type::ct_credential>, public list_t<platform_t>
@@ -96,6 +98,8 @@ namespace xf::credential
     public:
 
         CredentialMgr() = default;
+
+        void Event(event_type at, credential_type ct) override { Updated(); }
 
         bool Serialize(string_t& str) const;
         bool Deserialize(const string_t& str);

@@ -1,4 +1,6 @@
-﻿namespace xf::encrypt
+﻿#include "sha256.h"
+
+namespace xf::encrypt
 {
 
 #define ROTLEFT(a, b)   (((a) << (b)) | ((a) >> (32-(b))))
@@ -103,73 +105,62 @@
         sha256_transform(_state, _data);
     }
 
-    void sha_256(unsigned char(&out_arr)[0x20], const unsigned char* in_str, unsigned int n)
+    void sha_256(byte_type (&signature)[0x20], const void* data, unsigned int n)
     {
+        const unsigned char* _data = (const unsigned char*)(data);
         unsigned int state[]{ 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
         unsigned int datalen{ 0 };
         unsigned long long bitlen{ 0 };
-        unsigned char data[64]{ 0 };
+        unsigned char block[64]{ 0 };
 
         for (unsigned int i = 0; i < n; ++i)
         {
-            data[datalen] = in_str[i];
+            block[datalen] = _data[i];
             datalen++;
 
             if (0x40 == datalen)
             {
-                sha256_transform(state, data);
+                sha256_transform(state, block);
 
                 bitlen += 512;
                 datalen = 0;
             }
         }
 
-        sha256_final(datalen, bitlen, state, data);
+        sha256_final(datalen, bitlen, state, block);
 
-        out_arr[0x00] = (state[0] >> 24) & 0xff;
-        out_arr[0x04] = (state[1] >> 24) & 0xff;
-        out_arr[0x08] = (state[2] >> 24) & 0xff;
-        out_arr[0x0c] = (state[3] >> 24) & 0xff;
-        out_arr[0x10] = (state[4] >> 24) & 0xff;
-        out_arr[0x14] = (state[5] >> 24) & 0xff;
-        out_arr[0x18] = (state[6] >> 24) & 0xff;
-        out_arr[0x1c] = (state[7] >> 24) & 0xff;
-        out_arr[0x01] = (state[0] >> 16) & 0xff;
-        out_arr[0x05] = (state[1] >> 16) & 0xff;
-        out_arr[0x09] = (state[2] >> 16) & 0xff;
-        out_arr[0x0d] = (state[3] >> 16) & 0xff;
-        out_arr[0x11] = (state[4] >> 16) & 0xff;
-        out_arr[0x15] = (state[5] >> 16) & 0xff;
-        out_arr[0x19] = (state[6] >> 16) & 0xff;
-        out_arr[0x1d] = (state[7] >> 16) & 0xff;
-        out_arr[0x02] = (state[0] >> 8) & 0xff;
-        out_arr[0x06] = (state[1] >> 8) & 0xff;
-        out_arr[0x0a] = (state[2] >> 8) & 0xff;
-        out_arr[0x0e] = (state[3] >> 8) & 0xff;
-        out_arr[0x12] = (state[4] >> 8) & 0xff;
-        out_arr[0x16] = (state[5] >> 8) & 0xff;
-        out_arr[0x1a] = (state[6] >> 8) & 0xff;
-        out_arr[0x1e] = (state[7] >> 8) & 0xff;
-        out_arr[0x03] = (state[0]) & 0xff;
-        out_arr[0x07] = (state[1]) & 0xff;
-        out_arr[0x0b] = (state[2]) & 0xff;
-        out_arr[0x0f] = (state[3]) & 0xff;
-        out_arr[0x13] = (state[4]) & 0xff;
-        out_arr[0x17] = (state[5]) & 0xff;
-        out_arr[0x1b] = (state[6]) & 0xff;
-        out_arr[0x1f] = (state[7]) & 0xff;
-    }
-
-    void sha_256(char(&out_arr)[0x40], const unsigned char * in_str, unsigned int n)
-    {
-        unsigned char _arr[32]{ 0 };
-        sha_256(_arr, in_str, n);
-
-        for (unsigned int i = 0; i < 0x20; ++i)
-        {
-            out_arr[i << 1] = _character[_arr[i] >> 4];
-            out_arr[(i << 1) + 1] = _character[_arr[i] & 0x0f];
-        }
+        signature[0x00] = (state[0] >> 24) & 0xff;
+        signature[0x04] = (state[1] >> 24) & 0xff;
+        signature[0x08] = (state[2] >> 24) & 0xff;
+        signature[0x0c] = (state[3] >> 24) & 0xff;
+        signature[0x10] = (state[4] >> 24) & 0xff;
+        signature[0x14] = (state[5] >> 24) & 0xff;
+        signature[0x18] = (state[6] >> 24) & 0xff;
+        signature[0x1c] = (state[7] >> 24) & 0xff;
+        signature[0x01] = (state[0] >> 16) & 0xff;
+        signature[0x05] = (state[1] >> 16) & 0xff;
+        signature[0x09] = (state[2] >> 16) & 0xff;
+        signature[0x0d] = (state[3] >> 16) & 0xff;
+        signature[0x11] = (state[4] >> 16) & 0xff;
+        signature[0x15] = (state[5] >> 16) & 0xff;
+        signature[0x19] = (state[6] >> 16) & 0xff;
+        signature[0x1d] = (state[7] >> 16) & 0xff;
+        signature[0x02] = (state[0] >> 8) & 0xff;
+        signature[0x06] = (state[1] >> 8) & 0xff;
+        signature[0x0a] = (state[2] >> 8) & 0xff;
+        signature[0x0e] = (state[3] >> 8) & 0xff;
+        signature[0x12] = (state[4] >> 8) & 0xff;
+        signature[0x16] = (state[5] >> 8) & 0xff;
+        signature[0x1a] = (state[6] >> 8) & 0xff;
+        signature[0x1e] = (state[7] >> 8) & 0xff;
+        signature[0x03] = (state[0]) & 0xff;
+        signature[0x07] = (state[1]) & 0xff;
+        signature[0x0b] = (state[2]) & 0xff;
+        signature[0x0f] = (state[3]) & 0xff;
+        signature[0x13] = (state[4]) & 0xff;
+        signature[0x17] = (state[5]) & 0xff;
+        signature[0x1b] = (state[6]) & 0xff;
+        signature[0x1f] = (state[7]) & 0xff;
     }
 
 }
