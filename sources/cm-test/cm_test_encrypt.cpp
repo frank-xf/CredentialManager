@@ -41,7 +41,7 @@ inline bool read_file(const char* file, std::string& text)
 
 _xfTest(test_sha_256)
 {
-    // 以下用于比较的 sha256 签名由 https://xorbin.com/tools/sha256-hash-calculator 计算得出
+    // 以下用于比较的 sha256 签名由 https://emn178.github.io/online-tools/sha256.html 计算得出
 
     auto s1 = sha_256_signature("");
     _xfExpect(s1 == "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855");
