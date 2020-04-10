@@ -64,7 +64,7 @@ private:
         Event(event_type::et_delete, item_t::type);
     }
 
-    void _InsertAfter(node_t* ptr, node_t* where)
+    void _InsertAfter(node_t* where, node_t* ptr)
     {
         ptr->_prev = where;
         ptr->_next = where->_next;
@@ -77,7 +77,7 @@ private:
         where->_next = ptr;
     }
 
-    void _InsertBefore(node_t* ptr, node_t* where)
+    void _InsertBefore(node_t* where, node_t* ptr)
     {
         ptr->_prev = where->_prev;
         ptr->_next = where;
@@ -103,7 +103,7 @@ private:
             if (ptr != where)
             {
                 _Take(ptr);
-                _InsertAfter(ptr, where);
+                _InsertAfter(where, ptr);
             }
         }
 
@@ -116,7 +116,7 @@ private:
             if (ptr != where)
             {
                 _Take(ptr);
-                _InsertBefore(ptr, where);
+                _InsertBefore(where, ptr);
             }
         }
 
@@ -135,7 +135,7 @@ private:
             if (item == ptr->_data)
                 return false;
 
-        where->_data = item;
+        where->SetItem(item);
         Event(event_type::et_update, item_t::type);
 
         return true;
@@ -173,7 +173,7 @@ public:
         if (IsEmpty())
             _first = _last = ptr;
         else
-            _InsertAfter(ptr, _last);
+            _InsertAfter(_last, ptr);
 
         ++_count;
 
@@ -201,7 +201,7 @@ public:
         if (IsEmpty())
             _first = _last = ptr;
         else
-            _InsertBefore(ptr, _first);
+            _InsertBefore(_first, ptr);
 
         ++_count;
 
@@ -286,7 +286,7 @@ public:
                 if (compareFunc(ptr->_data, ptr->_prev->_data))
                 {
                     _Take(ptr);
-                    _InsertBefore(ptr, Find([&ptr](const item_t& item) { return !compareFunc(item < ptr->_data); }));
+                    _InsertBefore(Find([&ptr](const item_t& item) { return !compareFunc(item < ptr->_data); }), ptr);
                 }
 
                 ptr = next;

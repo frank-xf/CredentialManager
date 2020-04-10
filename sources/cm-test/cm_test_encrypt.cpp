@@ -4,9 +4,7 @@
 #include "../third/encrypt/sha256.h"
 #include "../third/encrypt/rc4.h"
 
-#include "../cm-core/cm_core.h"
-
-inline std::string sha_256_signature(const std::string& str)
+std::string sha_256_signature(const std::string& str)
 {
     unsigned char x[32]{ 0 };
     xf::encrypt::sha_256(x, str.c_str(), str.size());
