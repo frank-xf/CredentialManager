@@ -13,25 +13,25 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\sources\third\encrypt\RC4.cpp">
-      <Filter>sources\third\encrypt</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\sources\third\encrypt\sha256.cpp">
       <Filter>sources\third\encrypt</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\sources\cm-encrypt\cm_encrypt.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\sources\third\encrypt\rc4.cpp">
+      <Filter>sources\third\encrypt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\sources\third\encrypt\RC4.h">
-      <Filter>sources\third\encrypt</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\sources\third\encrypt\sha256.h">
       <Filter>sources\third\encrypt</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\sources\cm-encrypt\cm_encrypt.h">
       <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\third\encrypt\rc4.h">
+      <Filter>sources\third\encrypt</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -1,1 +1,5 @@
 ﻿
+namespace xf::credential
+{
+
+}

@@ -151,12 +151,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\sources\cm-encrypt\cm_encrypt.cpp" />
-    <ClCompile Include="..\..\..\sources\third\encrypt\RC4.cpp" />
+    <ClCompile Include="..\..\..\sources\third\encrypt\rc4.cpp" />
     <ClCompile Include="..\..\..\sources\third\encrypt\sha256.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\sources\cm-encrypt\cm_encrypt.h" />
-    <ClInclude Include="..\..\..\sources\third\encrypt\RC4.h" />
+    <ClInclude Include="..\..\..\sources\third\encrypt\rc4.h" />
     <ClInclude Include="..\..\..\sources\third\encrypt\sha256.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
