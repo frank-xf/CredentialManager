@@ -147,14 +147,14 @@ namespace xf::test
 }   // namespace xf::test
 
 #define _xfConcatenateName(a, b) a##b
-#define _xfDeclareTestFunc(key) void _xfConcatenateName(_test_function_name_, key)(const std::string& name)
+#define _xfDeclareTestFunc(key) void _xfConcatenateName(_xf_test_function_, key)(const std::string& _xf_test_name_)
 
 #define _xfAddTest(key, func) xf::test::TestInfo::Instance().Add(key, func)
 
-#define _xfTest(key) _xfDeclareTestFunc(key);                            \
-        auto _xfConcatenateName(_test_variable_name_, key) =             \
-        _xfAddTest(#key, _xfConcatenateName(_test_function_name_, key)); \
+#define _xfTest(key) _xfDeclareTestFunc(key);                           \
+        auto _xfConcatenateName(_xf_test_variable_, key) =              \
+        _xfAddTest(#key, _xfConcatenateName(_xf_test_function_, key));  \
         _xfDeclareTestFunc(key)
 
-#define _xfExpect(expr) xf::test::Assert(expr, name, __FILE__, __LINE__)
-#define _xfAssert(expr) if (!xf::test::Assert(expr, name, __FILE__, __LINE__)) return
+#define _xfExpect(expr) xf::test::Assert(expr, _xf_test_name_, __FILE__, __LINE__)
+#define _xfAssert(expr) if (!xf::test::Assert(expr, _xf_test_name_, __FILE__, __LINE__)) return

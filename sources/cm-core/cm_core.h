@@ -69,6 +69,9 @@ namespace xf::credential
     inline bool operator == (const PlatformItem& a, const PlatformItem& b) { return a.name == b.name; }
     inline bool operator == (const AccountItem& a, const AccountItem& b) { return a.name == b.name; }
     inline bool operator == (const PairItem& a, const PairItem& b) { return a.key == b.key; }
+    inline bool operator < (const PlatformItem& a, const PlatformItem& b) { return a.name < b.name; }
+    inline bool operator < (const AccountItem& a, const AccountItem& b) { return a.name < b.name; }
+    inline bool operator < (const PairItem& a, const PairItem& b) { return a.key < b.key; }
 
     struct pair_t;
     struct account_t;
@@ -76,30 +79,42 @@ namespace xf::credential
     class CredentialMgr;
 
     struct pair_t : public node_t<PairItem, pair_t, account_t> {
-        using base_type::base_type;
+        using node_base::node_base;
     };
 
     struct account_t : public node_t<AccountItem, account_t, platform_t>, public list_t<pair_t> {
-        using base_type::base_type;
+        using node_base::node_base;
         void Event(event_type at, credential_type ct) override;
     };
 
     struct platform_t : public node_t<PlatformItem, platform_t, CredentialMgr>, public list_t<account_t> {
-        using base_type::base_type;
+        using node_base::node_base;
         void Event(event_type at, credential_type ct) override;
     };
 
-    class CredentialMgr : public ItemBase<credential_type::ct_credential>, public list_t<platform_t>
+    class CredentialMgr final : private ItemBase<credential_type::ct_credential>, public list_t<platform_t>
     {
     private:
 
-        string_t username, version, description;
+        string_t username, description, version{ xf::credential::version() };
 
     public:
 
+        using base_type::type;
+        using base_type::Updated;
+
         CredentialMgr() = default;
 
-        void Event(event_type at, credential_type ct) override { Updated(); }
+        const string_t& Username() const { return username; }
+        const string_t& Version() const { return version; }
+        const string_t& Description() const { return description; }
+        time_t Time() const { return time; }
+
+        bool SetUsername(const string_t& name);
+        void SetDescription(const string_t& desc) { description = desc; }
+
+        void Clear() override;
+        void Event(event_type et, credential_type ct) override { Updated(); }
 
         bool Serialize(string_t& str) const;
         bool Deserialize(const string_t& str);
@@ -137,10 +152,7 @@ namespace xf::credential
             return SaveFile(file, data);
         }
 
-        static bool Encoding(memory_t& data, const byte_t* key, std::size_t n);
-        static bool Decoding(memory_t& data, const byte_t* key, std::size_t n);
         static bool ValidateName(const string_t& strName);
-        static bool Check(const char* file);
 
     };  // class CredentialMgr
 

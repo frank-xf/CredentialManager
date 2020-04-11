@@ -1,4 +1,5 @@
 ﻿#include <chrono>
+#include <regex>
 #include <fstream>
 #include <sstream>
 
@@ -70,6 +71,25 @@ namespace xf::credential
             _parent->Event(et, ct);
     }
 
+    bool CredentialMgr::SetUsername(const string_t& name)
+    {
+        if (ValidateName(name))
+        {
+            username = name;
+            return true;
+        }
+
+        return false;
+    }
+
+    void CredentialMgr::Clear()
+    {
+        username.clear();
+        description.clear();
+
+        list_base::Clear();
+    }
+
     bool CredentialMgr::Serialize(string_t& str) const
     {
         pugi::xml_document doc;
@@ -80,7 +100,7 @@ namespace xf::credential
 
         auto node_credential = doc.append_child(_str_text("credential"));
         node_credential.append_attribute(_str_text("time")).set_value(time);
-        node_credential.append_attribute(_str_text("version")).set_value(xf::credential::version());
+        node_credential.append_attribute(_str_text("version")).set_value(version.c_str());
         node_credential.append_attribute(_str_text("username")).set_value(username.c_str());
         node_credential.append_attribute(_str_text("description")).set_value(description.c_str());
 
@@ -220,24 +240,10 @@ namespace xf::credential
         return true;
     }
     /**/
-    bool CredentialMgr::Encoding(memory_t& data, const byte_t* key, std::size_t n)
-    {
-        return false;
-    }
-
-    bool CredentialMgr::Decoding(memory_t& data, const byte_t* key, std::size_t n)
-    {
-        return false;
-    }
 
     bool CredentialMgr::ValidateName(const string_t& strName)
     {
-        return false;
-    }
-
-    bool CredentialMgr::Check(const char* file)
-    {
-        return false;
+        return std::regex_match(strName, std::regex(R"([0-9a-zA-Z\_\-\./@]{3,64})"));
     }
 
 }   // namespace xf::credential
