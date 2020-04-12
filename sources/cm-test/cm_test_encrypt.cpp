@@ -1,18 +1,25 @@
 ﻿#include <fstream>
 
 #include "../third/xf-test/xf_simple_test.h"
+#include "../third/encrypt/aes256.h"
 #include "../third/encrypt/sha256.h"
 #include "../third/encrypt/rc4.h"
+
+template<unsigned int n>
+std::string signature_string(const unsigned char(&data)[n])
+{
+    char text[n << 1]{ 0 };
+    xf::encrypt::signature_text(text, data);
+
+    return std::string(text, n << 1);
+}
 
 std::string sha_256_signature(const std::string& str)
 {
     unsigned char x[32]{ 0 };
     xf::encrypt::sha_256(x, str.c_str(), str.size());
 
-    char text[64]{ 0 };
-    xf::encrypt::signature_text(text, x);
-
-    return std::string(text, 64);
+    return signature_string(x);
 }
 
 inline bool read_file(const char* file, std::string& text)
@@ -123,4 +130,23 @@ _xfTest(test_rc4_file)
     auto s2 = sha_256_signature(data2);
 
     _xfExpect(data == data2 && s0 == s2);
+}
+
+_xfTest(test_aes_256)
+{
+    const uint8_t key[] = {
+        0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65,
+        0x43, 0x72, 0x65, 0x64, 0x65, 0x6e, 0x74, 0x69, 0x61, 0x6c, 0x4d, 0x61, 0x6e, 0x61, 0x67, 0x65
+    };
+    const uint8_t iv[] = { 0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0a, 0x0b, 0x0c, 0x0d, 0x0e, 0x0f };
+
+    const std::string data("FrankXiong123456");
+    unsigned char str[16]{ 0 };
+    for (int i = 0; i < 16; ++i) str[i] = data[i];
+
+    xf::encrypt::aes_encrypt(str, 16, key, iv);
+    _xfExpect(signature_string(str) == "2b50c1c142bcf3e34619836918aa0d0c");
+
+    xf::encrypt::aes_decrypt(str, 16, key, iv);
+    _xfExpect(std::string((char*)str, 16) == "FrankXiong123456");
 }

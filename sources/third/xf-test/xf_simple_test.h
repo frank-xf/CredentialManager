@@ -106,7 +106,11 @@ namespace xf::test
         std::cout << std::endl;
         std::cout << "==> Ran " << (success + failed) << " tests from " << n << " test case: "
             << success << " successes, " << failed << " failures, spend " << ms << " ms." << std::endl;
-        std::cout << "==> Test Result: " << (0 == failed ? "SUCCESS." : "FAIL.") << std::endl << std::endl;
+
+        if (0 == failed)
+            std::cout << "==> Test Result: SUCCESS." << std::endl << std::endl;
+        else
+            std::cerr << "==> Test Result: FAIL." << std::endl << std::endl;
     }
 
     inline bool Assert(bool result, const std::string& name, const std::string& file, unsigned int line)
@@ -114,8 +118,8 @@ namespace xf::test
         TestInfo::Instance().Counting(result);
         if (!result)
         {
-            std::cout << "--> test failed in " << name << ":" << std::endl;
-            std::cout << "at " << file << ":" << line << std::endl << std::endl;
+            std::cerr << "--> test failed in " << name << ":" << std::endl;
+            std::cerr << "at " << file << ":" << line << std::endl << std::endl;
         }
 
         return result;
@@ -124,9 +128,9 @@ namespace xf::test
     template<typename _FuncType>
     unsigned int _test(_FuncType func)
     {
-        auto t1 = std::chrono::system_clock::now();
+        auto t1 = std::chrono::steady_clock::now();
         unsigned int n = func();
-        auto t2 = std::chrono::system_clock::now();
+        auto t2 = std::chrono::steady_clock::now();
 
         const auto& [success, failed] = TestInfo::Instance().Result();
         Show(n, success, failed, std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count());

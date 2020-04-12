@@ -22,6 +22,9 @@
     <ClCompile Include="..\..\..\sources\third\encrypt\rc4.cpp">
       <Filter>sources\third\encrypt</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\sources\third\encrypt\aes256.cpp">
+      <Filter>sources\third\encrypt</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\sources\third\encrypt\sha256.h">
@@ -31,6 +34,9 @@
       <Filter>sources</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\sources\third\encrypt\rc4.h">
+      <Filter>sources\third\encrypt</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\third\encrypt\aes256.h">
       <Filter>sources\third\encrypt</Filter>
     </ClInclude>
   </ItemGroup>

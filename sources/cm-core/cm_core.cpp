@@ -76,6 +76,7 @@ namespace xf::credential
         if (ValidateName(name))
         {
             username = name;
+            Updated();
             return true;
         }
 

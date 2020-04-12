@@ -111,7 +111,7 @@ namespace xf::credential
         time_t Time() const { return time; }
 
         bool SetUsername(const string_t& name);
-        void SetDescription(const string_t& desc) { description = desc; }
+        void SetDescription(const string_t& desc) { description = desc; Updated(); }
 
         void Clear() override;
         void Event(event_type et, credential_type ct) override { Updated(); }

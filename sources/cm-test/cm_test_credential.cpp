@@ -87,6 +87,12 @@ namespace xf::credential
         _xfExpect(mgr[0]->Item().name == u8"谷歌");
         _xfExpect(mgr[4]->Item().name == u8"微软");
 
+        t = mgr.Time();
+        _xfExpect(0 == mgr.Move(0, -1));
+        _xfExpect(0 == mgr.Move(5, -1));
+        _xfExpect(t == mgr.Time());
+        _xfExpect(mgr[0]->Item().name == u8"谷歌");
+
         _xfExpect(mgr.Sort([](const auto& a, const auto& b) { return b.url < a.url; }));
         _xfExpect(mgr[0]->Item().name == u8"新浪");
         _xfExpect(mgr[1]->Item().name == u8"微软");
@@ -111,12 +117,6 @@ namespace xf::credential
                     ->Find({ u8"momobudeyu@163.com", u8"" })
                     ->Find({ u8"QQ", u8"" })->Item()
                      .value);
-
-        t = mgr.Time();
-        _xfExpect(0 == mgr.Move(0, -1));
-        _xfExpect(0 == mgr.Move(7, -1));
-        _xfExpect(t == mgr.Time());
-        _xfExpect(mgr[0]->Item().name == u8"新浪");
 
         _xfExpect(1 == mgr.Move(0, 1));
         _xfExpect(mgr[0]->Item().name == u8"微软");
@@ -156,10 +156,7 @@ namespace xf::credential
         _xfExpect(mgr.IsEmpty());
 
         string_t str;
-        
         _xfExpect(mgr.Serialize(str));
-
-        _xfExpect(t < mgr.Time());
     }
 
 }
