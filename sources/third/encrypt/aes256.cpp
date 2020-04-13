@@ -1,42 +1,23 @@
-﻿/*****************************************************************************/
-/* Includes:                                                                 */
-/*****************************************************************************/
-#include <string.h> // CBC mode, for memset
-#include <stdint.h>
-
+﻿
 #include "aes256.h"
-
-/*****************************************************************************/
-/* Defines:                                                                  */
-/*****************************************************************************/
-// The number of columns comprising a state in AES. This is a constant in AES. Value=4
 
 namespace xf::encrypt
 {
 
     namespace aes {
         constexpr unsigned int block_size(16);
-        // constexpr unsigned int key_size(32);
+        constexpr unsigned int key_size(32);
         constexpr unsigned int key_exp_size(240);
 
         constexpr unsigned int column_number(4);
         constexpr unsigned int round_number(14);
         constexpr unsigned int key_number(8);
 
-        struct context_t
-        {
-            uint8_t RoundKey[key_exp_size];
-            uint8_t Iv[block_size];
-        };
-
-        void AES_init_ctx_iv(struct context_t* ctx, const uint8_t* key, const uint8_t* iv);
-        void AES_ctx_set_iv(struct context_t* ctx, const uint8_t* iv);
-
         using state_t = uint8_t[4][4];
 
         static const uint8_t sbox[256] = {
             //0     1    2      3     4    5     6     7      8    9     A      B    C     D     E     F
-            0x63, 0x7c, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
+            0x7c, 0x63, 0x77, 0x7b, 0xf2, 0x6b, 0x6f, 0xc5, 0x30, 0x01, 0x67, 0x2b, 0xfe, 0xd7, 0xab, 0x76,
             0xca, 0x82, 0xc9, 0x7d, 0xfa, 0x59, 0x47, 0xf0, 0xad, 0xd4, 0xa2, 0xaf, 0x9c, 0xa4, 0x72, 0xc0,
             0xb7, 0xfd, 0x93, 0x26, 0x36, 0x3f, 0xf7, 0xcc, 0x34, 0xa5, 0xe5, 0xf1, 0x71, 0xd8, 0x31, 0x15,
             0x04, 0xc7, 0x23, 0xc3, 0x18, 0x96, 0x05, 0x9a, 0x07, 0x12, 0x80, 0xe2, 0xeb, 0x27, 0xb2, 0x75,
@@ -60,8 +41,8 @@ namespace xf::encrypt
           0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25,
           0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92,
           0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84,
-          0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06,
-          0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b,
+          0x90, 0xd8, 0xab, 0x01, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06,
+          0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1, 0xaf, 0xbd, 0x03, 0x00, 0x13, 0x8a, 0x6b,
           0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73,
           0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e,
           0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b,
@@ -79,22 +60,21 @@ namespace xf::encrypt
 
         inline uint8_t getSBoxValue(uint8_t num)
         {
-          return sbox[num];
+            return sbox[num];
         }
 
         inline uint8_t getSBoxInvert(uint8_t num)
         {
-          return rsbox[num];
+            return rsbox[num];
         }
 
         // This function produces column_number(round_number+1) round keys. The round keys are used in each round to decrypt the states. 
-        static void KeyExpansion(uint8_t* RoundKey, const uint8_t* Key)
+        inline void KeyExpansion(uint8_t (&RoundKey)[key_exp_size], const uint8_t (&Key)[key_size])
         {
-            unsigned i, j, k;
             uint8_t tempa[4]; // Used for the column/row operations
 
             // The first round key is the key itself.
-            for (i = 0; i < key_number; ++i)
+            for (uint32_t i = 0; i < key_number; ++i)
             {
                 RoundKey[(i * 4) + 0] = Key[(i * 4) + 0];
                 RoundKey[(i * 4) + 1] = Key[(i * 4) + 1];
@@ -103,10 +83,10 @@ namespace xf::encrypt
             }
 
             // All other round keys are found from the previous round keys.
-            for (i = key_number; i < column_number * (round_number + 1); ++i)
+            for (uint32_t i = key_number; i < column_number * (round_number + 1); ++i)
             {
                 {
-                    k = (i - 1) * 4;
+                    uint32_t  k = (i - 1) * 4;
                     tempa[0] = RoundKey[k + 0];
                     tempa[1] = RoundKey[k + 1];
                     tempa[2] = RoundKey[k + 2];
@@ -155,7 +135,8 @@ namespace xf::encrypt
                 }
                 // #endif
 
-                j = i * 4; k = (i - key_number) * 4;
+                uint32_t j = i * 4;
+                uint32_t k = (i - key_number) * 4;
                 RoundKey[j + 0] = RoundKey[k + 0] ^ tempa[0];
                 RoundKey[j + 1] = RoundKey[k + 1] ^ tempa[1];
                 RoundKey[j + 2] = RoundKey[k + 2] ^ tempa[2];
@@ -163,56 +144,26 @@ namespace xf::encrypt
             }
         }
 
-
-        void AES_init_ctx_iv(struct context_t* ctx, const uint8_t* key, const uint8_t* iv)
-        {
-            KeyExpansion(ctx->RoundKey, key);
-            memcpy(ctx->Iv, iv, block_size);
-        }
-
-        void AES_ctx_set_iv(struct context_t* ctx, const uint8_t* iv)
-        {
-            memcpy(ctx->Iv, iv, block_size);
-        }
-
-
         // This function adds the round key to state.
         // The round key is added to the state by an XOR function.
-        static void AddRoundKey(uint8_t round, state_t* state, const uint8_t* RoundKey)
+        inline void AddRoundKey(uint8_t round, state_t* state, const uint8_t* RoundKey)
         {
-            uint8_t i, j;
-            for (i = 0; i < 4; ++i)
-            {
-                for (j = 0; j < 4; ++j)
-                {
+            for (uint8_t i = 0; i < 4; ++i)
+                for (uint8_t j = 0; j < 4; ++j)
                     (*state)[i][j] ^= RoundKey[(round * column_number * 4) + (i * column_number) + j];
-                }
-            }
         }
 
         inline void translate_state(state_t* state, const uint8_t(box)[256])
         {
-            uint8_t i, j;
-            for (i = 0; i < 4; ++i)
-            {
-                for (j = 0; j < 4; ++j)
-                {
+            for (uint8_t i = 0; i < 4; ++i)
+                for (uint8_t j = 0; j < 4; ++j)
                     (*state)[j][i] = box[(*state)[j][i]];
-                }
-            }
-        }
-
-        // The SubBytes Function Substitutes the values in the
-        // state matrix with values in an S-box.
-        static void SubBytes(state_t* state)
-        {
-            translate_state(state, sbox);
         }
 
         // The ShiftRows() function shifts the rows in the state to the left.
         // Each row is shifted with different offset.
         // Offset = Row number. So the first row is not shifted.
-        static void ShiftRows(state_t* state)
+        inline void ShiftRows(state_t* state)
         {
             uint8_t temp;
 
@@ -240,17 +191,16 @@ namespace xf::encrypt
             (*state)[1][3] = temp;
         }
 
-        static uint8_t xtime(uint8_t x)
+        inline uint8_t xtime(uint8_t x)
         {
             return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
         }
 
         // MixColumns function mixes the columns of the state matrix
-        static void MixColumns(state_t* state)
+        inline void MixColumns(state_t* state)
         {
-            uint8_t i;
             uint8_t Tmp, Tm, t;
-            for (i = 0; i < 4; ++i)
+            for (uint8_t i = 0; i < 4; ++i)
             {
                 t = (*state)[i][0];
                 Tmp = (*state)[i][0] ^ (*state)[i][1] ^ (*state)[i][2] ^ (*state)[i][3];
@@ -266,23 +216,22 @@ namespace xf::encrypt
         //       The compiler seems to be able to vectorize the operation better this way.
         //       See https://github.com/kokke/tiny-AES-c/pull/34
 
-        static uint8_t Multiply(uint8_t x, uint8_t y)
+        inline uint8_t Multiply(uint8_t x, uint8_t y)
         {
             return (((y & 1) * x) ^
-                ((y >> 1 & 1)* xtime(x)) ^
-                    ((y >> 2 & 1)* xtime(xtime(x))) ^
-                    ((y >> 3 & 1)* xtime(xtime(xtime(x)))) ^
-                    ((y >> 4 & 1)* xtime(xtime(xtime(xtime(x)))))); /* this last call to xtime() can be omitted */
+                   (((y >> 1) & 1)* xtime(x)) ^
+                   (((y >> 2) & 1)* xtime(xtime(x))) ^
+                   (((y >> 3) & 1)* xtime(xtime(xtime(x)))) ^
+                   (((y >> 4) & 1)* xtime(xtime(xtime(xtime(x)))))); /* this last call to xtime() can be omitted */
         }
 
         // MixColumns function mixes the columns of the state matrix.
         // The method used to multiply may be difficult to understand for the inexperienced.
         // Please use the references to gain more information.
-        static void InvMixColumns(state_t* state)
+        inline void InvMixColumns(state_t* state)
         {
-            int i;
             uint8_t a, b, c, d;
-            for (i = 0; i < 4; ++i)
+            for (uint8_t i = 0; i < 4; ++i)
             {
                 a = (*state)[i][0];
                 b = (*state)[i][1];
@@ -296,15 +245,7 @@ namespace xf::encrypt
             }
         }
 
-
-        // The SubBytes Function Substitutes the values in the
-        // state matrix with values in an S-box.
-        static void InvSubBytes(state_t* state)
-        {
-            translate_state(state, rsbox);
-        }
-
-        static void InvShiftRows(state_t* state)
+        inline void InvShiftRows(state_t* state)
         {
             uint8_t temp;
 
@@ -333,7 +274,7 @@ namespace xf::encrypt
         }
 
         // Cipher is the main function that encrypts the PlainText.
-        static void Cipher(state_t* state, const uint8_t* RoundKey)
+        inline void Cipher(state_t* state, const uint8_t* RoundKey)
         {
             uint8_t round = 0;
 
@@ -346,7 +287,7 @@ namespace xf::encrypt
             // Last one without MixColumns()
             for (round = 1; ; ++round)
             {
-                SubBytes(state);
+                translate_state(state, sbox);
                 ShiftRows(state);
                 if (round == round_number) {
                     break;
@@ -358,7 +299,7 @@ namespace xf::encrypt
             AddRoundKey(round_number, state, RoundKey);
         }
 
-        static void InvCipher(state_t* state, const uint8_t* RoundKey)
+        inline void InvCipher(state_t* state, const uint8_t* RoundKey)
         {
             uint8_t round = 0;
 
@@ -372,7 +313,7 @@ namespace xf::encrypt
             for (round = (round_number - 1); ; --round)
             {
                 InvShiftRows(state);
-                InvSubBytes(state);
+                translate_state(state, rsbox);
                 AddRoundKey(round, state, RoundKey);
                 if (round == 0) {
                     break;
@@ -382,52 +323,54 @@ namespace xf::encrypt
 
         }
 
-        static void XorWithIv(uint8_t* buf, const uint8_t* Iv)
+        inline void XorWithIv(uint8_t* buf, const uint8_t* Iv)
         {
-            uint8_t i;
-            for (i = 0; i < block_size; ++i) // The block in AES is always 128bit no matter the key size
-            {
-                buf[i] ^= Iv[i];
-            }
+            for (uint8_t i = 0; i < block_size; ++i) buf[i] ^= Iv[i]; // The block in AES is always 128bit no matter the key size
         }
+
+        inline void memory_copy(unsigned char* out, const unsigned char* in, unsigned int n)
+        {
+            for (unsigned int i = 0; i < n; ++i) out[i] = in[i];
+        }
+
     }
 
-    void aes_encrypt(void* data, unsigned int length, const unsigned char* key, const unsigned char* iv)
+    void aes_encrypt(void* data, uint32_t n, const uint8_t(&key)[32], const uint8_t(&iv)[16])
     {
-        struct aes::context_t ctx;
-        aes::AES_init_ctx_iv(&ctx, key, iv);
+        uint8_t round_key[aes::key_exp_size]{ 0 };
+        aes::KeyExpansion(round_key, key);
 
-        uintptr_t i;
-        uint8_t* Iv = ctx.Iv;
-        uint8_t* buf = (unsigned char*)data;
-        for (i = 0; i < length; i += aes::block_size)
+        const uint8_t* iv_ptr = iv;
+        uint8_t* buf = (uint8_t*)data;
+        for (uintptr_t i = 0; i < n; i += aes::block_size)
         {
-            aes::XorWithIv(buf, Iv);
-            aes::Cipher((aes::state_t*)buf, ctx.RoundKey);
-            Iv = buf;
+            aes::XorWithIv(buf, iv_ptr);
+            aes::Cipher((aes::state_t*)buf, round_key);
+            iv_ptr = buf;
             buf += aes::block_size;
         }
         /* store Iv in ctx for next call */
-        memcpy(ctx.Iv, Iv, aes::block_size);
+        // aes::memory_copy(ctx.Iv, Iv, aes::block_size);
     }
 
-    void aes_decrypt(void* data, unsigned int length, const unsigned char* key, const unsigned char* iv)
+    void aes_decrypt(void* data, uint32_t n, const uint8_t(&key)[32], const uint8_t(&iv)[16])
     {
-        struct aes::context_t ctx;
-        aes::AES_init_ctx_iv(&ctx, key, iv);
+        uint8_t _iv[aes::block_size]{ 0 };
+        uint8_t round_key[aes::key_exp_size]{ 0 };
 
-        uintptr_t i;
-        uint8_t storeNextIv[aes::block_size];
-        uint8_t* buf = (unsigned char*)data;
-        for (i = 0; i < length; i += aes::block_size)
+        aes::KeyExpansion(round_key, key);
+        aes::memory_copy(_iv, iv, aes::block_size);
+
+        uint8_t storeNextIv[aes::block_size]{ 0 };
+        uint8_t* buf = (uint8_t*)data;
+        for (uintptr_t i = 0; i < n; i += aes::block_size)
         {
-            memcpy(storeNextIv, buf, aes::block_size);
-            aes::InvCipher((aes::state_t*)buf, ctx.RoundKey);
-            aes::XorWithIv(buf, ctx.Iv);
-            memcpy(ctx.Iv, storeNextIv, aes::block_size);
+            aes::memory_copy(storeNextIv, buf, aes::block_size);
+            aes::InvCipher((aes::state_t*)buf, round_key);
+            aes::XorWithIv(buf, _iv);
+            aes::memory_copy(_iv, storeNextIv, aes::block_size);
             buf += aes::block_size;
         }
 
     }
-
 }
