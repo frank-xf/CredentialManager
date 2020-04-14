@@ -146,7 +146,7 @@ _xfTest(test_aes_256)
 
     xf::encrypt::aes_encrypt(str, 32, key, iv);
     auto text = signature_string(str);
-    // _xfExpect(text == "bf97ef27b90e209062d2a55a565cdf4fea1bcabb7e0ce60c520dba687c028817");
+    _xfExpect(text == "bf97ef27b90e209062d2a55a565cdf4fea1bcabb7e0ce60c520dba687c028817");
 
     xf::encrypt::aes_decrypt(str, 32, key, iv);
     _xfExpect(std::string((char*)str, 32) == data);
