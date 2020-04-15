@@ -57,23 +57,10 @@ namespace xf::encrypt
         static const uint8_t Rcon[] = {
           0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 };
 
-
-        inline uint8_t getSBoxValue(uint8_t num)
+        inline void KeyExpansion(uint8_t(&RoundKey)[key_exp_size], const uint8_t(&Key)[key_size], const uint8_t(&box)[256])
         {
-            return sbox[num];
-        }
+            uint8_t temp[4];
 
-        inline uint8_t getSBoxInvert(uint8_t num)
-        {
-            return rsbox[num];
-        }
-
-        // This function produces column_number(round_number+1) round keys. The round keys are used in each round to decrypt the states. 
-        inline void KeyExpansion(uint8_t (&RoundKey)[key_exp_size], const uint8_t (&Key)[key_size])
-        {
-            uint8_t tempa[4]; // Used for the column/row operations
-
-            // The first round key is the key itself.
             for (uint32_t i = 0; i < key_number; ++i)
             {
                 RoundKey[(i * 4) + 0] = Key[(i * 4) + 0];
@@ -82,65 +69,44 @@ namespace xf::encrypt
                 RoundKey[(i * 4) + 3] = Key[(i * 4) + 3];
             }
 
-            // All other round keys are found from the previous round keys.
             for (uint32_t i = key_number; i < column_number * (round_number + 1); ++i)
             {
-                {
-                    uint32_t  k = (i - 1) * 4;
-                    tempa[0] = RoundKey[k + 0];
-                    tempa[1] = RoundKey[k + 1];
-                    tempa[2] = RoundKey[k + 2];
-                    tempa[3] = RoundKey[k + 3];
-
-                }
+                uint32_t k = ((i - 1) << 2);
+                temp[0] = RoundKey[k + 0];
+                temp[1] = RoundKey[k + 1];
+                temp[2] = RoundKey[k + 2];
+                temp[3] = RoundKey[k + 3];
 
                 if (i % key_number == 0)
                 {
-                    // This function shifts the 4 bytes in a word to the left once.
-                    // [a0,a1,a2,a3] becomes [a1,a2,a3,a0]
+                    const uint8_t u8tmp = temp[0];
+                    temp[0] = temp[1];
+                    temp[1] = temp[2];
+                    temp[2] = temp[3];
+                    temp[3] = u8tmp;
 
-                    // Function RotWord()
-                    {
-                        const uint8_t u8tmp = tempa[0];
-                        tempa[0] = tempa[1];
-                        tempa[1] = tempa[2];
-                        tempa[2] = tempa[3];
-                        tempa[3] = u8tmp;
-                    }
+                    temp[0] = box[temp[0]];
+                    temp[1] = box[temp[1]];
+                    temp[2] = box[temp[2]];
+                    temp[3] = box[temp[3]];
 
-                    // SubWord() is a function that takes a four-byte input word and 
-                    // applies the S-box to each of the four bytes to produce an output word.
-
-                    // Function Subword()
-                    {
-                        tempa[0] = getSBoxValue(tempa[0]);
-                        tempa[1] = getSBoxValue(tempa[1]);
-                        tempa[2] = getSBoxValue(tempa[2]);
-                        tempa[3] = getSBoxValue(tempa[3]);
-                    }
-
-                    tempa[0] = tempa[0] ^ Rcon[i / key_number];
+                    temp[0] = temp[0] ^ Rcon[i / key_number];
                 }
 
-                // #if defined(AES256) && (AES256 == 1)
                 if (i % key_number == 4)
                 {
-                    // Function Subword()
-                    {
-                        tempa[0] = getSBoxValue(tempa[0]);
-                        tempa[1] = getSBoxValue(tempa[1]);
-                        tempa[2] = getSBoxValue(tempa[2]);
-                        tempa[3] = getSBoxValue(tempa[3]);
-                    }
+                    temp[0] = box[temp[0]];
+                    temp[1] = box[temp[1]];
+                    temp[2] = box[temp[2]];
+                    temp[3] = box[temp[3]];
                 }
-                // #endif
 
-                uint32_t j = i * 4;
-                uint32_t k = (i - key_number) * 4;
-                RoundKey[j + 0] = RoundKey[k + 0] ^ tempa[0];
-                RoundKey[j + 1] = RoundKey[k + 1] ^ tempa[1];
-                RoundKey[j + 2] = RoundKey[k + 2] ^ tempa[2];
-                RoundKey[j + 3] = RoundKey[k + 3] ^ tempa[3];
+                uint32_t j = i << 2;
+                k = ((i - key_number) << 2);
+                RoundKey[j + 0] = RoundKey[k + 0] ^ temp[0];
+                RoundKey[j + 1] = RoundKey[k + 1] ^ temp[1];
+                RoundKey[j + 2] = RoundKey[k + 2] ^ temp[2];
+                RoundKey[j + 3] = RoundKey[k + 3] ^ temp[3];
             }
         }
 
@@ -165,10 +131,8 @@ namespace xf::encrypt
         // Offset = Row number. So the first row is not shifted.
         inline void ShiftRows(state_t* state)
         {
-            uint8_t temp;
-
             // Rotate first row 1 columns to left  
-            temp = (*state)[0][1];
+            uint8_t temp = (*state)[0][1];
             (*state)[0][1] = (*state)[1][1];
             (*state)[1][1] = (*state)[2][1];
             (*state)[2][1] = (*state)[3][1];
@@ -211,18 +175,13 @@ namespace xf::encrypt
             }
         }
 
-        // Multiply is used to multiply numbers in the field GF(2^8)
-        // Note: The last call to xtime() is unneeded, but often ends up generating a smaller binary
-        //       The compiler seems to be able to vectorize the operation better this way.
-        //       See https://github.com/kokke/tiny-AES-c/pull/34
-
         inline uint8_t Multiply(uint8_t x, uint8_t y)
         {
             return (((y & 1) * x) ^
-                   (((y >> 1) & 1)* xtime(x)) ^
-                   (((y >> 2) & 1)* xtime(xtime(x))) ^
-                   (((y >> 3) & 1)* xtime(xtime(xtime(x)))) ^
-                   (((y >> 4) & 1)* xtime(xtime(xtime(xtime(x)))))); /* this last call to xtime() can be omitted */
+                    (((y >> 1) & 1) * xtime(x)) ^
+                    (((y >> 2) & 1) * xtime(xtime(x))) ^
+                    (((y >> 3) & 1) * xtime(xtime(xtime(x)))) ^
+                    (((y >> 4) & 1) * xtime(xtime(xtime(xtime(x)))))); /* this last call to xtime() can be omitted */
         }
 
         // MixColumns function mixes the columns of the state matrix.
@@ -271,7 +230,7 @@ namespace xf::encrypt
         }
 
         // Cipher is the main function that encrypts the PlainText.
-        inline void Cipher(state_t* state, const uint8_t* RoundKey)
+        inline void Cipher(state_t* state, const uint8_t* RoundKey, const uint8_t(&box)[256])
         {
             // Add the First round key to the state before starting the rounds.
             AddRoundKey(0, state, RoundKey);
@@ -282,7 +241,7 @@ namespace xf::encrypt
             // Last one without MixColumns()
             for (uint8_t round = 1; ; ++round)
             {
-                translate_state(state, sbox);
+                translate_state(state, box);
                 ShiftRows(state);
                 if (round == round_number) {
                     break;
@@ -294,7 +253,7 @@ namespace xf::encrypt
             AddRoundKey(round_number, state, RoundKey);
         }
 
-        inline void InvCipher(state_t* state, const uint8_t* RoundKey)
+        inline void InvCipher(state_t* state, const uint8_t* RoundKey, const uint8_t(&box)[256])
         {
             // Add the First round key to the state before starting the rounds.
             AddRoundKey(round_number, state, RoundKey);
@@ -306,7 +265,7 @@ namespace xf::encrypt
             for (uint8_t round = (round_number - 1); ; --round)
             {
                 InvShiftRows(state);
-                translate_state(state, rsbox);
+                translate_state(state, box);
                 AddRoundKey(round, state, RoundKey);
                 if (round == 0) {
                     break;
@@ -330,14 +289,14 @@ namespace xf::encrypt
     void aes_encrypt(void* data, uint32_t n, const uint8_t(&key)[32], const uint8_t(&iv)[16])
     {
         uint8_t round_key[aes::key_exp_size]{ 0 };
-        aes::KeyExpansion(round_key, key);
+        aes::KeyExpansion(round_key, key, aes::sbox);
 
         const uint8_t* iv_ptr = iv;
         uint8_t* buf = (uint8_t*)data;
         for (uintptr_t i = 0; i < n; i += aes::block_size)
         {
             aes::XorWithIv(buf, iv_ptr);
-            aes::Cipher((aes::state_t*)buf, round_key);
+            aes::Cipher((aes::state_t*)buf, round_key, aes::sbox);
             iv_ptr = buf;
             buf += aes::block_size;
         }
@@ -350,7 +309,7 @@ namespace xf::encrypt
         uint8_t _iv[aes::block_size]{ 0 };
         uint8_t round_key[aes::key_exp_size]{ 0 };
 
-        aes::KeyExpansion(round_key, key);
+        aes::KeyExpansion(round_key, key, aes::sbox);
         aes::memory_copy(_iv, iv, aes::block_size);
 
         uint8_t storeNextIv[aes::block_size]{ 0 };
@@ -358,7 +317,7 @@ namespace xf::encrypt
         for (uintptr_t i = 0; i < n; i += aes::block_size)
         {
             aes::memory_copy(storeNextIv, buf, aes::block_size);
-            aes::InvCipher((aes::state_t*)buf, round_key);
+            aes::InvCipher((aes::state_t*)buf, round_key, aes::rsbox);
             aes::XorWithIv(buf, _iv);
             aes::memory_copy(_iv, storeNextIv, aes::block_size);
             buf += aes::block_size;
