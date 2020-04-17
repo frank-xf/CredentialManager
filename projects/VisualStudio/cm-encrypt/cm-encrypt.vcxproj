@@ -152,14 +152,19 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\sources\cm-encrypt\cm_encrypt.cpp" />
     <ClCompile Include="..\..\..\sources\third\encrypt\aes256.cpp" />
+    <ClCompile Include="..\..\..\sources\third\encrypt\base64.cpp" />
     <ClCompile Include="..\..\..\sources\third\encrypt\rc4.cpp" />
     <ClCompile Include="..\..\..\sources\third\encrypt\sha256.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\sources\cm-encrypt\cm_encrypt.h" />
     <ClInclude Include="..\..\..\sources\third\encrypt\aes256.h" />
+    <ClInclude Include="..\..\..\sources\third\encrypt\base64.h" />
     <ClInclude Include="..\..\..\sources\third\encrypt\rc4.h" />
     <ClInclude Include="..\..\..\sources\third\encrypt\sha256.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\sources\third\encrypt\sbox.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

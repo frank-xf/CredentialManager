@@ -1,17 +1,14 @@
 ﻿
+#include "sbox.inl"
+
 namespace xf::encrypt
 {
-
-	inline void _swap(unsigned char& a, unsigned char& b)
-	{
-		if (a != b)
-			a ^= b ^= a ^= b;
-	}
 
 	unsigned int rc4(void* out, const void* data, unsigned int len, const void* key, unsigned int nkey)
 	{
 		if (out && data && 0 < len)
 		{
+			/*
 			unsigned char _sbox[] = {
 				0xac, 0xdc, 0x80, 0x7c, 0x8a, 0x10, 0x50, 0x12, 0x81, 0xa1, 0xfa, 0x6a, 0x56, 0xf7, 0x48, 0x6f,
 				0xe5, 0xc5, 0x78, 0xc0, 0x8b, 0x38, 0xdf, 0xad, 0x21, 0x8d, 0x8c, 0x61, 0x2c, 0xd7, 0x5e, 0xee,
@@ -30,7 +27,11 @@ namespace xf::encrypt
 				0xcc, 0x09, 0x04, 0xa5, 0x82, 0xc1, 0xf9, 0x37, 0x1e, 0x32, 0x71, 0x2b, 0x41, 0xe9, 0x07, 0x9b,
 				0xfb, 0x05, 0x8f, 0xd6, 0x17, 0x7b, 0x0e, 0xa3, 0x63, 0xf6, 0x76, 0x4a, 0xf3, 0x6d, 0x43, 0xe4
 			};
-
+			*/
+			unsigned char sbox[256]{ 0 };
+			_memory_copy(sbox, _sbox, 256);
+			_mix_box(sbox, key, nkey);
+			/*
 			if (key && 0 < nkey)
 			{
 				const unsigned char* _key = (const unsigned char*)key;
@@ -40,15 +41,15 @@ namespace xf::encrypt
 					_swap(_sbox[i], _sbox[k]);
 				}
 			}
-
+			*/
 		    unsigned char* _out = (unsigned char*)out;
 			const unsigned char* _data = (const unsigned char*)data;
 			for (unsigned int i = 0, x = 0, y = 0; i < len; ++i)
 			{
 				x = ((x + 1) & 0xff);
-				y = ((y + _sbox[x]) & 0xff);
-				_swap(_sbox[x], _sbox[y]);
-				_out[i] = (_data[i] ^ _sbox[(_sbox[x] + _sbox[y]) & 0xff]);
+				y = ((y + sbox[x]) & 0xff);
+				_swap(sbox[x], sbox[y]);
+				_out[i] = (_data[i] ^ sbox[(sbox[x] + sbox[y]) & 0xff]);
 			}
 
 			return len;

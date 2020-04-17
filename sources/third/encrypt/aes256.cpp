@@ -1,17 +1,18 @@
-﻿
-#include "aes256.h"
+﻿#include "aes256.h"
+
+#include "sbox.inl"
 
 namespace xf::encrypt
 {
+    namespace aes
+    {
+        constexpr unsigned int BlockSize(16);
+        constexpr unsigned int KeySize(32);
+        constexpr unsigned int KeyExpSize(240);
 
-    namespace aes {
-        constexpr unsigned int block_size(16);
-        constexpr unsigned int key_size(32);
-        constexpr unsigned int key_exp_size(240);
-
-        constexpr unsigned int column_number(4);
-        constexpr unsigned int round_number(14);
-        constexpr unsigned int key_number(8);
+        constexpr unsigned int ColumnNumber(4);
+        constexpr unsigned int RoundNumber(14);
+        constexpr unsigned int KeyNumber(8);
 
         using state_t = uint8_t[4][4];
 
@@ -34,294 +35,237 @@ namespace xf::encrypt
             0xe1, 0xf8, 0x98, 0x11, 0x69, 0xd9, 0x8e, 0x94, 0x9b, 0x1e, 0x87, 0xe9, 0xce, 0x55, 0x28, 0xdf,
             0x8c, 0xa1, 0x89, 0x0d, 0xbf, 0xe6, 0x42, 0x68, 0x41, 0x99, 0x2d, 0x0f, 0xb0, 0x54, 0xbb, 0x16 };
 
-        static const uint8_t rsbox[256] = {
-          0x52, 0x09, 0x6a, 0xd5, 0x30, 0x36, 0xa5, 0x38, 0xbf, 0x40, 0xa3, 0x9e, 0x81, 0xf3, 0xd7, 0xfb,
-          0x7c, 0xe3, 0x39, 0x82, 0x9b, 0x2f, 0xff, 0x87, 0x34, 0x8e, 0x43, 0x44, 0xc4, 0xde, 0xe9, 0xcb,
-          0x54, 0x7b, 0x94, 0x32, 0xa6, 0xc2, 0x23, 0x3d, 0xee, 0x4c, 0x95, 0x0b, 0x42, 0xfa, 0xc3, 0x4e,
-          0x08, 0x2e, 0xa1, 0x66, 0x28, 0xd9, 0x24, 0xb2, 0x76, 0x5b, 0xa2, 0x49, 0x6d, 0x8b, 0xd1, 0x25,
-          0x72, 0xf8, 0xf6, 0x64, 0x86, 0x68, 0x98, 0x16, 0xd4, 0xa4, 0x5c, 0xcc, 0x5d, 0x65, 0xb6, 0x92,
-          0x6c, 0x70, 0x48, 0x50, 0xfd, 0xed, 0xb9, 0xda, 0x5e, 0x15, 0x46, 0x57, 0xa7, 0x8d, 0x9d, 0x84,
-          0x90, 0xd8, 0xab, 0x00, 0x8c, 0xbc, 0xd3, 0x0a, 0xf7, 0xe4, 0x58, 0x05, 0xb8, 0xb3, 0x45, 0x06,
-          0xd0, 0x2c, 0x1e, 0x8f, 0xca, 0x3f, 0x0f, 0x02, 0xc1, 0xaf, 0xbd, 0x03, 0x01, 0x13, 0x8a, 0x6b,
-          0x3a, 0x91, 0x11, 0x41, 0x4f, 0x67, 0xdc, 0xea, 0x97, 0xf2, 0xcf, 0xce, 0xf0, 0xb4, 0xe6, 0x73,
-          0x96, 0xac, 0x74, 0x22, 0xe7, 0xad, 0x35, 0x85, 0xe2, 0xf9, 0x37, 0xe8, 0x1c, 0x75, 0xdf, 0x6e,
-          0x47, 0xf1, 0x1a, 0x71, 0x1d, 0x29, 0xc5, 0x89, 0x6f, 0xb7, 0x62, 0x0e, 0xaa, 0x18, 0xbe, 0x1b,
-          0xfc, 0x56, 0x3e, 0x4b, 0xc6, 0xd2, 0x79, 0x20, 0x9a, 0xdb, 0xc0, 0xfe, 0x78, 0xcd, 0x5a, 0xf4,
-          0x1f, 0xdd, 0xa8, 0x33, 0x88, 0x07, 0xc7, 0x31, 0xb1, 0x12, 0x10, 0x59, 0x27, 0x80, 0xec, 0x5f,
-          0x60, 0x51, 0x7f, 0xa9, 0x19, 0xb5, 0x4a, 0x0d, 0x2d, 0xe5, 0x7a, 0x9f, 0x93, 0xc9, 0x9c, 0xef,
-          0xa0, 0xe0, 0x3b, 0x4d, 0xae, 0x2a, 0xf5, 0xb0, 0xc8, 0xeb, 0xbb, 0x3c, 0x83, 0x53, 0x99, 0x61,
-          0x17, 0x2b, 0x04, 0x7e, 0xba, 0x77, 0xd6, 0x26, 0xe1, 0x69, 0x14, 0x63, 0x55, 0x21, 0x0c, 0x7d };
+        const uint8_t _rcon[] = {
+            0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
+        };
 
-        // The round constant word array, Rcon[i], contains the values given by 
-        // x to the power (i-1) being powers of x (x is denoted as {02}) in the field GF(2^8)
-        static const uint8_t Rcon[] = {
-          0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36 };
-
-        inline void KeyExpansion(uint8_t(&RoundKey)[key_exp_size], const uint8_t(&Key)[key_size], const uint8_t(&box)[256])
+        inline void _make_inverse_sbox(uint8_t(&out)[256], const uint8_t(&in)[256])
         {
-            uint8_t temp[4];
-
-            for (uint32_t i = 0; i < key_number; ++i)
-            {
-                RoundKey[(i * 4) + 0] = Key[(i * 4) + 0];
-                RoundKey[(i * 4) + 1] = Key[(i * 4) + 1];
-                RoundKey[(i * 4) + 2] = Key[(i * 4) + 2];
-                RoundKey[(i * 4) + 3] = Key[(i * 4) + 3];
-            }
-
-            for (uint32_t i = key_number; i < column_number * (round_number + 1); ++i)
-            {
-                uint32_t k = ((i - 1) << 2);
-                temp[0] = RoundKey[k + 0];
-                temp[1] = RoundKey[k + 1];
-                temp[2] = RoundKey[k + 2];
-                temp[3] = RoundKey[k + 3];
-
-                if (i % key_number == 0)
-                {
-                    const uint8_t u8tmp = temp[0];
-                    temp[0] = temp[1];
-                    temp[1] = temp[2];
-                    temp[2] = temp[3];
-                    temp[3] = u8tmp;
-
-                    temp[0] = box[temp[0]];
-                    temp[1] = box[temp[1]];
-                    temp[2] = box[temp[2]];
-                    temp[3] = box[temp[3]];
-
-                    temp[0] = temp[0] ^ Rcon[i / key_number];
-                }
-
-                if (i % key_number == 4)
-                {
-                    temp[0] = box[temp[0]];
-                    temp[1] = box[temp[1]];
-                    temp[2] = box[temp[2]];
-                    temp[3] = box[temp[3]];
-                }
-
-                uint32_t j = i << 2;
-                k = ((i - key_number) << 2);
-                RoundKey[j + 0] = RoundKey[k + 0] ^ temp[0];
-                RoundKey[j + 1] = RoundKey[k + 1] ^ temp[1];
-                RoundKey[j + 2] = RoundKey[k + 2] ^ temp[2];
-                RoundKey[j + 3] = RoundKey[k + 3] ^ temp[3];
-            }
+            for (uint32_t i = 0; i < 256; ++i) out[in[i]] = i;
         }
 
-        // This function adds the round key to state.
-        // The round key is added to the state by an XOR function.
-        inline void AddRoundKey(uint8_t round, state_t* state, const uint8_t* RoundKey)
+        inline void _shift_left(uint8_t(&buf)[4])
+        {
+            const uint8_t x = buf[0];
+            buf[0] = buf[1];
+            buf[1] = buf[2];
+            buf[2] = buf[3];
+            buf[3] = x;
+        }
+
+        inline void _translate_state(state_t& state, const uint8_t(box)[256])
         {
             for (uint8_t i = 0; i < 4; ++i)
                 for (uint8_t j = 0; j < 4; ++j)
-                    (*state)[i][j] ^= RoundKey[(round * column_number * 4) + (i * column_number) + j];
+                    state[j][i] = box[state[j][i]];
         }
 
-        inline void translate_state(state_t* state, const uint8_t(box)[256])
-        {
-            for (uint8_t i = 0; i < 4; ++i)
-                for (uint8_t j = 0; j < 4; ++j)
-                    (*state)[j][i] = box[(*state)[j][i]];
-        }
-
-        // The ShiftRows() function shifts the rows in the state to the left.
-        // Each row is shifted with different offset.
-        // Offset = Row number. So the first row is not shifted.
-        inline void ShiftRows(state_t* state)
-        {
-            // Rotate first row 1 columns to left  
-            uint8_t temp = (*state)[0][1];
-            (*state)[0][1] = (*state)[1][1];
-            (*state)[1][1] = (*state)[2][1];
-            (*state)[2][1] = (*state)[3][1];
-            (*state)[3][1] = temp;
-
-            // Rotate second row 2 columns to left  
-            temp = (*state)[0][2];
-            (*state)[0][2] = (*state)[2][2];
-            (*state)[2][2] = temp;
-
-            temp = (*state)[1][2];
-            (*state)[1][2] = (*state)[3][2];
-            (*state)[3][2] = temp;
-
-            // Rotate third row 3 columns to left
-            temp = (*state)[0][3];
-            (*state)[0][3] = (*state)[3][3];
-            (*state)[3][3] = (*state)[2][3];
-            (*state)[2][3] = (*state)[1][3];
-            (*state)[1][3] = temp;
-        }
-
-        inline uint8_t xtime(uint8_t x)
+        inline uint8_t _xtime(uint8_t x)
         {
             return ((x << 1) ^ (((x >> 7) & 1) * 0x1b));
         }
 
-        // MixColumns function mixes the columns of the state matrix
-        inline void MixColumns(state_t* state)
-        {
-            for (uint8_t i = 0; i < 4; ++i)
-            {
-                uint8_t x = (*state)[i][0];
-                uint8_t y = (*state)[i][0] ^ (*state)[i][1] ^ (*state)[i][2] ^ (*state)[i][3];
-
-                (*state)[i][0] ^= xtime((*state)[i][0] ^ (*state)[i][1]) ^ y;
-                (*state)[i][1] ^= xtime((*state)[i][1] ^ (*state)[i][2]) ^ y;
-                (*state)[i][2] ^= xtime((*state)[i][2] ^ (*state)[i][3]) ^ y;
-                (*state)[i][3] ^= xtime((*state)[i][3] ^ x) ^ y;
-            }
-        }
-
-        inline uint8_t Multiply(uint8_t x, uint8_t y)
+        inline uint8_t _multiply(uint8_t x, uint8_t y)
         {
             return (((y & 1) * x) ^
-                    (((y >> 1) & 1) * xtime(x)) ^
-                    (((y >> 2) & 1) * xtime(xtime(x))) ^
-                    (((y >> 3) & 1) * xtime(xtime(xtime(x)))) ^
-                    (((y >> 4) & 1) * xtime(xtime(xtime(xtime(x)))))); /* this last call to xtime() can be omitted */
+                    (((y >> 1) & 1) * _xtime(x)) ^
+                    (((y >> 2) & 1) * _xtime(_xtime(x))) ^
+                    (((y >> 3) & 1) * _xtime(_xtime(_xtime(x)))) ^
+                    (((y >> 4) & 1) * _xtime(_xtime(_xtime(_xtime(x)))))); /* this last call to _xtime() can be omitted */
         }
 
-        // MixColumns function mixes the columns of the state matrix.
-        // The method used to multiply may be difficult to understand for the inexperienced.
-        // Please use the references to gain more information.
-        inline void InvMixColumns(state_t* state)
+        inline void key_expansion(uint8_t(&rkey)[KeyExpSize], const uint8_t(&key)[KeySize], const uint8_t(&box)[256])
+        {
+            _memory_copy(rkey, key, KeySize);
+
+            for (uint32_t i = KeyNumber; i < ColumnNumber * (RoundNumber + 1); ++i)
+            {
+                uint8_t temp[4];
+                _memory_copy(temp, rkey + ((i - 1) << 2), 4);
+
+                if (i % KeyNumber == 0)
+                {
+                    _shift_left(temp);
+
+                    temp[0] = box[temp[0]];
+                    temp[1] = box[temp[1]];
+                    temp[2] = box[temp[2]];
+                    temp[3] = box[temp[3]];
+
+                    temp[0] ^= _rcon[i / KeyNumber];
+                }
+
+                if (i % KeyNumber == 4)
+                {
+                    temp[0] = box[temp[0]];
+                    temp[1] = box[temp[1]];
+                    temp[2] = box[temp[2]];
+                    temp[3] = box[temp[3]];
+                }
+
+                uint32_t k = ((i - KeyNumber) << 2);
+                rkey[(i << 2) + 0] = rkey[k + 0] ^ temp[0];
+                rkey[(i << 2) + 1] = rkey[k + 1] ^ temp[1];
+                rkey[(i << 2) + 2] = rkey[k + 2] ^ temp[2];
+                rkey[(i << 2) + 3] = rkey[k + 3] ^ temp[3];
+            }
+        }
+
+        inline void add_round_key(state_t& state, const uint8_t (&rkey)[KeyExpSize], uint8_t round)
+        {
+            for (uint8_t i = 0; i < 4; ++i)
+                for (uint8_t j = 0; j < 4; ++j)
+                    state[i][j] ^= rkey[(round * ColumnNumber * 4) + (i * ColumnNumber) + j];
+        }
+
+        inline void mix_columns(state_t& state)
         {
             for (uint8_t i = 0; i < 4; ++i)
             {
-                uint8_t a = (*state)[i][0];
-                uint8_t b = (*state)[i][1];
-                uint8_t c = (*state)[i][2];
-                uint8_t d = (*state)[i][3];
+                uint8_t x = state[i][0];
+                uint8_t y = state[i][0] ^ state[i][1] ^ state[i][2] ^ state[i][3];
 
-                (*state)[i][0] = Multiply(a, 0x0e) ^ Multiply(b, 0x0b) ^ Multiply(c, 0x0d) ^ Multiply(d, 0x09);
-                (*state)[i][1] = Multiply(a, 0x09) ^ Multiply(b, 0x0e) ^ Multiply(c, 0x0b) ^ Multiply(d, 0x0d);
-                (*state)[i][2] = Multiply(a, 0x0d) ^ Multiply(b, 0x09) ^ Multiply(c, 0x0e) ^ Multiply(d, 0x0b);
-                (*state)[i][3] = Multiply(a, 0x0b) ^ Multiply(b, 0x0d) ^ Multiply(c, 0x09) ^ Multiply(d, 0x0e);
+                state[i][0] ^= _xtime(state[i][0] ^ state[i][1]) ^ y;
+                state[i][1] ^= _xtime(state[i][1] ^ state[i][2]) ^ y;
+                state[i][2] ^= _xtime(state[i][2] ^ state[i][3]) ^ y;
+                state[i][3] ^= _xtime(state[i][3] ^ x) ^ y;
             }
         }
 
-        inline void InvShiftRows(state_t* state)
+        inline void inverse_mix_columns(state_t& state)
         {
-            // Rotate first row 1 columns to right  
-            uint8_t temp = (*state)[3][1];
-            (*state)[3][1] = (*state)[2][1];
-            (*state)[2][1] = (*state)[1][1];
-            (*state)[1][1] = (*state)[0][1];
-            (*state)[0][1] = temp;
+            for (uint8_t i = 0; i < 4; ++i)
+            {
+                uint8_t a = state[i][0];
+                uint8_t b = state[i][1];
+                uint8_t c = state[i][2];
+                uint8_t d = state[i][3];
 
-            // Rotate second row 2 columns to right 
-            temp = (*state)[0][2];
-            (*state)[0][2] = (*state)[2][2];
-            (*state)[2][2] = temp;
-
-            temp = (*state)[1][2];
-            (*state)[1][2] = (*state)[3][2];
-            (*state)[3][2] = temp;
-
-            // Rotate third row 3 columns to right
-            temp = (*state)[0][3];
-            (*state)[0][3] = (*state)[1][3];
-            (*state)[1][3] = (*state)[2][3];
-            (*state)[2][3] = (*state)[3][3];
-            (*state)[3][3] = temp;
+                state[i][0] = _multiply(a, 0x0e) ^ _multiply(b, 0x0b) ^ _multiply(c, 0x0d) ^ _multiply(d, 0x09);
+                state[i][1] = _multiply(a, 0x09) ^ _multiply(b, 0x0e) ^ _multiply(c, 0x0b) ^ _multiply(d, 0x0d);
+                state[i][2] = _multiply(a, 0x0d) ^ _multiply(b, 0x09) ^ _multiply(c, 0x0e) ^ _multiply(d, 0x0b);
+                state[i][3] = _multiply(a, 0x0b) ^ _multiply(b, 0x0d) ^ _multiply(c, 0x09) ^ _multiply(d, 0x0e);
+            }
         }
 
-        // Cipher is the main function that encrypts the PlainText.
-        inline void Cipher(state_t* state, const uint8_t* RoundKey, const uint8_t(&box)[256])
-        {
-            // Add the First round key to the state before starting the rounds.
-            AddRoundKey(0, state, RoundKey);
+        inline void shift_rows(state_t& state)
+        { 
+            uint8_t temp = state[0][1];
+            state[0][1] = state[1][1];
+            state[1][1] = state[2][1];
+            state[2][1] = state[3][1];
+            state[3][1] = temp;
+ 
+            temp = state[0][2];
+            state[0][2] = state[2][2];
+            state[2][2] = temp;
 
-            // There will be round_number rounds.
-            // The first round_number-1 rounds are identical.
-            // These round_number rounds are executed in the loop below.
-            // Last one without MixColumns()
+            temp = state[1][2];
+            state[1][2] = state[3][2];
+            state[3][2] = temp;
+
+            temp = state[0][3];
+            state[0][3] = state[3][3];
+            state[3][3] = state[2][3];
+            state[2][3] = state[1][3];
+            state[1][3] = temp;
+        }
+
+        inline void inverse_shift_rows(state_t& state)
+        { 
+            uint8_t temp = state[3][1];
+            state[3][1] = state[2][1];
+            state[2][1] = state[1][1];
+            state[1][1] = state[0][1];
+            state[0][1] = temp;
+ 
+            temp = state[0][2];
+            state[0][2] = state[2][2];
+            state[2][2] = temp;
+
+            temp = state[1][2];
+            state[1][2] = state[3][2];
+            state[3][2] = temp;
+
+            temp = state[0][3];
+            state[0][3] = state[1][3];
+            state[1][3] = state[2][3];
+            state[2][3] = state[3][3];
+            state[3][3] = temp;
+        }
+
+        inline void cipher(state_t& state, const uint8_t (&rkey)[KeyExpSize], const uint8_t(&box)[256])
+        {
+            add_round_key(state, rkey, 0);
+
             for (uint8_t round = 1; ; ++round)
             {
-                translate_state(state, box);
-                ShiftRows(state);
-                if (round == round_number) {
-                    break;
-                }
-                MixColumns(state);
-                AddRoundKey(round, state, RoundKey);
+                _translate_state(state, box);
+                shift_rows(state);
+
+                if (RoundNumber == round) break;
+
+                mix_columns(state);
+                add_round_key(state, rkey, round);
             }
-            // Add round key to last round
-            AddRoundKey(round_number, state, RoundKey);
+
+            add_round_key(state, rkey, RoundNumber);
         }
 
-        inline void InvCipher(state_t* state, const uint8_t* RoundKey, const uint8_t(&box)[256])
+        inline void inverse_cipher(state_t& state, const uint8_t (&rkey)[KeyExpSize], const uint8_t(&box)[256])
         {
-            // Add the First round key to the state before starting the rounds.
-            AddRoundKey(round_number, state, RoundKey);
+            add_round_key(state, rkey, RoundNumber);
 
-            // There will be round_number rounds.
-            // The first round_number-1 rounds are identical.
-            // These round_number rounds are executed in the loop below.
-            // Last one without InvMixColumn()
-            for (uint8_t round = (round_number - 1); ; --round)
+            for (uint8_t round = (RoundNumber - 1); ; --round)
             {
-                InvShiftRows(state);
-                translate_state(state, box);
-                AddRoundKey(round, state, RoundKey);
-                if (round == 0) {
-                    break;
-                }
-                InvMixColumns(state);
+                inverse_shift_rows(state);
+                _translate_state(state, box);
+                add_round_key(state, rkey, round);
+
+                if (0 == round) break;
+
+                inverse_mix_columns(state);
             }
         }
 
-        inline void XorWithIv(uint8_t* buf, const uint8_t* Iv)
-        {
-            for (uint8_t i = 0; i < block_size; ++i) buf[i] ^= Iv[i]; // The block in AES is always 128bit no matter the key size
-        }
-
-        inline void memory_copy(unsigned char* out, const unsigned char* in, unsigned int n)
-        {
-            for (unsigned int i = 0; i < n; ++i) out[i] = in[i];
-        }
-
-    }
+    }   // namespace aes
 
     void aes_encrypt(void* data, uint32_t n, const uint8_t(&key)[32], const uint8_t(&iv)[16])
     {
-        uint8_t round_key[aes::key_exp_size]{ 0 };
-        aes::KeyExpansion(round_key, key, aes::sbox);
+        uint8_t round_key[aes::KeyExpSize]{ 0 };
+        aes::key_expansion(round_key, key, aes::sbox);
 
         const uint8_t* iv_ptr = iv;
         uint8_t* buf = (uint8_t*)data;
-        for (uintptr_t i = 0; i < n; i += aes::block_size)
+        for (uintptr_t i = 0; i < n; i += aes::BlockSize)
         {
-            aes::XorWithIv(buf, iv_ptr);
-            aes::Cipher((aes::state_t*)buf, round_key, aes::sbox);
+            _memory_xor(buf, iv_ptr, aes::BlockSize);
+            aes::cipher(*((aes::state_t*)buf), round_key, aes::sbox);
             iv_ptr = buf;
-            buf += aes::block_size;
+            buf += aes::BlockSize;
         }
-        /* store Iv in ctx for next call */
-        // aes::memory_copy(ctx.Iv, Iv, aes::block_size);
     }
 
     void aes_decrypt(void* data, uint32_t n, const uint8_t(&key)[32], const uint8_t(&iv)[16])
     {
-        uint8_t _iv[aes::block_size]{ 0 };
-        uint8_t round_key[aes::key_exp_size]{ 0 };
+        uint8_t _iv[aes::BlockSize]{ 0 };
+        uint8_t round_key[aes::KeyExpSize]{ 0 };
+        uint8_t rsbox[256]{ 0 };
 
-        aes::KeyExpansion(round_key, key, aes::sbox);
-        aes::memory_copy(_iv, iv, aes::block_size);
+        aes::_make_inverse_sbox(rsbox, aes::sbox);
+        aes::key_expansion(round_key, key, aes::sbox);
+        _memory_copy(_iv, iv, aes::BlockSize);
 
-        uint8_t storeNextIv[aes::block_size]{ 0 };
+        uint8_t storeNextIv[aes::BlockSize]{ 0 };
         uint8_t* buf = (uint8_t*)data;
-        for (uintptr_t i = 0; i < n; i += aes::block_size)
+        for (uintptr_t i = 0; i < n; i += aes::BlockSize)
         {
-            aes::memory_copy(storeNextIv, buf, aes::block_size);
-            aes::InvCipher((aes::state_t*)buf, round_key, aes::rsbox);
-            aes::XorWithIv(buf, _iv);
-            aes::memory_copy(_iv, storeNextIv, aes::block_size);
-            buf += aes::block_size;
+            _memory_copy(storeNextIv, buf, aes::BlockSize);
+            aes::inverse_cipher(*((aes::state_t*)buf), round_key, rsbox);
+            _memory_xor(buf, _iv, aes::BlockSize);
+            _memory_copy(_iv, storeNextIv, aes::BlockSize);
+            buf += aes::BlockSize;
         }
-
     }
-}
+
+}   // namespace xf::encrypt
