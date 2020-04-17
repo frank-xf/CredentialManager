@@ -10,7 +10,7 @@ namespace xf::credential
 {
     _xfTest(test_load_save)
     {
-        memory_t data;
+        string_t data;
         _xfAssert(LoadFile("../../resources/credential-demo.xml", data));
 
         auto s0 = sha_256_signature(data);
@@ -18,7 +18,7 @@ namespace xf::credential
 
         _xfAssert(SaveFile("./temp.xml", data));
 
-        memory_t temp;
+        string_t temp;
         _xfAssert(LoadFile("./temp.xml", temp));
         _xfExpect(s0 == sha_256_signature(temp));
     }

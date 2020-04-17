@@ -15,7 +15,7 @@ namespace xf::credential
         return std::chrono::duration_cast<std::chrono::milliseconds>(t).count();
     }
 
-    bool LoadFile(const char* file, memory_t& data)
+    bool LoadFile(const char* file, string_t& data)
     {
         std::ifstream fin(file);
         if (fin.is_open())
@@ -30,7 +30,7 @@ namespace xf::credential
         return false;
     }
 
-    bool SaveFile(const char* file, const memory_t& data)
+    bool SaveFile(const char* file, const string_t& data)
     {
         std::ofstream fout(file);
         if (fout.is_open())

@@ -172,7 +172,7 @@ namespace xf::encrypt
         }
 
         inline void inverse_shift_rows(state_t& state)
-        { 
+        {
             uint8_t temp = state[3][1];
             state[3][1] = state[2][1];
             state[2][1] = state[1][1];

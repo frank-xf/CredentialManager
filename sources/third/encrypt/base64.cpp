@@ -1,6 +1,7 @@
 ﻿
 namespace xf::encrypt
 {
+    /*
     unsigned int base64_encoding(unsigned char* dst, const unsigned char* src, unsigned int n)
     {
         unsigned int off = n % 3;
@@ -81,4 +82,6 @@ namespace xf::encrypt
 
         return count;
     }
+    */
+
 }

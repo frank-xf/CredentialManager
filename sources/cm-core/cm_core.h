@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <string>
+#include <vector>
 
 namespace xf::credential
 {
@@ -12,12 +13,13 @@ namespace xf::credential
     using _string_type = std::basic_string<CharType, std::char_traits<CharType>, std::allocator<CharType>>;
 
     using string_t = _string_type<char_t>;
-    using memory_t = _string_type<char>;
+    // using memory_t = std::vector<std::uint8_t>;
 
     inline const char_t* version() { return "1.2.0"; }
 
     time_t CurrentTime();
 
+    /*
     inline memory_t string_to_memory(const string_t& str)
     {
         if constexpr (std::is_same<string_t, memory_t>::value)
@@ -33,9 +35,9 @@ namespace xf::credential
         else
             return string_t((string_t::value_type*)data.c_str(), data.size() / sizeof(string_t::value_type));
     }
-
-    bool LoadFile(const char* file, memory_t& data);
-    bool SaveFile(const char* file, const memory_t& data);
+    */
+    bool LoadFile(const char* file, string_t& data);
+    bool SaveFile(const char* file, const string_t& data);
 
 #include "cm_type.inl"
 
@@ -121,35 +123,26 @@ namespace xf::credential
 
         bool Load(const char* file)
         {
-            return Load(file, [](memory_t&, const byte_t*, std::size_t) { return true; }, nullptr, 0);
+            return Load(file, [](string_t&, const byte_t*, std::size_t) { return true; }, nullptr, 0);
         }
 
         bool Save(const char* file) const
         {
-            return Save(file, [](memory_t&, const byte_t*, std::size_t) { return true; }, nullptr, 0);
+            return Save(file, [](string_t&, const byte_t*, std::size_t) { return true; }, nullptr, 0);
         }
 
         template<typename FuncType>
-        bool Load(const char* file, FuncType decoding, const byte_t* key, std::size_t n)
+        bool Load(const char* file, FuncType decrypt, const byte_t* key, std::size_t n)
         {
-            memory_t data;
-            if (!LoadFile(file, data)) return false;
-
-            if (!decoding(data, key, n)) return false;
-
-            return Deserialize(memory_to_string(data));
+            string_t data;
+            return (LoadFile(file, data) && decrypt(data, key, n) && Deserialize(data));
         }
 
         template<typename FuncType>
-        bool Save(const char* file, FuncType encodeing, const byte_t* key, std::size_t n) const
+        bool Save(const char* file, FuncType encrypt, const byte_t* key, std::size_t n) const
         {
-            string_t str;
-            if (!Serialize(str)) return false;
-
-            memory_t data = string_to_memory(str);
-            if (!encodeing(data, key, n)) return false;
-
-            return SaveFile(file, data);
+            string_t data;
+            return Serialize(data) && encrypt(data, key, n) && SaveFile(file, data);
         }
 
         static bool ValidateName(const string_t& strName);
