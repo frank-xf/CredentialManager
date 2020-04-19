@@ -145,7 +145,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\sources\cm-core\cm_core.h" />
-    <ClInclude Include="..\..\..\sources\cm-core\cm_type.inl" />
+    <ClInclude Include="..\..\..\sources\cm-core\cm_type.h" />
     <ClInclude Include="..\..\..\sources\third\pugixml\pugiconfig.hpp" />
     <ClInclude Include="..\..\..\sources\third\pugixml\pugixml.hpp" />
   </ItemGroup>

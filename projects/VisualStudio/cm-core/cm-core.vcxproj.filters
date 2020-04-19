@@ -16,14 +16,14 @@
     <ClInclude Include="..\..\..\sources\cm-core\cm_core.h">
       <Filter>sources</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\sources\cm-core\cm_type.inl">
-      <Filter>sources</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\sources\third\pugixml\pugiconfig.hpp">
       <Filter>third\pugixml</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\sources\third\pugixml\pugixml.hpp">
       <Filter>third\pugixml</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\cm-core\cm_type.h">
+      <Filter>sources</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -3,43 +3,36 @@
 #include <string>
 #include <vector>
 
+#include "cm_type.h"
+
 namespace xf::credential
 {
-    using char_t = char;
-    using byte_t = std::uint8_t;
-    using time_t = std::uint64_t;
 
-    template<typename CharType>
-    using _string_type = std::basic_string<CharType, std::char_traits<CharType>, std::allocator<CharType>>;
-
-    using string_t = _string_type<char_t>;
-    // using memory_t = std::vector<std::uint8_t>;
-
-    inline const char_t* version() { return "1.2.0"; }
+    inline const char_t* core_version() { return "1.2.0"; }
 
     time_t CurrentTime();
 
-    /*
-    inline memory_t string_to_memory(const string_t& str)
-    {
-        if constexpr (std::is_same<string_t, memory_t>::value)
-            return str;
-        else
-            return memory_t((memory_t::value_type*)str.c_str(), str.size() * sizeof(string_t::value_type));
-    }
-
-    inline string_t memory_to_string(const memory_t& data)
-    {
-        if constexpr (std::is_same<string_t, memory_t>::value)
-            return data;
-        else
-            return string_t((string_t::value_type*)data.c_str(), data.size() / sizeof(string_t::value_type));
-    }
-    */
     bool LoadFile(const char* file, string_t& data);
     bool SaveFile(const char* file, const string_t& data);
 
-#include "cm_type.inl"
+    template<credential_type ct>
+    struct ItemBase
+    {
+        using base_type = ItemBase;
+
+        static constexpr credential_type type = ct;
+
+        time_t time;
+
+        ItemBase() : ItemBase(CurrentTime()) { }
+        ItemBase(time_t t) : time(t) { }
+        ~ItemBase() { }
+
+        void Updated() {
+            time = CurrentTime();
+        }
+
+    };  // class ItemBase
 
     struct PairItem : public ItemBase<credential_type::ct_pair> {
         string_t key, value;
@@ -98,7 +91,7 @@ namespace xf::credential
     {
     private:
 
-        string_t username, description, version{ xf::credential::version() };
+        string_t username, description, version{ core_version() };
 
     public:
 
@@ -123,26 +116,26 @@ namespace xf::credential
 
         bool Load(const char* file)
         {
-            return Load(file, [](string_t&, const byte_t*, std::size_t) { return true; }, nullptr, 0);
+            return Load(file, [](string_t&) { return true; });
         }
 
         bool Save(const char* file) const
         {
-            return Save(file, [](string_t&, const byte_t*, std::size_t) { return true; }, nullptr, 0);
+            return Save(file, [](string_t&) { return true; });
         }
 
         template<typename FuncType>
-        bool Load(const char* file, FuncType decrypt, const byte_t* key, std::size_t n)
+        bool Load(const char* file, FuncType decrypt)
         {
             string_t data;
-            return (LoadFile(file, data) && decrypt(data, key, n) && Deserialize(data));
+            return (LoadFile(file, data) && decrypt(data) && Deserialize(data));
         }
 
         template<typename FuncType>
-        bool Save(const char* file, FuncType encrypt, const byte_t* key, std::size_t n) const
+        bool Save(const char* file, FuncType encrypt) const
         {
             string_t data;
-            return Serialize(data) && encrypt(data, key, n) && SaveFile(file, data);
+            return (Serialize(data) && encrypt(data) && SaveFile(file, data));
         }
 
         static bool ValidateName(const string_t& strName);
