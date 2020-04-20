@@ -1,4 +1,6 @@
-﻿
+﻿#include <cstdint>
+#include <cstddef>
+
 #include "sbox.h"
 
 namespace xf::encrypt
@@ -8,12 +10,12 @@ namespace xf::encrypt
 	{
 		if (out && data && 0 < len)
 		{
-			unsigned char sbox[256]{ 0 };
+			std::uint8_t sbox[256]{ 0 };
 			mix_sbox(sbox, key, nkey);
 
-		    unsigned char* _out = (unsigned char*)out;
-			const unsigned char* _data = (const unsigned char*)data;
-			for (unsigned int i = 0, x = 0, y = 0; i < len; ++i)
+			std::uint8_t* _out = (std::uint8_t*)out;
+			const std::uint8_t* _data = (const std::uint8_t*)data;
+			for (std::size_t i = 0, x = 0, y = 0; i < len; ++i)
 			{
 				x = ((x + 1) & 0xff);
 				y = ((y + sbox[x]) & 0xff);

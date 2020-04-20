@@ -2,9 +2,10 @@
 #include <fstream>
 
 #include "../third/xf-test/xf_simple_test.h"
+#include "../third/encrypt/rc4.h"
+#include "../third/encrypt/base64.h"
 #include "../third/encrypt/aes256.h"
 #include "../third/encrypt/sha256.h"
-#include "../third/encrypt/rc4.h"
 
 #include "../cm-encrypt/cm_encrypt.h"
 
@@ -142,6 +143,20 @@ namespace xf::credential::encrypt
         _xfExpect(string_t((char*)str, 32) == data);
     }
 
+    _xfTest(_test_base64)
+    {
+        string_t str("CredentialManager");
+
+        memory_t buf(0x80);;
+        _xfExpect(23 == xf::encrypt::base64_encoding(buf.data(), str.data(), str.size()));
+
+        string_t text((const char*)buf.data(), 23);
+        _xfExpect(text == "2TYKZMJupMK7hEL7hOISZRU");
+
+        _xfExpect(17 == xf::encrypt::base64_decoding(buf.data(), text.data(), text.size()));
+        _xfExpect(compare_memory(str.data(), str.size(), buf.data(), str.size()));
+    }
+
     _xfTest(_test_encrypt)
     {
         string_t str("Credential Manager by FrankXiong  2020-04");
@@ -154,6 +169,12 @@ namespace xf::credential::encrypt
         _xfAssert(!compare_memory(str.data(), str.size(), buf.data(), buf.size()));
 
         _xfAssert(Decrypt(buf, k1.data(), k1.size(), k2.data(), k2.size()));
+        _xfAssert(compare_memory(str.data(), str.size(), buf.data(), buf.size()));
+
+        const char* temp_file = "./tempfile.txt";
+        _xfAssert(Save(temp_file, str, k1.data(), k1.size(), k2.data(), k2.size()));
+        _xfAssert(ValidateFile(temp_file));
+        _xfAssert(Load(temp_file, str, k1.data(), k1.size(), k2.data(), k2.size()));
         _xfAssert(compare_memory(str.data(), str.size(), buf.data(), buf.size()));
     }
 

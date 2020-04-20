@@ -2,6 +2,7 @@
 
 namespace xf::encrypt
 {
-    void sha_256(unsigned char(&signature)[0x20], const void* data, std::size_t n);
+
+    void sha_256(std::uint8_t (&signature)[0x20], const void* data, std::size_t n);
 
 }

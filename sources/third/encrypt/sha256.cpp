@@ -1,38 +1,38 @@
-﻿
+﻿#include <cstdint>
 #include <cstddef>
 
 namespace xf::encrypt
 {
 
-    inline unsigned int _right_rotate(unsigned int a, unsigned int b) {
+    inline std::uint32_t _right_rotate(std::uint32_t a, std::uint32_t b) {
         return ((a >> b) | (a << (32 - b)));
     }
 
-    inline unsigned int _choose(unsigned int x, unsigned int y, unsigned int z) {
+    inline std::uint32_t _choose(std::uint32_t x, std::uint32_t y, std::uint32_t z) {
         return ((x & y) ^ (~x & z));
     }
 
-    inline unsigned int _majority(unsigned int x, unsigned int y, unsigned int z) {
+    inline std::uint32_t _majority(std::uint32_t x, std::uint32_t y, std::uint32_t z) {
         return ((x & y) ^ (x & z) ^ (y & z));
     }
 
-    inline unsigned int _ep_0(unsigned int x) {
+    inline std::uint32_t _ep_0(std::uint32_t x) {
         return (_right_rotate(x, 0x02) ^ _right_rotate(x, 0x0d) ^ _right_rotate(x, 0x16));
     }
 
-    inline unsigned int _ep_1(unsigned int x) {
+    inline std::uint32_t _ep_1(std::uint32_t x) {
         return (_right_rotate(x, 0x06) ^ _right_rotate(x, 0x0b) ^ _right_rotate(x, 0x19));
     }
 
-    inline unsigned int _sig_0(unsigned int x) {
+    inline std::uint32_t _sig_0(std::uint32_t x) {
         return (_right_rotate(x, 0x07) ^ _right_rotate(x, 0x12) ^ ((x) >> 0x03));
     }
 
-    inline unsigned int _sig_1(unsigned int x) {
+    inline std::uint32_t _sig_1(std::uint32_t x) {
         return (_right_rotate(x, 0x11) ^ _right_rotate(x, 0x13) ^ ((x) >> 0x0a));
     }
 
-    const unsigned int _keys[]{
+    const std::uint32_t _keys[]{
         0x428a2f98, 0x71374491, 0xb5c0fbcf, 0xe9b5dba5, 0x3956c25b, 0x59f111f1, 0x923f82a4, 0xab1c5ed5,
         0xd807aa98, 0x12835b01, 0x243185be, 0x550c7dc3, 0x72be5d74, 0x80deb1fe, 0x9bdc06a7, 0xc19bf174,
         0xe49b69c1, 0xefbe4786, 0x0fc19dc6, 0x240ca1cc, 0x2de92c6f, 0x4a7484aa, 0x5cb0a9dc, 0x76f988da,
@@ -43,9 +43,9 @@ namespace xf::encrypt
         0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
     };
 
-    inline void sha256_transform(unsigned int (&_state)[8], const unsigned char* _block)
+    inline void sha256_transform(std::uint32_t (&_state)[8], const std::uint8_t* _block)
     {
-        unsigned int a, b, c, d, e, f, g, h, t1, t2, m[64];
+        std::uint32_t a, b, c, d, e, f, g, h, t1, t2, m[64];
 
         for (int i = 0, j = 0; i < 16; ++i, j += 4)
         {
@@ -90,21 +90,21 @@ namespace xf::encrypt
         _state[7] += h;
     }
 
-    inline void sha256_final(unsigned int _datalen, unsigned long long _bitlen, unsigned int (&_state)[8], unsigned char (&_block)[64])
+    inline void sha256_final(std::size_t _datalen, std::uint64_t _bitlen, std::uint32_t (&_state)[8], std::uint8_t (&_block)[64])
     {
         _block[_datalen] = 0x80;
 
         if (_datalen < 56)
         {
-            for (unsigned int i = _datalen + 1; i < 56; _block[i++] = 0x00);
+            for (std::size_t i = _datalen + 1; i < 56; _block[i++] = 0x00);
         }
         else
         {
-            for (unsigned int i = _datalen + 1; i < 64;_block[i++] = 0x00);
+            for (std::size_t i = _datalen + 1; i < 64;_block[i++] = 0x00);
 
             sha256_transform(_state, _block);
 
-            for (unsigned int i = 0; i < 56; _block[i++] = 0x00);
+            for (std::size_t i = 0; i < 56; _block[i++] = 0x00);
         }
 
         _bitlen += (_datalen << 3);
@@ -121,15 +121,15 @@ namespace xf::encrypt
         sha256_transform(_state, _block);
     }
 
-    void sha_256(unsigned char (&signature)[0x20], const void* data, std::size_t n)
+    void sha_256(std::uint8_t (&signature)[0x20], const void* data, std::size_t n)
     {
-        const unsigned char* _data = (const unsigned char*)(data);
-        unsigned int state[]{ 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
-        unsigned int datalen{ 0 };
-        unsigned long long bitlen{ 0 };
-        unsigned char block[64]{ 0 };
+        const std::uint8_t* _data = (const std::uint8_t*)(data);
+        std::uint32_t state[]{ 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };
+        std::uint32_t datalen{ 0 };
+        std::uint64_t bitlen{ 0 };
+        std::uint8_t block[64]{ 0 };
 
-        for (unsigned int i = 0; i < n; ++i)
+        for (std::size_t i = 0; i < n; ++i)
         {
             block[datalen] = _data[i];
             datalen++;

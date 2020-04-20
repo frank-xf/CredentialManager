@@ -16,7 +16,7 @@ namespace xf::credential::encrypt
     using keys_t = std::vector<key_pair>;
 
     constexpr std::size_t _RequireSize(0x40);
-    constexpr std::size_t _RoundNumber(0x01);
+    constexpr std::size_t _RoundNumber(0x04);
 
     const char* encrypt_version() { return "1.0.2"; }
     const char* encrypt_name() { return "encrypt for xf::credential"; }
@@ -49,6 +49,18 @@ namespace xf::credential::encrypt
         data.resize(xf::encrypt::base64_decoding(data.data(), str, n));
 
         return data;
+    }
+
+    inline string_t _encoding_name()
+    {
+        auto s = _base64_encoding(encrypt_name(), std::strlen(encrypt_name()));
+        return SignatureText(s.data(), s.size());
+    }
+
+    inline string_t _encoding_version()
+    {
+        auto s = _base64_encoding(encrypt_version(), std::strlen(encrypt_version()));
+        return SignatureText(s.data(), s.size());
     }
 
     inline memory_t _sha_256(const void* data, std::size_t n)
@@ -86,6 +98,15 @@ namespace xf::credential::encrypt
         _random_memory(data, n);
 
         return data;
+    }
+
+    void _fill_string(memory_t& data)
+    {
+        std::size_t x = 16 - (data.size() % 16);
+        memory_t s(1, (std::uint8_t)x);
+        _random_memory(s, x - 1);
+
+        data.insert(data.begin(), s.begin(), s.end());
     }
 
     std::uint32_t _friend_number(const void* key, std::size_t n)
@@ -228,44 +249,38 @@ namespace xf::credential::encrypt
     memory_t _validate_file(const char* file)
     {
         std::ifstream fin(file);
-        if (!fin.is_open())
-            return memory_t();
+        if (fin.is_open())
+        {
+            string_t text;
 
-        string_t text;
+            // compare encrypt name
+            std::getline(fin, text);
+            auto s = _encoding_name();
+            if (compare_memory(s.data(), s.size(), text.data(), text.size()))
+            {
+                // compare encrypt version
+                std::getline(fin, text);
+                s = _encoding_version();
+                if (compare_memory(s.data(), s.size(), text.data(), text.size()))
+                {
+                    // sha256 signatrue
+                    std::getline(fin, s);
 
-        // compare encrypt name
-        std::getline(fin, text);
-        if (!compare_memory(text.c_str(), text.size(), encrypt_name(), std::strlen(encrypt_name())))
-            return memory_t();
+                    // read data
+                    std::ostringstream os;
+                    os << fin.rdbuf();
+                    text = os.str();
+                    auto data = _base64_decoding(text.c_str(), text.size());
+                    auto signatrue = _sha_256(data.data(), data.size());
 
-        // compare encrypt version
-        std::getline(fin, text);
-        if (!compare_memory(text.c_str(), text.size(), encrypt_version(), std::strlen(encrypt_version())))
-            return memory_t();
+                    // compare signatrue
+                    if (s == SignatureText(signatrue.data(), signatrue.size()))
+                        return data;
+                }
+            }
+        }
 
-        // sha256 signatrue
-        std::getline(fin, text);
-
-        // read data
-        std::ostringstream os;
-        os << fin.rdbuf();
-        text = os.str();
-        auto data = _base64_decoding(text.c_str(), text.size());
-
-        // compare signatrue
-        if (!compare_memory(_base64_decoding(text.c_str(), text.size()), _sha_256(data.data(), data.size())))
-            return memory_t();
-
-        return data;
-    }
-
-    void _fill_string(memory_t& data)
-    {
-        std::size_t x = 16 - (data.size() % 16);
-        memory_t s(1, (std::uint8_t)x);
-        _random_memory(s, x - 1);
-        
-        data.insert(data.begin(), s.begin(), s.end());
+        return memory_t();
     }
 
     bool Load(const char* file, string_t& str, const void* k1, std::size_t n1, const void* k2, std::size_t n2)
@@ -292,12 +307,12 @@ namespace xf::credential::encrypt
         if (!fout.is_open())
             return false;
 
-        fout << _base64_encoding(encrypt_name(), std::strlen(encrypt_name())) << std::endl;
-        fout << _base64_encoding(encrypt_version(), std::strlen(encrypt_version())) << std::endl;
+        fout << _encoding_name() << std::endl;
+        fout << _encoding_version() << std::endl;
 
         auto s = _sha_256(data.data(), data.size());
-        fout << _base64_encoding(s.data(), s.size()) << std::endl;
-        fout << _base64_encoding(data.data(), data.size()) << std::endl;
+        fout << SignatureText(s.data(), s.size()) << std::endl;
+        fout << _base64_encoding(data.data(), data.size());
 
         fout.close();
 
@@ -367,11 +382,12 @@ namespace xf::credential::encrypt
         return (!_validate_file(file).empty());
     }
 
-    string_t SignatureText(const std::uint8_t* s, std::size_t n)
+    string_t SignatureText(const void* data, std::size_t n)
     {
         const char _c[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
 
         string_t text;
+        const std::uint8_t* s = (const std::uint8_t*)data;
         for (unsigned int i = 0; i < n; ++i)
             text.append(1, _c[s[i] >> 4]).append(1, _c[s[i] & 0x0f]);
 

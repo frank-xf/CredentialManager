@@ -1,20 +1,23 @@
-﻿#include "sbox.h"
+﻿#include <cstdint>
+#include <cstddef>
+
+#include "sbox.h"
 
 namespace xf::encrypt
 {
-	void memory_xor(unsigned char* out, const unsigned char* in, std::size_t n)
+	void memory_xor(std::uint8_t* out, const std::uint8_t* in, std::size_t n)
 	{
-		for (unsigned int i = 0; i < n; ++i) out[i] ^= in[i];
+		for (std::size_t i = 0; i < n; ++i) out[i] ^= in[i];
 	}
 
-	void memory_copy(unsigned char* out, const unsigned char* in, std::size_t n)
+	void memory_copy(std::uint8_t* out, const std::uint8_t* in, std::size_t n)
 	{
-		for (unsigned int i = 0; i < n; ++i) out[i] = in[i];
+		for (std::size_t i = 0; i < n; ++i) out[i] = in[i];
 	}
 
-	void mix_sbox(unsigned char* sbox, std::size_t len, const void* key, std::size_t n)
+	void mix_sbox(std::uint8_t* sbox, std::size_t len, const void* key, std::size_t n)
 	{
-		unsigned char _sbox[] = {
+		std::uint8_t _sbox[] = {
 			0xac, 0xdc, 0x80, 0x7c, 0x8a, 0x10, 0x50, 0x12, 0x81, 0xa1, 0xfa, 0x6a, 0x56, 0xf7, 0x48, 0x6f,
 			0xe5, 0xc5, 0x78, 0xc0, 0x8b, 0x38, 0xdf, 0xad, 0x21, 0x8d, 0x8c, 0x61, 0x2c, 0xd7, 0x5e, 0xee,
 			0xe2, 0x5b, 0x08, 0x45, 0xcb, 0xe8, 0xc7, 0x0b, 0xa4, 0x65, 0x46, 0xd8, 0x5f, 0x52, 0x0c, 0xcd,
@@ -35,8 +38,8 @@ namespace xf::encrypt
 
 		if (key && 0 < n)
 		{
-			const unsigned char* _key = (const unsigned char*)key;
-			for (unsigned int i = 0, k = 0; i < 0x0100; ++i)
+			const std::uint8_t* _key = (const std::uint8_t*)key;
+			for (std::size_t i = 0, k = 0; i < 0x0100; ++i)
 			{
 				k = ((k + _sbox[i] + _key[i % n]) & 0xff);
 				_swap(_sbox[i], _sbox[k]);
@@ -46,4 +49,4 @@ namespace xf::encrypt
 		memory_copy(sbox, _sbox, len);
 	}
 
-}	// 
+}	// namespace xf::encrypt

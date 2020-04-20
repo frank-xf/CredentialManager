@@ -7,6 +7,8 @@
 
 namespace xf::credential
 {
+    const char_t* core_version() { return "1.2.0"; }
+
     std::uint64_t CurrentTime()
     {
         auto t = std::chrono::system_clock::now().time_since_epoch();

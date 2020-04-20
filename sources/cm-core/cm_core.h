@@ -8,7 +8,7 @@
 namespace xf::credential
 {
 
-    inline const char_t* core_version() { return "1.2.0"; }
+    const char_t* core_version();
 
     time_t CurrentTime();
 

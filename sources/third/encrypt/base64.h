@@ -2,7 +2,8 @@
 
 namespace xf::encrypt
 {
-    unsigned int base64_encoding(unsigned char* dst, const void* src, std::size_t n);
-    unsigned int base64_decoding(unsigned char* dst, const void* src, std::size_t n);
+
+    std::size_t base64_encoding(void* out, const void* in, std::size_t n);
+    std::size_t base64_decoding(void* out, const void* in, std::size_t n);
 
 }
