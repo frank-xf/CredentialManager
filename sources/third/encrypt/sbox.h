@@ -1,6 +1,7 @@
 ﻿#pragma once
 
 #include <cstdint>
+#include <cstddef>
 
 namespace xf::encrypt
 {
@@ -11,13 +12,13 @@ namespace xf::encrypt
 			a ^= b ^= a ^= b;
 	}
 
-	void memory_xor(unsigned char* out, const unsigned char* in, unsigned int n);
-	void memory_copy(unsigned char* out, const unsigned char* in, unsigned int n);
+	void memory_xor(unsigned char* out, const unsigned char* in, std::size_t n);
+	void memory_copy(unsigned char* out, const unsigned char* in, std::size_t n);
 	
-	void mix_sbox(unsigned char* sbox, unsigned int len, const void* key, unsigned int n);
+	void mix_sbox(unsigned char* sbox, std::size_t len, const void* key, std::size_t n);
 
-	template<unsigned int len>
-	void mix_sbox(unsigned char(&sbox)[len], const void* key, unsigned int n)
+	template<std::size_t len>
+	void mix_sbox(unsigned char(&sbox)[len], const void* key, std::size_t n)
 	{
 		mix_sbox(sbox, len, key, n);
 	}

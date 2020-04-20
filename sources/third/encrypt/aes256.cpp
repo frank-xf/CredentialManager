@@ -209,7 +209,7 @@ namespace xf::encrypt
 
     }   // namespace aes
 
-    void aes_encrypt(void* data, unsigned int n, const unsigned char(&key)[32], const unsigned char(&iv)[16])
+    void aes_encrypt(void* data, std::size_t n, const unsigned char(&key)[32], const unsigned char(&iv)[16])
     {
         std::uint8_t sbox[256]{ 0 };
         mix_sbox(sbox, key, 32);
@@ -228,7 +228,7 @@ namespace xf::encrypt
         }
     }
 
-    void aes_decrypt(void* data, unsigned int n, const unsigned char(&key)[32], const unsigned char(&iv)[16])
+    void aes_decrypt(void* data, std::size_t n, const unsigned char(&key)[32], const unsigned char(&iv)[16])
     {
         std::uint8_t sbox[256]{ 0 };
         mix_sbox(sbox, key, 32);

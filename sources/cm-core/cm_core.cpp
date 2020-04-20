@@ -1,7 +1,5 @@
 ﻿#include <chrono>
 #include <regex>
-#include <sstream>
-#include <fstream>
 
 #include "../third/pugixml/pugixml.hpp"
 
@@ -217,34 +215,6 @@ namespace xf::credential
     bool CredentialMgr::ValidateName(const string_t& strName)
     {
         return std::regex_match(strName, std::regex(R"([0-9a-zA-Z\_\-\./@]{3,64})"));
-    }
-
-    bool LoadFile(const char* file, string_t& data)
-    {
-        std::ifstream fin(file);
-        if (fin.is_open())
-        {
-            std::ostringstream os;
-            os << fin.rdbuf();
-            data.assign(os.str());
-
-            return true;
-        }
-
-        return false;
-    }
-
-    bool SaveFile(const char* file, const string_t& data)
-    {
-        std::ofstream fout(file);
-        if (fout.is_open())
-        {
-            fout.write(data.c_str(), data.size());
-
-            return true;
-        }
-
-        return false;
     }
 
 }   // namespace xf::credential

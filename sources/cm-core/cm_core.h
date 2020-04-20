@@ -12,9 +12,6 @@ namespace xf::credential
 
     time_t CurrentTime();
 
-    bool LoadFile(const char* file, string_t& data);
-    bool SaveFile(const char* file, const string_t& data);
-
     template<credential_type ct>
     struct ItemBase
     {
@@ -113,30 +110,6 @@ namespace xf::credential
 
         bool Serialize(string_t& str) const;
         bool Deserialize(const string_t& str);
-
-        bool Load(const char* file)
-        {
-            return Load(file, [](string_t&) { return true; });
-        }
-
-        bool Save(const char* file) const
-        {
-            return Save(file, [](string_t&) { return true; });
-        }
-
-        template<typename FuncType>
-        bool Load(const char* file, FuncType decrypt)
-        {
-            string_t data;
-            return (LoadFile(file, data) && decrypt(data) && Deserialize(data));
-        }
-
-        template<typename FuncType>
-        bool Save(const char* file, FuncType encrypt) const
-        {
-            string_t data;
-            return (Serialize(data) && encrypt(data) && SaveFile(file, data));
-        }
 
         static bool ValidateName(const string_t& strName);
 

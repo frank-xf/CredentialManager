@@ -1,27 +1,11 @@
-﻿
-#include "../third/encrypt/sha256.h"
-#include "../third/xf-test/xf_simple_test.h"
+﻿#include "../third/xf-test/xf_simple_test.h"
 
 #include "../cm-core/cm_core.h"
 
-std::string sha_256_signature(const std::string& str);
+bool LoadFile(const char* file, std::string& data);
 
 namespace xf::credential
 {
-    _xfTest(test_load_save)
-    {
-        string_t data;
-        _xfAssert(LoadFile("../../resources/credential-demo.xml", data));
-
-        auto s0 = sha_256_signature(data);
-        _xfExpect(s0 == "af330205bb4e640dde9c3fde202c3f589a6f473dad7052e7ae844809f1152c82");
-
-        _xfAssert(SaveFile("./temp.xml", data));
-
-        string_t temp;
-        _xfAssert(LoadFile("./temp.xml", temp));
-        _xfExpect(s0 == sha_256_signature(temp));
-    }
 
     _xfTest(test_validate_name)
     {
@@ -45,7 +29,9 @@ namespace xf::credential
         CredentialMgr mgr;
         _xfExpect(CredentialMgr::type == credential_type::ct_credential);
 
-        _xfAssert(mgr.Load("../../resources/credential-demo.xml"));
+        string_t str;
+        _xfAssert(LoadFile("../../resources/credential-demo.xml", str));
+        _xfAssert(mgr.Deserialize(str));
         _xfExpect(3 == mgr.Size());
 
         _xfExpect(mgr[0]->Item().name == u8"百度");
@@ -155,7 +141,6 @@ namespace xf::credential
         mgr.Clear();
         _xfExpect(mgr.IsEmpty());
 
-        string_t str;
         _xfExpect(mgr.Serialize(str));
     }
 

@@ -5,6 +5,4 @@ int main(int argc, char* argv[])
 {
     // run test
     return xf::test::Test();
-
-    return 0;
 }

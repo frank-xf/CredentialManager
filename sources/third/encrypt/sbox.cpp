@@ -2,17 +2,17 @@
 
 namespace xf::encrypt
 {
-	void memory_xor(unsigned char* out, const unsigned char* in, unsigned int n)
+	void memory_xor(unsigned char* out, const unsigned char* in, std::size_t n)
 	{
 		for (unsigned int i = 0; i < n; ++i) out[i] ^= in[i];
 	}
 
-	void memory_copy(unsigned char* out, const unsigned char* in, unsigned int n)
+	void memory_copy(unsigned char* out, const unsigned char* in, std::size_t n)
 	{
 		for (unsigned int i = 0; i < n; ++i) out[i] = in[i];
 	}
 
-	void mix_sbox(unsigned char* sbox, unsigned int len, const void* key, unsigned int n)
+	void mix_sbox(unsigned char* sbox, std::size_t len, const void* key, std::size_t n)
 	{
 		unsigned char _sbox[] = {
 			0xac, 0xdc, 0x80, 0x7c, 0x8a, 0x10, 0x50, 0x12, 0x81, 0xa1, 0xfa, 0x6a, 0x56, 0xf7, 0x48, 0x6f,

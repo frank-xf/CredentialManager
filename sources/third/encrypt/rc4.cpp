@@ -4,7 +4,7 @@
 namespace xf::encrypt
 {
 
-	unsigned int rc4(void* out, const void* data, unsigned int len, const void* key, unsigned int nkey)
+	std::size_t rc4(void* out, const void* data, std::size_t len, const void* key, std::size_t nkey)
 	{
 		if (out && data && 0 < len)
 		{
