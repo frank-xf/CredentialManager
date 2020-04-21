@@ -17,7 +17,7 @@
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QSplitter>
 
-#include "Credential/Credential.h"
+#include "../cm-core/cm_core.h"
 
 #include "credential_qt_string.h"
 #include "credential_qt_utils.h"

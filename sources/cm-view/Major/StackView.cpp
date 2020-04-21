@@ -3,7 +3,7 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QStackedWidget>
 
-#include "Credential/Credential.h"
+#include "../cm-core/cm_core.h"
 
 #include "credential_qt_delegate.h"
 #include "credential_qt_utils.h"

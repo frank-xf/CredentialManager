@@ -5,7 +5,7 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QTableWidget>
 
-#include "Credential/Credential.h"
+#include "../cm-core/cm_core.h"
 
 #include "credential_qt_delegate.h"
 #include "credential_qt_string.h"
