@@ -1,5 +1,4 @@
-﻿#ifndef _bnb_Tree_View_H_
-#define _bnb_Tree_View_H_
+﻿#pragma once
 
 QT_BEGIN_NAMESPACE
 
@@ -26,14 +25,12 @@ private:
         void RetranslateUI(TreeView* pView);
     };
 
-    using id_type = bnb::Credential::id_type;
-
 public:
 
-	TreeView(DelegateType* pDelegate = nullptr, QWidget * parent = nullptr);
+	TreeView(QWidget * parent = nullptr);
 
 	void ClearCredential();
-
+    /*
     QTreeWidgetItem* AddCredential(const bnb::Credential& credential);
     QTreeWidgetItem* AddPlatform(const bnb::platform_node& platform);
 	QTreeWidgetItem* AddAccount(const bnb::account_node& account);
@@ -78,7 +75,7 @@ public:
 
         return false;
     }
-
+    */
 private:
 
     void mouseDoubleClickEvent(QMouseEvent *event) override;
@@ -98,36 +95,32 @@ private:
     void OnRemoveAccount();
 	void OnRemovePair();
 	void OnRemoveCredential();
-
+    /*
     QTreeWidgetItem* _AddCredential(const bnb::Credential & credential);
     QTreeWidgetItem* _AddPlatform(QTreeWidgetItem * parent, const bnb::platform_node& platform);
     QTreeWidgetItem* _AddAccount(QTreeWidgetItem * parent, const bnb::account_node& account);
     QTreeWidgetItem* _AddPair(QTreeWidgetItem * parent, const bnb::pair_node& pair);
-
+    */
     void _EditCredential(QTreeWidgetItem* item_credential);
     void _EditPlatform(QTreeWidgetItem* item_platform);
     void _EditAccount(QTreeWidgetItem* item_account);
     void _EditPair(QTreeWidgetItem* item_pair);
 
-    QTreeWidgetItem* _FindItem(QTreeWidgetItem * parent, id_type id);
+    // QTreeWidgetItem* _FindItem(QTreeWidgetItem * parent, id_type id);
 
     template<typename _Ty1, typename ... _Ty2>
     QTreeWidgetItem* _FindItem(QTreeWidgetItem* parent, _Ty1 id, _Ty2 ... ids)
-    {
+    {/*
         static_assert(std::is_same<_Ty1, id_type>::value, "The type of parameter must be id_type.");
 
         if (parent) return (_FindItem(_FindItem(parent, id), ids ...));
-
+        */
         return nullptr;
     }
 
 private:
 
     ui_type _ui;
-
-    DelegateType* _delegate;
 };
 
 QT_END_NAMESPACE
-
-#endif	// _bnb_Tree_View_H_

@@ -2,13 +2,11 @@
 #include <cstddef>
 
 #include "sbox.h"
+#include "aes256.h"
 
 namespace xf::encrypt
 {
-    constexpr std::size_t _BlockSize(16);
-    constexpr std::size_t _KeySize(32);
     constexpr std::size_t _KeyExpSize(240);
-
     constexpr std::size_t _ColumnNumber(4);
     constexpr std::size_t _RoundNumber(14);
     constexpr std::size_t _KeyNumber(8);
@@ -171,9 +169,9 @@ namespace xf::encrypt
         }
     }
 
-    void key_expansion(std::uint8_t(&rkey)[_KeyExpSize], const std::uint8_t (&key)[_KeySize], const std::uint8_t (&box)[256])
+    void key_expansion(std::uint8_t(&rkey)[_KeyExpSize], const std::uint8_t (&key)[KeySize], const std::uint8_t (&box)[256])
     {
-        memory_copy(rkey, key, _KeySize);
+        memory_copy(rkey, key, KeySize);
 
         for (std::size_t i = _KeyNumber; i < _ColumnNumber * (_RoundNumber + 1); ++i)
         {
@@ -208,29 +206,29 @@ namespace xf::encrypt
         }
     }
 
-    void aes_encrypt(void* data, std::size_t n, const std::uint8_t (&key)[32], const std::uint8_t (&iv)[16])
+    void aes_encrypt(void* data, std::size_t n, const std::uint8_t (&key)[KeySize], const std::uint8_t (&iv)[BlockSize])
     {
         std::uint8_t sbox[256]{ 0 };
-        mix_sbox(sbox, key, 32);
+        mix_sbox(sbox, key, KeySize);
 
         std::uint8_t round_key[_KeyExpSize]{ 0 };
         key_expansion(round_key, key, sbox);
 
         const std::uint8_t* iv_ptr = iv;
         std::uint8_t* buf = (std::uint8_t*)data;
-        for (std::size_t i = 0; i < n; i += _BlockSize)
+        for (std::size_t i = 0; i < n; i += BlockSize)
         {
-            memory_xor(buf, iv_ptr, _BlockSize);
+            memory_xor(buf, iv_ptr, BlockSize);
             cipher(*((state_t*)buf), round_key, sbox);
             iv_ptr = buf;
-            buf += _BlockSize;
+            buf += BlockSize;
         }
     }
 
-    void aes_decrypt(void* data, std::size_t n, const std::uint8_t (&key)[32], const std::uint8_t (&iv)[16])
+    void aes_decrypt(void* data, std::size_t n, const std::uint8_t (&key)[KeySize], const std::uint8_t (&iv)[BlockSize])
     {
         std::uint8_t sbox[256]{ 0 };
-        mix_sbox(sbox, key, 32);
+        mix_sbox(sbox, key, KeySize);
 
         std::uint8_t rsbox[256]{ 0 };
         _make_inverse_sbox(rsbox, sbox);
@@ -238,18 +236,18 @@ namespace xf::encrypt
         std::uint8_t round_key[_KeyExpSize]{ 0 };
         key_expansion(round_key, key, sbox);
 
-        std::uint8_t _iv[_BlockSize]{ 0 };
-        memory_copy(_iv, iv, _BlockSize);
+        std::uint8_t _iv[BlockSize]{ 0 };
+        memory_copy(_iv, iv, BlockSize);
 
-        std::uint8_t storeNextIv[_BlockSize]{ 0 };
+        std::uint8_t storeNextIv[BlockSize]{ 0 };
         std::uint8_t* buf = (std::uint8_t*)data;
-        for (std::size_t i = 0; i < n; i += _BlockSize)
+        for (std::size_t i = 0; i < n; i += BlockSize)
         {
-            memory_copy(storeNextIv, buf, _BlockSize);
+            memory_copy(storeNextIv, buf, BlockSize);
             inverse_cipher(*((state_t*)buf), round_key, rsbox);
-            memory_xor(buf, _iv, _BlockSize);
-            memory_copy(_iv, storeNextIv, _BlockSize);
-            buf += _BlockSize;
+            memory_xor(buf, _iv, BlockSize);
+            memory_copy(_iv, storeNextIv, BlockSize);
+            buf += BlockSize;
         }
     }
 

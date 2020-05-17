@@ -5,29 +5,21 @@
 
 #include "../cm-core/cm_core.h"
 
-#include "credential_qt_delegate.h"
-#include "credential_qt_utils.h"
+#include "cm_view_utils.h"
 
-#include "Widget/DropTable.h"
-#include "Widget/ContentView.h"
-#include "Major/StackView.h"
+// #include "Widget/DropTable.h"
+// #include "Widget/ContentView.h"
+#include "views/StackView.h"
+
 
 QT_BEGIN_NAMESPACE
 
-StackView::StackView(DelegateType* pDelegate, QWidget * parent)
+StackView::StackView(QWidget * parent)
     : QStackedWidget(parent)
-    , _delegate(pDelegate)
 {
-    setObjectName("StackView");
-    ui_utils::SetBackgroundColor(this, Qt::white);
+    _ui.SetupUI(this);
 
-    m_labHint = new QLabel("Please open or new a credential file.", this);
-    m_labHint->setAlignment(Qt::AlignCenter);
-    m_labHint->setMinimumSize(512, 256);
-    m_labHint->setStyleSheet("QLabel{ background:transparent; color:#20A020; }");
-    m_labHint->setFont(ui_utils::MakeFont());
-
-    addWidget(m_labHint);
+    addWidget(_ui.m_labHint);
 }
 
 void StackView::ClearCredential()
@@ -48,9 +40,9 @@ void StackView::ClearCredential()
         delete ptr;
     }
 
-    setCurrentWidget(m_labHint);
+    setCurrentWidget(_ui.m_labHint);
 }
-
+/*
 void StackView::AddCredential(const bnb::Credential & credential)
 {
     auto view_credential = new CredentialView(credential, _delegate, this);
@@ -103,7 +95,8 @@ bool StackView::AddPair(const bnb::pair_node & pair)
 
     return false;
 }
-
+*/
+/*
 bool StackView::UpdateCredential(id_type credentialId)
 {
     for (int i = 0; i < count(); ++i)
@@ -294,9 +287,10 @@ unsigned int StackView::RemoveView(const std::vector<id_type>& ids)
 
     return nCount;
 }
-
-bool StackView::SwitchToView(bnb::credential_enum eType, id_type id)
+*/
+bool StackView::SwitchToView(xf::credential::credential_type eType)
 {
+    /*
     for (int i = 0; i < count(); ++i)
     {
         BaseView* ptr = dynamic_cast<BaseView*>(widget(i));
@@ -306,13 +300,31 @@ bool StackView::SwitchToView(bnb::credential_enum eType, id_type id)
             return true;
         }
     }
-
+    */
     return false;
 }
 
 void StackView::SwitchToHint()
 {
-    setCurrentWidget(m_labHint);
+    setCurrentWidget(_ui.m_labHint);
+}
+
+void StackView::ui_type::SetupUI(QWidget* pView)
+{
+    pView->setObjectName("StackView");
+    SetBackgroundColor(pView, Qt::white);
+
+    m_labHint = new QLabel("Please open or new a credential file.", pView);
+    m_labHint->setAlignment(Qt::AlignCenter);
+    m_labHint->setMinimumSize(512, 256);
+    m_labHint->setStyleSheet("QLabel{ background:transparent; color:#20A020; }");
+    m_labHint->setFont(MakeFont());
+
+    RetranslateUI(pView);
+}
+
+void StackView::ui_type::RetranslateUI(QWidget* pView)
+{
 }
 
 QT_END_NAMESPACE

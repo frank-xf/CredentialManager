@@ -8,8 +8,6 @@ class QLineEdit;
 class QPushButton;
 class QHBoxLayout;
 
-namespace ui_utils
-{
     enum ui_size
     {
         def_text_length = 64,
@@ -50,8 +48,10 @@ namespace ui_utils
     QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w);
     QHBoxLayout* MakeButtonLayout(QPushButton* btnOK, QPushButton* btnCancel);
 
-}
-
+/*
+bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str);
+QT_PREPEND_NAMESPACE(QString) To_QString(const bnb::string_type& str);
+*/
 QT_END_NAMESPACE
 
 #endif // _bnb_Credential_QT_Utils_H_

@@ -1,13 +1,14 @@
-#ifndef _bnb_Credential_Main_View_H_
-#define _bnb_Credential_Main_View_H_
+#pragma once
 
 QT_BEGIN_NAMESPACE
 
+class QDragEnterEvent;
+class QDropEvent;
 class ToolBar;
 class StackView;
 class TreeView;
 
-class MainView : public QWidget, public DelegateType, public ToolBar::delegate_type
+class MainView : public QWidget
 {
     struct ui_type
     {
@@ -22,7 +23,7 @@ class MainView : public QWidget, public DelegateType, public ToolBar::delegate_t
 public:
 
     MainView(QWidget *parent = nullptr);
-    void OpenFile(const QString& strFile);
+    void OpenFile(const QString& strFile) { }
 
 private:
 
@@ -30,6 +31,7 @@ private:
     void ClearCredential();
     void CredentialUpdated(unsigned long aType, unsigned long cType);
 
+    /*
     void OnClickedNew() override;
     void OnClickedOpen() override;
     void OnClickedAbout() override;
@@ -61,8 +63,8 @@ private:
     bool OnSortPlatform(id_type credentialId, int cln, bool ascending) override;
     bool OnSortAccount(id_type credentialId, id_type platformId, int cln, bool ascending) override;
     bool OnSortPair(id_type credentialId, id_type platformId, id_type accountId, int cln, bool ascending) override;
+    */
 
-    bool nativeEvent(const QByteArray &eventType, void *pMessage, long *pResult) override;
     void dragEnterEvent(QDragEnterEvent *dee) override;
     void dropEvent(QDropEvent *dee) override;
 
@@ -75,5 +77,3 @@ private:
 };
 
 QT_END_NAMESPACE
-
-#endif // _bnb_Credential_Main_View_H_

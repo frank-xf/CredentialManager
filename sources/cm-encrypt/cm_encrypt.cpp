@@ -3,6 +3,7 @@
 #include <fstream>
 // #include <iostream>
 
+#include "../third/encrypt/sbox.h"
 #include "../third/encrypt/rc4.h"
 #include "../third/encrypt/base64.h"
 #include "../third/encrypt/sha256.h"
@@ -12,11 +13,12 @@
 
 namespace xf::credential::encrypt
 {
-    using key_pair = std::pair<memory_t, memory_t>;
-    using keys_t = std::vector<key_pair>;
-
     constexpr std::size_t _RequireSize(0x40);
-    constexpr std::size_t _RoundNumber(0x04);
+    constexpr std::size_t _RoundNumber(0x10);
+
+    using signature_t = memory_t;
+    using key_pair = std::pair<memory_t, signature_t>;
+    using keys_t = std::vector<key_pair>;
 
     const char* encrypt_version() { return "1.0.2"; }
     const char* encrypt_name() { return "encrypt for xf::credential"; }
@@ -63,12 +65,12 @@ namespace xf::credential::encrypt
         return SignatureText(s.data(), s.size());
     }
 
-    inline memory_t _sha_256(const void* data, std::size_t n)
+    inline signature_t _sha_256(const void* data, std::size_t n)
     {
-        std::uint8_t s[32]{ 0 };
+        std::uint8_t s[xf::encrypt::SignatureSize]{ 0 };
         xf::encrypt::sha_256(s, data, n);
 
-        return memory_t(s, s + 32);
+        return signature_t(s, s + xf::encrypt::SignatureSize);
     }
 
     inline memory_t _rc4(const void* data, std::size_t len, const void* key, std::size_t n)
@@ -112,14 +114,11 @@ namespace xf::credential::encrypt
     std::uint32_t _friend_number(const void* key, std::size_t n)
     {
         auto value = _hash_seq(key, n);
+        if ((_RequireSize - 2) < n) return value;
 
-        std::uint32_t k = 0;
-        if (n < _RequireSize) k = std::uint32_t(_RequireSize - n);
-
-        if (k < 2) return value;
-
+        std::uint32_t k = std::uint32_t(_RequireSize - n);
         std::uint32_t half = (k >> 1);
-        if (value < half || UINT32_MAX - 32 < value) return value;
+        if (value < half || (UINT32_MAX - (_RequireSize >> 1)) < value) return value;
 
         std::uint32_t lower = value - half;
         std::uint32_t upper = value + half;
@@ -178,7 +177,7 @@ namespace xf::credential::encrypt
         return (_make_keys({ _key, _key_signature }, k1, n1, k2, n2, _friend));
     }
 
-    void _make_initial_vector(std::uint8_t(&iv)[16], const keys_t& keys)
+    void _make_initial_vector(std::uint8_t(&iv)[xf::encrypt::BlockSize], const keys_t& keys)
     {
         memory_t fk;
         for (const auto& [k, s] : keys)
@@ -187,33 +186,39 @@ namespace xf::credential::encrypt
             fk.insert(fk.end(), s.begin(), s.end());
         }
 
-        std::uint8_t signatrue[32]{ 0 };
+        std::uint8_t signatrue[xf::encrypt::SignatureSize]{ 0 };
         xf::encrypt::sha_256(signatrue, fk.data(), fk.size());
 
-        for (std::size_t i = 0; i < 16; ++i)
-            iv[i] = (signatrue[i << 1] ^ signatrue[(i << 1) + 1]);
+        std::uint8_t box[256]{ 0 };
+        xf::encrypt::mix_sbox(box, signatrue, xf::encrypt::SignatureSize);
+
+        for (std::size_t i = 0; i < xf::encrypt::BlockSize; ++i)
+        {
+            std::size_t index = (signatrue[i << 1] ^ signatrue[(i << 1) + 1]) % 16;
+            iv[i] = box[(i << 4) + index];
+        }
     }
 
-    void _encrypt_round(memory_t& buf, const key_pair& kp, const std::uint8_t(&iv)[16])
+    void _encrypt_round(memory_t& buf, const key_pair& kp, const std::uint8_t(&iv)[xf::encrypt::BlockSize])
     {
-        auto s1 = _random_memory(16);
+        auto s1 = _random_memory(xf::encrypt::BlockSize);
         buf.insert(buf.begin(), s1.begin(), s1.end());
 
-        xf::encrypt::aes_encrypt(buf.data(), buf.size(), *(const std::uint8_t(*)[32])kp.second.data(), iv);
+        xf::encrypt::aes_encrypt(buf.data(), buf.size(), *(const std::uint8_t(*)[xf::encrypt::SignatureSize])kp.second.data(), iv);
 
-        auto s2 = _random_memory(16);
+        auto s2 = _random_memory(xf::encrypt::BlockSize);
         buf.insert(buf.begin(), s2.begin(), s2.end());
 
         buf = (_rc4(buf.data(), buf.size(), kp.first.data(), kp.first.size()));
     }
 
-    void _decrypt_round(memory_t& buf, const key_pair& kp, const std::uint8_t(&iv)[16])
+    void _decrypt_round(memory_t& buf, const key_pair& kp, const std::uint8_t(&iv)[xf::encrypt::BlockSize])
     {
         buf = _rc4(buf.data(), buf.size(), kp.first.data(), kp.first.size());
-        buf.erase(buf.begin(), buf.begin() + 16);
+        buf.erase(buf.begin(), buf.begin() + xf::encrypt::BlockSize);
 
-        xf::encrypt::aes_decrypt(buf.data(), buf.size(), *(const std::uint8_t(*)[32])kp.second.data(), iv);
-        buf.erase(buf.begin(), buf.begin() + 16);
+        xf::encrypt::aes_decrypt(buf.data(), buf.size(), *(const std::uint8_t(*)[xf::encrypt::SignatureSize])kp.second.data(), iv);
+        buf.erase(buf.begin(), buf.begin() + xf::encrypt::BlockSize);
     }
 
     bool _decrypt(memory_t& data, const keys_t& keys)
@@ -229,14 +234,14 @@ namespace xf::credential::encrypt
             for (auto iter = keys.rbegin(); iter != keys.rend(); ++iter)
                 _decrypt_round(buf, *iter, iv);
 
-        auto len = buf.size() - 32;
+        auto len = buf.size() - xf::encrypt::SignatureSize;
         auto signature = _sha_256(buf.data(), len);
 
         // compare sha 256 signatrue
-        if (compare_memory(signature.data(), signature.size(), buf.data() + len, 32))
+        if (compare_memory(signature.data(), signature.size(), buf.data() + len, xf::encrypt::SignatureSize))
         {
             buf.resize(len);
-            if (std::size_t n = buf[0]; 0 < n && n < 17)
+            if (std::size_t n = buf[0]; 0 < n && n <= xf::encrypt::BlockSize)
             {
                 data = _rc4(buf.data() + n, buf.size() - n, keys.back().first.data(), keys.back().first.size());
                 return true;
@@ -325,7 +330,7 @@ namespace xf::credential::encrypt
         auto keys = _make_keys(k1, n1, k2, n2);
 
         // make initial vector 
-        std::uint8_t iv[16]{ 0 };
+        std::uint8_t iv[xf::encrypt::BlockSize]{ 0 };
         _make_initial_vector(iv, keys);
 
         // fill buf
@@ -365,7 +370,7 @@ namespace xf::credential::encrypt
         if (_key.size() < _RequireSize)
             n = _RequireSize - _key.size();
 
-        for (std::uint32_t i = 1; i < (n >> 1); ++i)
+        for (std::uint32_t i = 1; i <= (n >> 1); ++i)
         {
             if (_decrypt(data, _make_keys(kp, k1, n1, k2, n2, value + i)))
                 return true;

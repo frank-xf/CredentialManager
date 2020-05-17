@@ -4,17 +4,14 @@
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QPushButton>
 
-#include "credential_qt_utils.h"
+#include "cm_view_utils.h"
 
 QT_BEGIN_NAMESPACE
-
-namespace ui_utils
-{
 
 	QFont MakeFont(unsigned int size, bool bold)
 	{
 		QFont font = QGuiApplication::font();
-		font.setPointSize(ui_utils::def_text_size);
+		font.setPointSize(def_text_size);
 		font.setBold(bold);
 
 		return font;
@@ -109,8 +106,8 @@ namespace ui_utils
     QPushButton* MakeTransparentButton(QWidget* parent)
     {
         QPushButton* button = new QPushButton(parent);
-        button->setFixedHeight(ui_utils::def_widget_h);
-        button->setFont(ui_utils::MakeFont());
+        button->setFixedHeight(def_widget_h);
+        button->setFont(MakeFont());
         button->setStyleSheet(
             "QPushButton{ background-color:transparent; border:none; color:#40B040; }\n"
             "QPushButton:hover{ color:#FF4000; }\n"
@@ -133,6 +130,15 @@ namespace ui_utils
         return phLayout;
     }
 
+/*
+bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str)
+{
+    return str.toStdWString();
 }
 
+QT_PREPEND_NAMESPACE(QString) To_QString(const bnb::string_type& str)
+{
+    return QT_PREPEND_NAMESPACE(QString)::fromStdWString(str);
+}
+*/
 QT_END_NAMESPACE

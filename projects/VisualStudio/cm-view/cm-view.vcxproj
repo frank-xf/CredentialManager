@@ -19,37 +19,6 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\sources\cm-view\credential_qt_delegate.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\credential_qt_string.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\credential_qt_utils.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Major\MainView.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Major\StackView.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Major\ToolBar.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Major\TreeView.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Widget\AboutDialog.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Widget\ContentView.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Widget\DropTable.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Widget\EditDialog.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Widget\HintDialog.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Widget\NewDialog.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\Widget\PasswordInput.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\..\sources\cm-view\credential_qt_main.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\credential_qt_utils.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Major\MainView.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Major\StackView.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Major\ToolBar.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Major\TreeView.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Widget\AboutDialog.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Widget\ContentView.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Widget\DropTable.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Widget\EditDialog.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Widget\HintDialog.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Widget\NewDialog.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\Widget\PasswordInput.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <QtRcc Include="..\..\..\sources\cm-view\credentialmanagerqt.qrc" />
   </ItemGroup>
   <ItemGroup>
@@ -62,6 +31,22 @@
     <ProjectReference Include="..\cm-encrypt\cm-encrypt.vcxproj">
       <Project>{f80c6bb6-2d95-462f-8338-f69cd2c8e5d8}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\..\..\sources\cm-view\cm_view_main.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\cm_view_utils.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\views\MainView.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\views\StackView.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\views\ToolBar.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\views\TreeView.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\..\sources\cm-view\credential_qt_delegate.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\cm_view_utils.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\views\MainView.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\views\StackView.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\views\ToolBar.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\views\TreeView.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C9C91A00-B6C9-40A5-B60A-05DF5A15F581}</ProjectGuid>
@@ -158,6 +143,9 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <QtRcc>
+      <QtRccDir>$(IntDir)rcc\</QtRccDir>
+    </QtRcc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -174,6 +162,9 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
+    <QtRcc>
+      <QtRccDir>$(IntDir)rcc\</QtRccDir>
+    </QtRcc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -189,6 +180,9 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
+    <QtRcc>
+      <QtRccDir>$(IntDir)rcc\</QtRccDir>
+    </QtRcc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -205,6 +199,9 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <GenerateDebugInformation>false</GenerateDebugInformation>
     </Link>
+    <QtRcc>
+      <QtRccDir>$(IntDir)rcc\</QtRccDir>
+    </QtRcc>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

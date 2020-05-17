@@ -1,6 +1,8 @@
 ﻿#include <cstdint>
 #include <cstddef>
 
+#include "sha256.h"
+
 namespace xf::encrypt
 {
 
@@ -121,7 +123,7 @@ namespace xf::encrypt
         sha256_transform(_state, _block);
     }
 
-    void sha_256(std::uint8_t (&signature)[0x20], const void* data, std::size_t n)
+    void sha_256(std::uint8_t (&signature)[SignatureSize], const void* data, std::size_t n)
     {
         const std::uint8_t* _data = (const std::uint8_t*)(data);
         std::uint32_t state[]{ 0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19 };

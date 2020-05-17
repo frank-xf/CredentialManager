@@ -1,23 +1,33 @@
-﻿#ifndef _bnb_Stack_View_H_
-#define _bnb_Stack_View_H_
+﻿#pragma once
 
 QT_BEGIN_NAMESPACE
 
 class StackView : public QStackedWidget
 {
-    using id_type = bnb::Credential::id_type;
+    struct ui_type
+    {
+        // ToolBar* m_viewToolBar;
+        // StackView* m_viewStack;
+        // TreeView* m_treeView;
+
+        QLabel* m_labHint;
+
+        void SetupUI(QWidget* pView);
+        void RetranslateUI(QWidget* pView);
+    };
 
 public:
 
-    StackView(DelegateType* pDelegate = nullptr, QWidget * parent = nullptr);
+    StackView(QWidget * parent = nullptr);
 
     void ClearCredential();
-
+    /*
     void AddCredential(const bnb::Credential& credential);
     bool AddPlatform(const bnb::platform_node& platform);
     bool AddAccount(const bnb::account_node& account);
     bool AddPair(const bnb::pair_node& pair);
-
+    */
+    /*
     bool UpdateCredential(id_type credentialId);
     bool UpdatePlatform(id_type credentialId, id_type platformId);
     bool UpdateAccount(id_type credentialId, id_type platformId, id_type accountId);
@@ -32,15 +42,16 @@ public:
     bool RemoveAccount(id_type credentialId, id_type platformId, id_type accountId, const std::vector<id_type>& ids);
     bool RemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId);
     unsigned int RemoveView(const std::vector<id_type>& ids);
-
-    bool SwitchToView(bnb::credential_enum eType, id_type id);
+    */
+    bool SwitchToView(xf::credential::credential_type eType);
     void SwitchToHint();
 
 private:
 
     template<typename _Ty>
-    bool UpdateView(id_type credentialId, id_type viewId)
+    bool UpdateView(xf::credential::credential_type eType)
     {
+        /*
         bool bView1 = false;
         bool bView2 = false;
         for (int i = 0; i < count(); ++i)
@@ -66,15 +77,11 @@ private:
 
             if (bView1 && bView2) return true;
         }
-
+        */
         return false;
     }
 
-    QLabel* m_labHint;
-
-    DelegateType* _delegate;
+    ui_type _ui;
 };
 
 QT_END_NAMESPACE
-
-#endif  // _bnb_Stack_View_H_

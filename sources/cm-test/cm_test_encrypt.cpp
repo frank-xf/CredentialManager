@@ -151,7 +151,7 @@ namespace xf::credential::encrypt
         _xfExpect(23 == xf::encrypt::base64_encoding(buf.data(), str.data(), str.size()));
 
         string_t text((const char*)buf.data(), 23);
-        _xfExpect(text == "2TYKZMJupMK7hEL7hOISZRU");
+        _xfExpect(text == "2TYKZMJupMK7hEL7h?ISZRU");
 
         _xfExpect(17 == xf::encrypt::base64_decoding(buf.data(), text.data(), text.size()));
         _xfExpect(compare_memory(str.data(), str.size(), buf.data(), str.size()));
