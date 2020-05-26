@@ -41,7 +41,7 @@
     <ClCompile Include="..\..\..\sources\cm-view\views\TreeView.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\sources\cm-view\credential_qt_delegate.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\cm_view_delegate.h" />
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_utils.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\MainView.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\StackView.h" />

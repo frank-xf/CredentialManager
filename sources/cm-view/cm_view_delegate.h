@@ -1,5 +1,4 @@
-#ifndef _bnb_Credential_Delegate_H_
-#define _bnb_Credential_Delegate_H_
+#pragma once
 
 QT_BEGIN_NAMESPACE
 
@@ -18,6 +17,7 @@ protected:
 
 public:
 
+    /*
     virtual bool OnAddPlatform(id_type credentialId) = 0;
     virtual bool OnAddAccount(id_type credentialId, id_type platformId) = 0;
     virtual bool OnAddPair(id_type credentialId, id_type platformId, id_type accountId) = 0;
@@ -48,10 +48,7 @@ public:
     virtual void SwitchToView(unsigned int eType, id_type id) = 0;
 
     virtual ~DelegateType() = 0 { }
-
+    */
 };
 
 QT_END_NAMESPACE
-
-#endif // _bnb_Credential_Delegate_H_
-
