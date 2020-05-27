@@ -4,13 +4,11 @@
 #include <QtWidgets/QTreeWidget>
 #include <QtWidgets/QStyleFactory>
 
-#include "../cm-core/cm_core.h"
+#include "../../cm-core/cm_core.h"
 
-// #include "credential_qt_string.h"
-// #include "credential_qt_delegate.h"
-
-#include "cm_view_utils.h"
-#include "views/TreeView.h"
+#include "../cm_view_delegate.h"
+#include "../cm_view_utils.h"
+#include "TreeView.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -119,6 +117,32 @@ void TreeView::ClearCredential()
 {
     clear();
 }
+
+QTreeWidgetItem* TreeView::InitCredential(const xf::credential::credential_t& credential)
+{
+    QTreeWidgetItem* item_credential = new QTreeWidgetItem(this, { '[' + ToQString(credential.Username()) + ']' });
+    item_credential->setTextColor(0, g_clrCredential);
+    item_credential->setSizeHint(0, {tree_item_w, def_widget_h });
+    // item_credential->setData(0, Qt::UserRole, MakeItemData(credential.type, credential.GetID()));
+    item_credential->setFont(0, MakeFont());
+    addTopLevelItem(item_credential);
+
+    credential.Traversal([this, item_credential](const bnb::platform_node& platform) {
+        auto item_platform = _AddPlatform(item_credential, platform);
+
+        platform.Traversal([this, item_platform](const bnb::account_node& account) {
+            auto item_account = _AddAccount(item_platform, account);
+
+            account.Traversal([this, item_account](const bnb::pair_node& pair) {
+                _AddPair(item_account, pair);
+                                      });
+                                   });
+                                 });
+
+    item_credential->setExpanded(true);
+    return item_credential;
+}
+
 /*
 QTreeWidgetItem* TreeView::AddCredential(const bnb::Credential & credential)
 {
@@ -587,31 +611,6 @@ void TreeView::OnRemoveCredential()
 
 }
 /*
-QTreeWidgetItem* TreeView::_AddCredential(const bnb::Credential & credential)
-{
-    QTreeWidgetItem* item_credential = new QTreeWidgetItem(this, { '[' + To_QString(credential.GetData().GetUser()) + ']' });
-    item_credential->setTextColor(0, ui_utils::g_clrCredential);
-    item_credential->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::def_widget_h });
-    item_credential->setData(0, Qt::UserRole, MakeItemData(credential.GetData().GetType(), credential.GetID()));
-    item_credential->setFont(0, ui_utils::MakeFont());
-    addTopLevelItem(item_credential);
-
-    credential.PreorderTraversal([this, item_credential](const bnb::platform_node& platform) {
-        auto item_platform = _AddPlatform(item_credential, platform);
-
-        platform.PreorderTraversal([this, item_platform](const bnb::account_node& account) {
-            auto item_account = _AddAccount(item_platform, account);
-
-            account.PreorderTraversal([this, item_account](const bnb::pair_node& pair) {
-                _AddPair(item_account, pair);
-            });
-        });
-    });
-
-    item_credential->setExpanded(true);
-    return item_credential;
-}
-
 QTreeWidgetItem* TreeView::_AddPlatform(QTreeWidgetItem * parent, const bnb::platform_node& platform)
 {
     auto item_platform = MakeTreeItem(parent, To_QString(platform.GetData().GetName()), platform.GetData().GetType(), platform.GetID(), ui_utils::g_clrPlatform);

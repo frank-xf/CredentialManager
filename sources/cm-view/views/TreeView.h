@@ -30,8 +30,9 @@ public:
 	TreeView(QWidget * parent = nullptr);
 
 	void ClearCredential();
+    QTreeWidgetItem* InitCredential(const xf::credential::credential_t& credential);
+
     /*
-    QTreeWidgetItem* AddCredential(const bnb::Credential& credential);
     QTreeWidgetItem* AddPlatform(const bnb::platform_node& platform);
 	QTreeWidgetItem* AddAccount(const bnb::account_node& account);
 	QTreeWidgetItem* AddPair(const bnb::pair_node& pair);

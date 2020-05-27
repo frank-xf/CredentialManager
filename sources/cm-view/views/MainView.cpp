@@ -1,4 +1,6 @@
 
+#include <QtCore/QCoreApplication>
+#include <QtCore/QFileInfo>
 #include <QtCore/QMimeData>
 #include <QtGui/QDropEvent>
 #include <QtWidgets/QBoxLayout>
@@ -7,44 +9,33 @@
 #include <QtWidgets/QStackedWidget>
 #include <QtWidgets/QSplitter>
 
-#include "../cm-core/cm_core.h"
+#include "../../cm-core/cm_core.h"
+#include "../../cm-encrypt/cm_encrypt.h"
 
-#include "cm_view_utils.h"
+#include "../cm_view_utils.h"
 
-/*
-#include "credential_qt_string.h"
-#include "credential_qt_utils.h"
+/*"
 
 #include "Widget/AboutDialog.h"
-#include "Widget/HintDialog.h"
-#include "Widget/PasswordInput.h"
 #include "Widget/NewDialog.h"
 #include "Widget/EditDialog.h"
 */
-#include "views/ToolBar.h"
-#include "views/StackView.h"
-#include "views/TreeView.h"
-#include "views/MainView.h"
 
-xf::credential::CredentialMgr& g_Credential()
-{
-    static xf::credential::CredentialMgr _just_a_credential_object_;
-    return (_just_a_credential_object_);
-}
-/*
-static inline std::string QStringToString(const QString& str)
-{
-    auto strLocal = str.toLocal8Bit();
-    return { strLocal.data() };
-}
+#include "../widgets/HintDialog.h"
+#include "../widgets/LoginDialog.h"
 
-static inline bool ValidPath(const QString& strFile)
+#include "ToolBar.h"
+#include "StackView.h"
+#include "TreeView.h"
+#include "MainView.h"
+
+QT_BEGIN_NAMESPACE
+
+inline bool CheckPath(const QString& strFile)
 {
     QFileInfo qfi(strFile);
     return (qfi.exists() && qfi.isFile() && 0 == qfi.suffix().compare("credential", Qt::CaseInsensitive));
 }
-*/
-QT_BEGIN_NAMESPACE
 
 MainView::MainView(QWidget *parent)
     : QWidget(parent)
@@ -57,95 +48,111 @@ MainView::MainView(QWidget *parent)
 
     // g_Credential().RegisterHandle(std::bind(&MainView::CredentialUpdated, this, std::placeholders::_2, std::placeholders::_3));
 }
-/*
-void MainView::AddCredential()
+
+void MainView::Init()
 {
-    _ui.m_treeView->AddCredential(g_Credential());
+    show();
 
-    _ui.m_viewStack->AddCredential(g_Credential());
-
-    _ui.m_viewToolBar->UpdatePath(m_strFile);
+    if (auto args = QCoreApplication::arguments(); 1 < args.size())
+        if (CheckPath(args[1]))
+            OpenFile(args[1]);
 }
 
-void MainView::ClearCredential()
+void MainView::OpenFile(const QString& strFile)
 {
-    _ui.m_treeView->ClearCredential();
-    _ui.m_viewStack->ClearCredential();
-}
+    if (0 == strFile.compare(m_FilePath, Qt::CaseInsensitive))
+        return;
 
-void MainView::OpenFile(const QString & strFile)
-{
-    if (g_Credential().GetData().IsValid())
-    {
-        if (0 == strFile.compare(m_strFile, Qt::CaseInsensitive))
-        {
-            return;
-        }
-    }
-
-    bnb::memory_type _xml;
-
-    auto strLocal = QStringToString(strFile);
-    if (!bnb::Credential::CheckFile(strLocal.c_str(), &_xml))
+    xf::credential::encrypt::memory_t data;
+    if (!xf::credential::encrypt::ValidateFile(FromQString(strFile).c_str(), data))
     {
         HintDialog(hint_type::ht_error, "You selected file invalid !", this).exec();
         return;
     }
 
-    PasswordInput dlg(this);
+    LoginDialog dlg(this);
     if (QDialog::Accepted == dlg.exec())
     {
-        bnb::string_type password = From_QString(dlg.GetPassword());
+        auto username = FromQString(dlg.GetUsername());
+        if (username.empty())
+        {
+            HintDialog(hint_type::ht_error, "Please input a username !", this).exec();
+            return;
+        }
+
+        auto password = FromQString(dlg.GetPassword());
         if (password.empty())
         {
             HintDialog(hint_type::ht_error, "Please input a password !", this).exec();
             return;
         }
 
-        if (!bnb::Credential::Decoding(_xml, (const unsigned char*)password.c_str(), password.size() * sizeof(bnb::char_type)))
+        if (!xf::credential::encrypt::Decrypt(data, username.c_str(), username.size(), password.c_str(), password.size()))
         {
-            HintDialog(hint_type::ht_error, "You input password error !", this).exec();
+            HintDialog(hint_type::ht_error, "The username or password you inputed is invalid !", this).exec();
             return;
         }
 
-        if (!g_Credential().FromXml(_xml))
+        if (!m_Credential.Deserialize(xf::credential::encrypt::memory_to_string(data)))
         {
             HintDialog(hint_type::ht_error, "Anaylze file failed !", this).exec();
             return;
         }
 
-        g_Credential().SetWord(password);
+        // g_Credential().SetWord(password);
 
-        m_strFile = strFile;
+        m_FilePath = strFile;
 
-        ClearCredential();
-        AddCredential();
+        InitCredential();
     }
+}
+
+void MainView::InitCredential()
+{
+    _ui.m_treeView->InitCredential(m_Credential);
+
+    // _ui.m_viewStack->InitCredential(m_Credential);
+
+    _ui.m_viewToolBar->UpdatePath(m_FilePath);
+}
+
+void MainView::OnLoad()
+{
+    QString strFile = QFileDialog::getOpenFileName(
+        this, "Please select a credential file", ".", "credential file(*.credential)");
+
+    if (!strFile.isEmpty())
+        OpenFile(strFile);
+}
+
+
+
+/*
+void MainView::ClearCredential()
+{
+    _ui.m_treeView->ClearCredential();
+    _ui.m_viewStack->ClearCredential();
 }
 */
 void MainView::dragEnterEvent(QDragEnterEvent *qDrag)
 {
-    /*
     if (qDrag->mimeData()->hasUrls())
         if (1 == qDrag->mimeData()->urls().size())
-            if (ValidPath(qDrag->mimeData()->urls().front().toLocalFile()))
+            if (CheckPath(qDrag->mimeData()->urls().front().toLocalFile()))
                 qDrag->acceptProposedAction();
-                */
 }
 
 void MainView::dropEvent(QDropEvent *qDrop)
 {
-    /*
     if (qDrop->mimeData()->hasUrls())
     {
         if (1 == qDrop->mimeData()->urls().size())
         {
             QString strFile = qDrop->mimeData()->urls().front().toLocalFile();
-            if (ValidPath(strFile))
+            if (CheckPath(strFile))
                 OpenFile(strFile);
         }
     }
-    */
 }
 
 void MainView::ui_type::SetupUI(MainView* pView)

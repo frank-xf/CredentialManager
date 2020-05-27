@@ -1,54 +1,70 @@
 #pragma once
 
+#include "../cm-core/cm_core.h"
+
 QT_BEGIN_NAMESPACE
 
-class DelegateType
+class ViewDelegate
 {
 private:
 
-    DelegateType(const DelegateType&) = delete;
-    DelegateType& operator=(const DelegateType&) = delete;
+    ViewDelegate(const ViewDelegate&) = delete;
+    ViewDelegate& operator=(const ViewDelegate&) = delete;
 
 protected:
 
-    using id_type = bnb::Credential::id_type;
+    ViewDelegate() = default;
 
-    DelegateType() = default;
+    QString m_FilePath;
+    xf::credential::credential_t m_Credential;
 
 public:
 
+    virtual bool OnLoad() = 0;
+    virtual bool OnCreate() = 0;
+
+    virtual bool OnAdd(xf::credential::credential_t* ptr) = 0;
+    virtual bool OnAdd(xf::credential::platform_t* ptr) = 0;
+    virtual bool OnAdd(xf::credential::account_t* ptr) = 0;
+
+    virtual bool OnChangePassword(xf::credential::credential_t* ptr) = 0;
+    virtual bool OnUpdate(xf::credential::credential_t* ptr) = 0;
+    virtual bool OnUpdate(xf::credential::platform_t* ptr) = 0;
+    virtual bool OnUpdate(xf::credential::account_t* ptr) = 0;
+    virtual bool OnUpdate(xf::credential::pair_t* ptr) = 0;
+
+    virtual bool OnRemove(xf::credential::credential_t* ptr) = 0;
+    virtual bool OnRemove(xf::credential::platform_t* ptr) = 0;
+    virtual bool OnRemove(xf::credential::account_t* ptr) = 0;
+    virtual bool OnRemove(xf::credential::pair_t* ptr) = 0;
+
+    virtual bool OnMove(xf::credential::platform_t* ptr, int offset) = 0;
+    virtual bool OnMove(xf::credential::account_t* ptr, int offset) = 0;
+    virtual bool OnMove(xf::credential::pair_t* ptr, int offset) = 0;
+
     /*
-    virtual bool OnAddPlatform(id_type credentialId) = 0;
-    virtual bool OnAddAccount(id_type credentialId, id_type platformId) = 0;
-    virtual bool OnAddPair(id_type credentialId, id_type platformId, id_type accountId) = 0;
-
-    virtual bool OnUpdatePassword(id_type credentialId) = 0;
-    virtual bool OnUpdateCredential(id_type credentialId) = 0;
-    virtual bool OnUpdatePlatform(id_type credentialId, id_type platformId) = 0;
-    virtual bool OnUpdateAccount(id_type credentialId, id_type platformId, id_type accountId) = 0;
-    virtual bool OnUpdatePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId) = 0;
-
-    virtual bool OnRemoveCredential(id_type credentialId) = 0;
-    virtual bool OnRemovePlatform(id_type credentialId, id_type platformId) = 0;
-    virtual bool OnRemoveAccount(id_type credentialId, id_type platformId, id_type accountId) = 0;
-    virtual bool OnRemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId) = 0;
-
-    virtual bool OnMovePlatform(id_type credentialId, id_type platformId, int offset) = 0;
-    virtual bool OnMoveAccount(id_type credentialId, id_type platformId, id_type accountId, int offset) = 0;
-    virtual bool OnMovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId, int offset) = 0;
-
-	virtual bool OnSortPlatform(id_type credentialId, int cln, bool ascending) = 0;
-	virtual bool OnSortAccount(id_type credentialId, id_type platformId, int cln, bool ascending) = 0;
-	virtual bool OnSortPair(id_type credentialId, id_type platformId, id_type accountId, int cln, bool ascending) = 0;
-
-    virtual void SwitchToNode(id_type credentialId) = 0;
-    virtual void SwitchToNode(id_type credentialId, id_type platformId) = 0;
-    virtual void SwitchToNode(id_type credentialId, id_type platformId, id_type accountId) = 0;
-    virtual void SwitchToNode(id_type credentialId, id_type platformId, id_type accountId, id_type pairId) = 0;
-    virtual void SwitchToView(unsigned int eType, id_type id) = 0;
-
-    virtual ~DelegateType() = 0 { }
+	virtual bool OnSortPlatform(xf::credential::credential_t* ptr, int cln, bool ascending) = 0;
+	virtual bool OnSortAccount(xf::credential::credential_t* ptr, int cln, bool ascending) = 0;
+	virtual bool OnSortPair(xf::credential::credential_t* ptr, int cln, bool ascending) = 0;
     */
+    virtual void SwitchToNode(const xf::credential::credential_t* ptr) = 0;
+    virtual void SwitchToNode(const xf::credential::platform_t* ptr) = 0;
+    virtual void SwitchToNode(const xf::credential::account_t* ptr) = 0;
+    // virtual void SwitchToNode(xf::credential::pair_t* ptr) = 0;
+    virtual void SwitchToView() = 0;
+
+    virtual ~ViewDelegate() { }
+
 };
+
+inline xf::credential::string_t FromQString(const QString& str)
+{
+    return str.toStdString();
+}
+
+inline QString ToQString(const xf::credential::string_t& str)
+{
+    return QString::fromStdString(str);
+}
 
 QT_END_NAMESPACE

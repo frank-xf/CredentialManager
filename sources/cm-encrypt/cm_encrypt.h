@@ -33,6 +33,7 @@ namespace xf::credential::encrypt
     bool Decrypt(memory_t& data, const void* k1, std::size_t n1, const void* k2, std::size_t n2);
 
     bool ValidateFile(const char* file);
+    bool ValidateFile(const char* file, memory_t& data);
 
     string_t SignatureText(const void* s, std::size_t n);
 

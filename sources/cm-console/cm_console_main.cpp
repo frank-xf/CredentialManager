@@ -17,7 +17,7 @@ void recover()
 
     std::setlocale(LC_ALL, "en_US.utf8");
 
-    xf::credential::CredentialMgr mgr;
+    xf::credential::credential_t mgr;
     mgr.Load(R"(resources/credential-demo.xml)");
     mgr.Save(R"(outputs/credential-test.xml)");
 

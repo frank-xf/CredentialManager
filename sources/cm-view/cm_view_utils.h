@@ -1,5 +1,4 @@
-#ifndef _bnb_Credential_QT_Utils_H_
-#define _bnb_Credential_QT_Utils_H_
+#pragma once
 
 QT_BEGIN_NAMESPACE
 
@@ -48,10 +47,4 @@ class QHBoxLayout;
     QPushButton* MakeButton(QWidget* parent, unsigned int w = btn_default_w);
     QHBoxLayout* MakeButtonLayout(QPushButton* btnOK, QPushButton* btnCancel);
 
-/*
-bnb::string_type From_QString(const QT_PREPEND_NAMESPACE(QString)& str);
-QT_PREPEND_NAMESPACE(QString) To_QString(const bnb::string_type& str);
-*/
 QT_END_NAMESPACE
-
-#endif // _bnb_Credential_QT_Utils_H_

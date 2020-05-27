@@ -39,6 +39,8 @@
     <ClCompile Include="..\..\..\sources\cm-view\views\StackView.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\ToolBar.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\TreeView.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\widgets\HintDialog.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\widgets\LoginDialog.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_delegate.h" />
@@ -47,6 +49,8 @@
     <ClInclude Include="..\..\..\sources\cm-view\views\StackView.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\ToolBar.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\TreeView.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\widgets\HintDialog.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\widgets\LoginDialog.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{C9C91A00-B6C9-40A5-B60A-05DF5A15F581}</ProjectGuid>
@@ -136,7 +140,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\sources\cm-view\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -155,7 +159,7 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\sources\cm-view\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,7 +177,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\sources\cm-view\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -192,7 +196,7 @@
       <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\..\sources\cm-view\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

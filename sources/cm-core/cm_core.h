@@ -68,7 +68,7 @@ namespace xf::credential
     struct pair_t;
     struct account_t;
     struct platform_t;
-    class CredentialMgr;
+    class credential_t;
 
     struct pair_t : public node_t<PairItem, pair_t, account_t> {
         using node_base::node_base;
@@ -79,12 +79,12 @@ namespace xf::credential
         void Event(event_type at, credential_type ct) override;
     };
 
-    struct platform_t : public node_t<PlatformItem, platform_t, CredentialMgr>, public list_t<account_t> {
+    struct platform_t : public node_t<PlatformItem, platform_t, credential_t>, public list_t<account_t> {
         using node_base::node_base;
         void Event(event_type at, credential_type ct) override;
     };
 
-    class CredentialMgr final : private ItemBase<credential_type::ct_credential>, public list_t<platform_t>
+    class credential_t final : private ItemBase<credential_type::ct_credential>, public list_t<platform_t>
     {
     private:
 
@@ -95,7 +95,7 @@ namespace xf::credential
         using base_type::type;
         using base_type::Updated;
 
-        CredentialMgr() = default;
+        credential_t() = default;
 
         const string_t& Username() const { return username; }
         const string_t& Version() const { return version; }
@@ -113,6 +113,6 @@ namespace xf::credential
 
         static bool ValidateName(const string_t& strName);
 
-    };  // class CredentialMgr
+    };  // class credential_t
 
 }   // namespace xf::credential

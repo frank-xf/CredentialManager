@@ -43,7 +43,7 @@ namespace xf::credential
             _parent->Event(et, ct);
     }
 
-    bool CredentialMgr::SetUsername(const string_t& name)
+    bool credential_t::SetUsername(const string_t& name)
     {
         if (ValidateName(name))
         {
@@ -55,7 +55,7 @@ namespace xf::credential
         return false;
     }
 
-    void CredentialMgr::Clear()
+    void credential_t::Clear()
     {
         username.clear();
         description.clear();
@@ -63,7 +63,7 @@ namespace xf::credential
         list_base::Clear();
     }
 
-    bool CredentialMgr::Serialize(string_t& str) const
+    bool credential_t::Serialize(string_t& str) const
     {
         pugi::xml_document doc;
 
@@ -107,7 +107,7 @@ namespace xf::credential
         return true;
     }
     /* // old version
-    bool CredentialMgr::Deserialize(const string_t& str)
+    bool credential_t::Deserialize(const string_t& str)
     {
         pugi::xml_document doc;
         if (!doc.load_buffer(str.c_str(), str.size(), pugi::parse_default, pugi::encoding_utf8)) return false;
@@ -157,7 +157,7 @@ namespace xf::credential
         return true;
     }
     /*/
-    bool CredentialMgr::Deserialize(const string_t& str)
+    bool credential_t::Deserialize(const string_t& str)
     {
         pugi::xml_document doc;
         if (!doc.load_buffer(str.c_str(), str.size(), pugi::parse_default, pugi::encoding_utf8)) return false;
@@ -214,7 +214,7 @@ namespace xf::credential
     }
     /**/
 
-    bool CredentialMgr::ValidateName(const string_t& strName)
+    bool credential_t::ValidateName(const string_t& strName)
     {
         return std::regex_match(strName, std::regex(R"([0-9a-zA-Z\_\-\./@]{3,64})"));
     }

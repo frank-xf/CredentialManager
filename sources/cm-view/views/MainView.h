@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../cm_view_delegate.h"
+
 QT_BEGIN_NAMESPACE
 
 class QDragEnterEvent;
@@ -8,7 +10,7 @@ class ToolBar;
 class StackView;
 class TreeView;
 
-class MainView : public QWidget
+class MainView : public QWidget, public ViewDelegate
 {
     struct ui_type
     {
@@ -23,17 +25,21 @@ class MainView : public QWidget
 public:
 
     MainView(QWidget *parent = nullptr);
-    void OpenFile(const QString& strFile) { }
+
+    void Init();
 
 private:
 
-    void AddCredential();
+    void OpenFile(const QString& strFile);
+    void InitCredential();
+
     void ClearCredential();
     void CredentialUpdated(unsigned long aType, unsigned long cType);
 
+    void OnLoad() override;
+
     /*
     void OnClickedNew() override;
-    void OnClickedOpen() override;
     void OnClickedAbout() override;
     void SwitchToView(unsigned int eType, id_type id) override;
     void SwitchToNode(id_type credentialId) override;
@@ -71,8 +77,6 @@ private:
 private:
 
     ui_type _ui;
-
-    QString m_strFile;
 
 };
 

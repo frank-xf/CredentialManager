@@ -387,6 +387,17 @@ namespace xf::credential::encrypt
         return (!_validate_file(file).empty());
     }
 
+    bool ValidateFile(const char* file, memory_t& data)
+    {
+        if (auto _data = _validate_file(file); !_data.empty())
+        {
+            data = _data;
+            return true;
+        }
+
+        return false;
+    }
+
     string_t SignatureText(const void* data, std::size_t n)
     {
         const char _c[]{ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };

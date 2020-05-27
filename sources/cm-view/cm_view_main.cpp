@@ -1,5 +1,4 @@
 
-#include <QtCore/QFileInfo>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QWidget>
 
@@ -14,16 +13,7 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     MainView* _viewMain = new MainView;
-    _viewMain->show();
-
-    auto args = QCoreApplication::arguments();
-    if (1 < args.size())
-    {
-        if (QFileInfo qinfo(args[1]); qinfo.exists() && qinfo.isFile())
-            _viewMain->OpenFile(args[1]);
-        else
-            ;
-    }
+    _viewMain->Init();
 
 	return app.exec();
 }

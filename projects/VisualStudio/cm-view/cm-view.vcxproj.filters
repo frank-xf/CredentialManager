@@ -45,6 +45,12 @@
     <ClCompile Include="..\..\..\sources\cm-view\views\TreeView.cpp">
       <Filter>sources\views</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\sources\cm-view\widgets\HintDialog.cpp">
+      <Filter>sources\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sources\cm-view\widgets\LoginDialog.cpp">
+      <Filter>sources\widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_utils.h">
@@ -64,6 +70,12 @@
     </ClInclude>
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_delegate.h">
       <Filter>sources</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\cm-view\widgets\HintDialog.h">
+      <Filter>sources\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\cm-view\widgets\LoginDialog.h">
+      <Filter>sources\widgets</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

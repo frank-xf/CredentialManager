@@ -4,11 +4,7 @@ namespace xf::credential
 {
     using char_t = char;
     using time_t = std::uint64_t;
-
-    template<typename CharType>
-    using _string_type = std::basic_string<CharType, std::char_traits<CharType>, std::allocator<CharType>>;
-
-    using string_t = _string_type<char_t>;
+    using string_t = std::basic_string<char_t, std::char_traits<char_t>, std::allocator<char_t>>;
 
     enum class credential_type : unsigned char {
         ct_credential, ct_platform, ct_account, ct_pair
