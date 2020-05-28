@@ -6,11 +6,11 @@ class StackView : public QStackedWidget
 {
     struct ui_type
     {
-        // ToolBar* m_viewToolBar;
-        // StackView* m_viewStack;
-        // TreeView* m_treeView;
-
         QLabel* m_labHint;
+
+        CredentialView* m_viewCredential;
+        PlatformView* m_viewPlatform;
+        AccountView* m_viewAccount;
 
         void SetupUI(QWidget* pView);
         void RetranslateUI(QWidget* pView);
@@ -21,30 +21,12 @@ public:
     StackView(QWidget * parent = nullptr);
 
     void ClearCredential();
-    /*
-    void AddCredential(const bnb::Credential& credential);
-    bool AddPlatform(const bnb::platform_node& platform);
-    bool AddAccount(const bnb::account_node& account);
-    bool AddPair(const bnb::pair_node& pair);
-    */
-    /*
-    bool UpdateCredential(id_type credentialId);
-    bool UpdatePlatform(id_type credentialId, id_type platformId);
-    bool UpdateAccount(id_type credentialId, id_type platformId, id_type accountId);
-    bool UpdatePair(id_type credentialId, id_type accountId, id_type pairId);
+    void InitCredential(const xf::credential::credential_t& credential);
 
-    bool UpdateTable(id_type credentialId);
-    bool UpdateTable(id_type credentialId, id_type platformId);
-    bool UpdateTable(id_type credentialId, id_type platformId, id_type accountId);
-
-	bool RemoveCredential(id_type credentialId, const std::vector<id_type>& ids);
-	bool RemovePlatform(id_type credentialId, id_type platformId, const std::vector<id_type>& ids);
-    bool RemoveAccount(id_type credentialId, id_type platformId, id_type accountId, const std::vector<id_type>& ids);
-    bool RemovePair(id_type credentialId, id_type platformId, id_type accountId, id_type pairId);
-    unsigned int RemoveView(const std::vector<id_type>& ids);
-    */
-    bool SwitchToView(xf::credential::credential_type eType);
-    void SwitchToHint();
+    void SwitchToView(const xf::credential::credential_t& credential);
+    void SwitchToView(const xf::credential::platform_t& platform);
+    void SwitchToView(const xf::credential::account_t& account);
+    void SwitchToView();
 
 private:
 

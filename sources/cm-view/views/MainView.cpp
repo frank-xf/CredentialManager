@@ -111,7 +111,7 @@ void MainView::InitCredential()
 {
     _ui.m_treeView->InitCredential(m_Credential);
 
-    // _ui.m_viewStack->InitCredential(m_Credential);
+    _ui.m_viewStack->InitCredential(m_Credential);
 
     _ui.m_viewToolBar->UpdatePath(m_FilePath);
 }

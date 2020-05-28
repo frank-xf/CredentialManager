@@ -14,33 +14,28 @@ QT_BEGIN_NAMESPACE
 
 //------------------------------------------------------------------------------
 
-static inline xf::credential::credential_type GetItemType(const QTreeWidgetItem* item)
+inline xf::credential::credential_type GetItemType(const QTreeWidgetItem* item)
 {
-    // return static_cast<bnb::credential_enum>((item->data(0, Qt::UserRole).toULongLong() >> 32) & 0xffffffff);
-    return xf::credential::credential_type::ct_credential;
-}
-/*
-static inline bnb::Credential::id_type GetItemID(const QTreeWidgetItem* item)
-{
-    return static_cast<bnb::Credential::id_type>(item->data(0, Qt::UserRole).toULongLong() & 0xffffffff);
+    return static_cast<xf::credential::credential_type>(item->data(0, Qt::UserRole).toUInt());
 }
 
-static inline unsigned long long MakeItemData(bnb::credential_enum t, bnb::Credential::id_type id)
+inline void* GetItemNode(const QTreeWidgetItem* item)
 {
-    return (static_cast<unsigned long long>(t) << 32) | (id & 0xffffffff);
+    return item->data(0, Qt::UserRole + 1).value<void*>();
 }
 
-static inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& strText, bnb::credential_enum t, bnb::Credential::id_type id, const QColor& c)
+inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& strText, const QColor& c, xf::credential::credential_type ct, const void* ptr)
 {
     QTreeWidgetItem* pItem = new QTreeWidgetItem(p, { strText });
     pItem->setTextColor(0, c);
-    pItem->setSizeHint(0, { ui_utils::tree_item_w, ui_utils::def_widget_h });
-    pItem->setData(0, Qt::UserRole, MakeItemData(t, id));
-    pItem->setFont(0, ui_utils::MakeFont());
+    pItem->setSizeHint(0, { tree_item_w, def_widget_h });
+    pItem->setData(0, Qt::UserRole, static_cast<unsigned int>(ct));
+    pItem->setData(0, Qt::UserRole + 1, QVariant::fromValue(ptr));
+    pItem->setFont(0, MakeFont());
 
     return pItem;
 }
-*/
+
 static inline QTreeWidgetItem* MoveItem(QTreeWidgetItem* parent, int i, int offset)
 {
     auto child = parent->takeChild(i);
@@ -120,66 +115,43 @@ void TreeView::ClearCredential()
 
 QTreeWidgetItem* TreeView::InitCredential(const xf::credential::credential_t& credential)
 {
+    ClearCredential();
+
     QTreeWidgetItem* item_credential = new QTreeWidgetItem(this, { '[' + ToQString(credential.Username()) + ']' });
     item_credential->setTextColor(0, g_clrCredential);
     item_credential->setSizeHint(0, {tree_item_w, def_widget_h });
-    // item_credential->setData(0, Qt::UserRole, MakeItemData(credential.type, credential.GetID()));
+    item_credential->setData(0, Qt::UserRole, static_cast<unsigned int>(credential.type));
+    item_credential->setData(0, Qt::UserRole + 1, QVariant::fromValue(static_cast<const void*>(&credential)));
     item_credential->setFont(0, MakeFont());
+    item_credential->setExpanded(true);
     addTopLevelItem(item_credential);
 
-    credential.Traversal([this, item_credential](const bnb::platform_node& platform) {
-        auto item_platform = _AddPlatform(item_credential, platform);
+    credential.Traversal([this, item_credential](const xf::credential::platform_t& platform) { AddPlatform(item_credential, platform); });
 
-        platform.Traversal([this, item_platform](const bnb::account_node& account) {
-            auto item_account = _AddAccount(item_platform, account);
-
-            account.Traversal([this, item_account](const bnb::pair_node& pair) {
-                _AddPair(item_account, pair);
-                                      });
-                                   });
-                                 });
-
-    item_credential->setExpanded(true);
     return item_credential;
 }
 
+QTreeWidgetItem* TreeView::AddPlatform(QTreeWidgetItem* pItem, const xf::credential::platform_t& platform)
+{
+    auto item_platform = MakeTreeItem(pItem, ToQString(platform.Item().name), g_clrPlatform, platform.Item().type, &platform);
+    pItem->addChild(item_platform);
+
+    platform.Traversal([this, item_platform](const xf::credential::account_t& account) { AddAccount(item_platform, account); });
+
+    return item_platform;
+}
+
+QTreeWidgetItem* TreeView::AddAccount(QTreeWidgetItem* pItem, const xf::credential::account_t& account)
+{
+    auto item_account = MakeTreeItem(pItem, ToQString(account.Item().name), g_clrAccount, account.Item().type, &account);
+    pItem->addChild(item_account);
+
+    // account.Traversal([this, item_account](const xf::credential::pair_t& pair) { AddPair(item_account, pair); });
+
+    return item_account;
+}
+
 /*
-QTreeWidgetItem* TreeView::AddCredential(const bnb::Credential & credential)
-{
-    return (_AddCredential(credential));
-}
-
-QTreeWidgetItem* TreeView::AddPlatform(const bnb::platform_node& platform)
-{
-    if (auto ptr_credential = dynamic_cast<bnb::Credential*>(platform.GetParent()))
-    {
-        if (auto item_credential = FindItem(ptr_credential->GetID()))
-        {
-            item_credential->setExpanded(true);
-            return (_AddPlatform(item_credential, platform));
-        }
-    }
-
-    return nullptr;
-}
-
-QTreeWidgetItem* TreeView::AddAccount(const bnb::account_node& account)
-{
-    if (auto ptr_platform = dynamic_cast<bnb::platform_node*>(account.GetParent()))
-    {
-        if (auto ptr_credential = dynamic_cast<bnb::Credential*>(ptr_platform->GetParent()))
-        {
-            if (auto item_platform = FindItem(ptr_credential->GetID(), ptr_platform->GetID()))
-            {
-                item_platform->setExpanded(true);
-                return (_AddAccount(item_platform, account));
-            }
-        }
-    }
-
-    return nullptr;
-}
-
 QTreeWidgetItem* TreeView::AddPair(const bnb::pair_node& pair)
 {
     if (auto ptr_account = dynamic_cast<bnb::account_node*>(pair.GetParent()))

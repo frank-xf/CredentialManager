@@ -39,6 +39,8 @@
     <ClCompile Include="..\..\..\sources\cm-view\views\StackView.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\ToolBar.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\TreeView.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\widgets\DropTable.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\widgets\NodeView.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\widgets\HintDialog.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\widgets\LoginDialog.cpp" />
   </ItemGroup>
@@ -49,6 +51,8 @@
     <ClInclude Include="..\..\..\sources\cm-view\views\StackView.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\ToolBar.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\TreeView.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\widgets\DropTable.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\widgets\NodeView.h" />
     <ClInclude Include="..\..\..\sources\cm-view\widgets\HintDialog.h" />
     <ClInclude Include="..\..\..\sources\cm-view\widgets\LoginDialog.h" />
   </ItemGroup>

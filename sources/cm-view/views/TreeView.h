@@ -32,11 +32,9 @@ public:
 	void ClearCredential();
     QTreeWidgetItem* InitCredential(const xf::credential::credential_t& credential);
 
+    QTreeWidgetItem* AddPlatform(QTreeWidgetItem* pItem, const xf::credential::platform_t& platform);
+	QTreeWidgetItem* AddAccount(QTreeWidgetItem* pItem, const xf::credential::account_t& account);
     /*
-    QTreeWidgetItem* AddPlatform(const bnb::platform_node& platform);
-	QTreeWidgetItem* AddAccount(const bnb::account_node& account);
-	QTreeWidgetItem* AddPair(const bnb::pair_node& pair);
-
     QTreeWidgetItem* UpdateCredential(const bnb::Credential& credential);
     QTreeWidgetItem* UpdatePlatform(const bnb::platform_node& platform);
     QTreeWidgetItem* UpdateAccount(const bnb::account_node& account);

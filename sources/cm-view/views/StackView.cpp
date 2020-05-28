@@ -3,13 +3,13 @@
 #include <QtWidgets/QTableWidget>
 #include <QtWidgets/QStackedWidget>
 
-#include "../cm-core/cm_core.h"
+#include "../../cm-core/cm_core.h"
 
-#include "cm_view_utils.h"
+#include "../cm_view_utils.h"
 
-// #include "Widget/DropTable.h"
-// #include "Widget/ContentView.h"
-#include "views/StackView.h"
+#include "../widgets/DropTable.h"
+#include "../widgets/NodeView.h"
+#include "StackView.h"
 
 
 QT_BEGIN_NAMESPACE
@@ -24,26 +24,10 @@ StackView::StackView(QWidget * parent)
 
 void StackView::ClearCredential()
 {
-    std::vector<QWidget*> vtrWidget;
-    for (int i = 0; i < count(); ++i)
-    {
-        QWidget* ptr = widget(i);
-        if (ptr && nullptr == dynamic_cast<QLabel*>(ptr))
-        {
-            vtrWidget.push_back(ptr);
-        }
-    }
-
-    for (auto ptr : vtrWidget)
-    {
-        removeWidget(ptr);
-        delete ptr;
-    }
-
     setCurrentWidget(_ui.m_labHint);
 }
-/*
-void StackView::AddCredential(const bnb::Credential & credential)
+
+void StackView::InitCredential(const xf::credential::credential_t& credential)
 {
     auto view_credential = new CredentialView(credential, _delegate, this);
     addWidget(view_credential);
@@ -53,12 +37,13 @@ void StackView::AddCredential(const bnb::Credential & credential)
 
         platform.PreorderTraversal([this](const bnb::account_node& account) {
             addWidget(new AccountView(account, _delegate, this));
-        });
-    });
+                                   });
+                                 });
 
     setCurrentWidget(view_credential);
 }
 
+/*
 bool StackView::AddPlatform(const bnb::platform_node & platform)
 {
     if (auto ptr_credential = dynamic_cast<bnb::Credential*>(platform.GetParent()))

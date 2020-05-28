@@ -51,6 +51,12 @@
     <ClCompile Include="..\..\..\sources\cm-view\widgets\LoginDialog.cpp">
       <Filter>sources\widgets</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\sources\cm-view\widgets\NodeView.cpp">
+      <Filter>sources\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sources\cm-view\widgets\DropTable.cpp">
+      <Filter>sources\widgets</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_utils.h">
@@ -75,6 +81,12 @@
       <Filter>sources\widgets</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\sources\cm-view\widgets\LoginDialog.h">
+      <Filter>sources\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\cm-view\widgets\NodeView.h">
+      <Filter>sources\widgets</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\cm-view\widgets\DropTable.h">
       <Filter>sources\widgets</Filter>
     </ClInclude>
   </ItemGroup>

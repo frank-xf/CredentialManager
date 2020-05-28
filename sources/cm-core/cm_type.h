@@ -7,7 +7,7 @@ namespace xf::credential
     using string_t = std::basic_string<char_t, std::char_traits<char_t>, std::allocator<char_t>>;
 
     enum class credential_type : unsigned char {
-        ct_credential, ct_platform, ct_account, ct_pair
+        ct_credential, ct_platform, ct_account, ct_pair, ct_max
     };  // enum credential_type
 
     enum class event_type : unsigned char {
