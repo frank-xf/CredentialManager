@@ -15,13 +15,13 @@
 
 QT_BEGIN_NAMESPACE
 
-static inline QTableWidgetItem* MakeTableItem(const QString& strText, bnb::Credential::id_type id, const QColor& c = Qt::black, Qt::Alignment a = Qt::AlignVCenter | Qt::AlignLeft)
+inline QTableWidgetItem* MakeTableItem(const QString& strText, const QColor& color, const void* data)
 {
     QTableWidgetItem* pItem = new QTableWidgetItem(strText);
-    pItem->setTextAlignment(a);
-    pItem->setTextColor(c);
-    pItem->setData(Qt::UserRole, id);
-    pItem->setFont(ui_utils::MakeFont());
+    pItem->setTextAlignment(Qt::AlignVCenter | Qt::AlignLeft);
+    pItem->setTextColor(color);
+    pItem->setData(Qt::UserRole, QVariant::fromValue(data));
+    pItem->setFont(MakeFont());
 
     return pItem;
 }
@@ -33,6 +33,77 @@ NodeView::NodeView(QWidget* parent)
 
     QObject::connect(_ui.m_btnEdit, &QPushButton::clicked, [this]() { OnClickedEdit(); });
     QObject::connect(_ui.m_btnRemove, &QPushButton::clicked, [this]() { OnClickedRemove(); });
+}
+
+void NodeView::Show(const xf::credential::credential_t& credential)
+{
+    _ui.AdjustIndicator(0);
+    _ui.AdjustLabel(3);
+
+    _ui.m_Displays[0].first->setText("Update Time: ");
+    _ui.m_Displays[1].first->setText("User Name: ");
+    _ui.m_Displays[2].first->setText("Description: ");
+    _ui.m_Displays[0].second->setText(QDateTime::fromTime_t(credential.Time()).toString("yyyy-MM-dd HH:mm:ss"));
+    _ui.m_Displays[1].second->setText(ToQString(credential.Username()));
+    _ui.m_Displays[2].second->setText(ToQString(credential.Description()));
+
+    _ui.m_tabView->clearContents();
+
+    unsigned int nRows = credential.Size();
+
+    if (0 < nRows)
+    {
+        _ui.m_tabView->setRowCount(nRows);
+        _ui.m_tabView->setColumnCount(3);
+        _ui.m_tabView->setHorizontalHeaderLabels({ "    Platform    ", "        Url        ", "        Description        " });
+
+        unsigned int nIndex = 0;
+        credential.Traversal([this, &nIndex](const xf::credential::platform_t& platform) mutable {
+            auto pName = MakeTableItem(ToQString(platform.Item().name), { 255, 64, 0 }, &platform);
+            auto pUrl = MakeTableItem(ToQString(platform.Item().url), { 64, 64, 255 }, &platform);
+            auto pDisplay = MakeTableItem(ToQString(platform.Item().description), { 32, 160, 32 }, &platform);
+
+            _ui.m_tabView->setItem(nIndex, 0, pName);
+            _ui.m_tabView->setItem(nIndex, 1, pUrl);
+            _ui.m_tabView->setItem(nIndex, 2, pDisplay);
+
+            ++nIndex;
+        });
+    }
+}
+
+void NodeView::ui_type::AdjustIndicator(unsigned int nIndicator)
+{
+    for (unsigned int i = 0; i < _IndicatorSize; ++i)
+    {
+        if (i < nIndicator)
+        {
+            m_Indicators[i].first->show();
+            m_Indicators[i].second->show();
+        }
+        else
+        {
+            m_Indicators[i].first->hide();
+            m_Indicators[i].second->hide();
+        }
+    }
+}
+
+void NodeView::ui_type::AdjustLabel(unsigned int nDisplay)
+{
+    for (unsigned int i = 0; i < _FieldMaxSize; ++i)
+    {
+        if (i < nDisplay)
+        {
+            m_Displays[i].first->show();
+            m_Displays[i].second->show();
+        }
+        else
+        {
+            m_Displays[i].first->hide();
+            m_Displays[i].second->hide();
+        }
+    }
 }
 
 void NodeView::ui_type::SetupUI(NodeView* pView)
@@ -107,37 +178,6 @@ void NodeView::ui_type::SetupUI(NodeView* pView)
 }
 
 void NodeView::ui_type::RetranslateUI(NodeView* pView) { }
-
-void NodeView::ui_type::Adjust(unsigned int nIndicator, unsigned int nDisplay)
-{
-    for (unsigned int i = 0; i < _IndicatorSize; ++i)
-    {
-        if (i < nIndicator)
-        {
-            m_Indicators[i].first->show();
-            m_Indicators[i].second->show();
-        }
-        else
-        {
-            m_Indicators[i].first->hide();
-            m_Indicators[i].second->hide();
-        }
-    }
-
-    for (unsigned int i = 0; i < _FieldMaxSize; ++i)
-    {
-        if (i < nDisplay)
-        {
-            m_Displays[i].first->show();
-            m_Displays[i].second->show();
-        }
-        else
-        {
-            m_Displays[i].first->hide();
-            m_Displays[i].second->hide();
-        }
-    }
-}
 
 //==============================================================================
 // Implementation of CredentialView

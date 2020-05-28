@@ -50,7 +50,7 @@ namespace xf::credential
             --_count;
             delete ptr;
 
-            Event(event_type::et_delete, child_item::type);
+            dynamic_cast<child_parent*>(this)->Event(event_type::et_delete, child_item::type);
         }
 
         void _InsertAfter(child_node* where, child_node* ptr)
@@ -109,7 +109,8 @@ namespace xf::credential
                 }
             }
 
-            if (0 != i) Event(event_type::et_move, child_item::type);
+            if (0 != i)
+                dynamic_cast<child_parent*>(this)->Event(event_type::et_move, child_item::type);
 
             return i;
         }
@@ -125,7 +126,7 @@ namespace xf::credential
                     return false;
 
             where->SetItem(item);
-            Event(event_type::et_update, child_item::type);
+            // Event(event_type::et_update, child_item::type);
 
             return true;
         }
@@ -134,8 +135,6 @@ namespace xf::credential
 
         list_t() = default;
         virtual ~list_t() { Clear(); }
-
-        virtual void Event(event_type et, credential_type ct) { }
 
         std::size_t Size() const { return _count; }
         bool IsEmpty() const { return (0 == Size()); }
@@ -152,7 +151,7 @@ namespace xf::credential
             _last = nullptr;
             _count = 0;
 
-            Event(event_type::et_clear, child_item::type);
+            dynamic_cast<child_parent*>(this)->Event(event_type::et_clear, child_item::type);
         }
 
         child_node* Add(const child_item& item)
@@ -175,7 +174,7 @@ namespace xf::credential
         {
             if (child_node* ptr = Add(item))
             {
-                Event(event_type::et_add, child_item::type);
+                dynamic_cast<child_parent*>(this)->Event(event_type::et_add, child_item::type);
 
                 return ptr;
             }
@@ -196,7 +195,7 @@ namespace xf::credential
 
             ++_count;
 
-            Event(event_type::et_add, child_item::type);
+            dynamic_cast<child_parent*>(this)->Event(event_type::et_add, child_item::type);
             return ptr;
         }
 
@@ -283,7 +282,7 @@ namespace xf::credential
                     ptr = next;
                 }
 
-                Event(event_type::et_sort, child_item::type);
+                dynamic_cast<child_parent*>(this)->Event(event_type::et_sort, child_item::type);
                 return true;
             }
 
@@ -381,13 +380,15 @@ namespace xf::credential
 
         parent_type* Parent() const { return _parent; }
         const item_type& Item() const { return _data; }
-        void SetItem(item_type item) { _data = item; _data.Updated(); }
+        void SetItem(item_type item) {
+            _data = item;
+            Event(event_type::et_update, item_type::type);
+        }
 
-        void Event(event_type at, credential_type ct)
-        {
-            _data.Event(at, ct);
+        virtual void Event(event_type et, credential_type ct) {
+            _data.Updated();
             if (_parent)
-                _parent->Event(at, ct);
+                _parent->Event(et, ct);
         }
 
     protected:

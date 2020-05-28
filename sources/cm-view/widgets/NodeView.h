@@ -21,15 +21,17 @@ public:
     public:
 
         std::pair<QLabel*, QPushButton*> m_Indicators[_IndicatorSize];
-        QList<std::pair<QLabel*, QLineEdit*>> m_Displays[_FieldMaxSize];
+        std::pair<QLabel*, QLineEdit*> m_Displays[_FieldMaxSize];
 
 		QPushButton* m_btnEdit;
 		QPushButton* m_btnRemove;
         DropTable* m_tabView;
 
+        void AdjustIndicator(unsigned int nIndicator);
+        void AdjustLabel(unsigned int nIndicator);
+
         void SetupUI(NodeView* pView);
         void RetranslateUI(NodeView* pView);
-        void Adjust(unsigned int nIndicator, unsigned int nDisplay);
     };
 
     NodeView(QWidget* parent);

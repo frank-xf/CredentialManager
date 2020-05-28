@@ -19,15 +19,16 @@ namespace xf::credential
 
         static constexpr credential_type type = ct;
 
-        time_t time;
-
         ItemBase() : ItemBase(CurrentTime()) { }
         ItemBase(time_t t) : time(t) { }
         ~ItemBase() { }
 
-        void Updated() {
-            time = CurrentTime();
-        }
+        time_t Time() const { return time; }
+        void Updated() {time = CurrentTime(); }
+
+    protected:
+
+        time_t time;
 
     };  // class ItemBase
 
@@ -76,15 +77,13 @@ namespace xf::credential
 
     struct account_t : public node_t<AccountItem, account_t, platform_t>, public list_t<pair_t> {
         using node_base::node_base;
-        void Event(event_type at, credential_type ct) override;
     };
 
     struct platform_t : public node_t<PlatformItem, platform_t, credential_t>, public list_t<account_t> {
         using node_base::node_base;
-        void Event(event_type at, credential_type ct) override;
     };
 
-    class credential_t final : private ItemBase<credential_type::ct_credential>, public list_t<platform_t>
+    class credential_t final : public ItemBase<credential_type::ct_credential>, public list_t<platform_t>
     {
     private:
 
@@ -92,21 +91,17 @@ namespace xf::credential
 
     public:
 
-        using base_type::type;
-        using base_type::Updated;
-
         credential_t() = default;
 
         const string_t& Username() const { return username; }
         const string_t& Version() const { return version; }
         const string_t& Description() const { return description; }
-        time_t Time() const { return time; }
 
         bool SetUsername(const string_t& name);
-        void SetDescription(const string_t& desc) { description = desc; Updated(); }
+        void SetDescription(const string_t& desc);
 
         void Clear() override;
-        void Event(event_type et, credential_type ct) override { Updated(); }
+        void Event(event_type et, credential_type ct)  { Updated(); }
 
         bool Serialize(string_t& str) const;
         bool Deserialize(const string_t& str);

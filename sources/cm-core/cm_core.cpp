@@ -29,30 +29,22 @@ namespace xf::credential
 
 #define _str_text(x) x
 
-    void platform_t::Event(event_type et, credential_type ct)
-    {
-        _data.Updated();
-        if (_parent)
-            _parent->Event(et, ct);
-    }
-
-    void account_t::Event(event_type et, credential_type ct)
-    {
-        _data.Updated();
-        if (_parent)
-            _parent->Event(et, ct);
-    }
-
     bool credential_t::SetUsername(const string_t& name)
     {
         if (ValidateName(name))
         {
             username = name;
-            Updated();
+            Event(event_type::et_update, credential_type::ct_credential);
             return true;
         }
 
         return false;
+    }
+
+    void credential_t::SetDescription(const string_t& desc)
+    {
+        description = desc;
+        Event(event_type::et_update, credential_type::ct_credential);
     }
 
     void credential_t::Clear()
@@ -72,27 +64,27 @@ namespace xf::credential
         declare.append_attribute(_str_text("encoding")).set_value(_str_text("UTF-8"));
 
         auto node_credential = doc.append_child(_str_text("credential"));
-        node_credential.append_attribute(_str_text("time")).set_value(time);
+        node_credential.append_attribute(_str_text("time")).set_value(Time());
         node_credential.append_attribute(_str_text("version")).set_value(version.c_str());
         node_credential.append_attribute(_str_text("username")).set_value(username.c_str());
         node_credential.append_attribute(_str_text("description")).set_value(description.c_str());
 
         Traversal([&node_credential](const platform_t& platform) {
             auto node_platform = node_credential.append_child(_str_text("platform"));
-            node_platform.append_attribute(_str_text("time")).set_value(platform.Item().time);
+            node_platform.append_attribute(_str_text("time")).set_value(platform.Item().Time());
             node_platform.append_attribute(_str_text("name")).set_value(platform.Item().name.c_str());
             node_platform.append_attribute(_str_text("url")).set_value(platform.Item().url.c_str());
             node_platform.append_attribute(_str_text("description")).set_value(platform.Item().description.c_str());
 
             platform.Traversal([&node_platform](const account_t& account) {
                 auto node_account = node_platform.append_child(_str_text("account"));
-                node_account.append_attribute(_str_text("time")).set_value(account.Item().time);
+                node_account.append_attribute(_str_text("time")).set_value(account.Item().Time());
                 node_account.append_attribute(_str_text("name")).set_value(account.Item().name.c_str());
                 node_account.append_attribute(_str_text("description")).set_value(account.Item().description.c_str());
 
                 account.Traversal([&node_account](const pair_t& pair) {
                     auto node_pair = node_account.append_child(_str_text("pair"));
-                    node_pair.append_attribute(_str_text("time")).set_value(pair.Item().time);
+                    node_pair.append_attribute(_str_text("time")).set_value(pair.Item().Time());
                     auto node_key = node_pair.append_child(_str_text("key"));
                     node_key.append_child(pugi::node_pcdata).set_value(pair.Item().key.c_str());
                     auto node_value = node_pair.append_child(_str_text("value"));
