@@ -36,11 +36,10 @@
     <ClCompile Include="..\..\..\sources\cm-view\cm_view_main.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\cm_view_utils.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\MainView.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\views\StackView.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\views\NodeView.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\ToolBar.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\TreeView.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\widgets\DropTable.cpp" />
-    <ClCompile Include="..\..\..\sources\cm-view\widgets\NodeView.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\widgets\HintDialog.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\widgets\LoginDialog.cpp" />
   </ItemGroup>
@@ -48,11 +47,10 @@
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_delegate.h" />
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_utils.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\MainView.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\views\StackView.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\views\NodeView.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\ToolBar.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\TreeView.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\widgets\DropTable.h" />
-    <ClInclude Include="..\..\..\sources\cm-view\widgets\NodeView.h" />
+    <QtMoc Include="..\..\..\sources\cm-view\widgets\DropTable.h" />
     <ClInclude Include="..\..\..\sources\cm-view\widgets\HintDialog.h" />
     <ClInclude Include="..\..\..\sources\cm-view\widgets\LoginDialog.h" />
   </ItemGroup>
@@ -154,6 +152,9 @@
     <QtRcc>
       <QtRccDir>$(IntDir)rcc\</QtRccDir>
     </QtRcc>
+    <QtMoc>
+      <QtMocDir>$(IntDir)\moc\</QtMocDir>
+    </QtMoc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -173,6 +174,9 @@
     <QtRcc>
       <QtRccDir>$(IntDir)rcc\</QtRccDir>
     </QtRcc>
+    <QtMoc>
+      <QtMocDir>$(IntDir)\moc\</QtMocDir>
+    </QtMoc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -191,6 +195,9 @@
     <QtRcc>
       <QtRccDir>$(IntDir)rcc\</QtRccDir>
     </QtRcc>
+    <QtMoc>
+      <QtMocDir>$(IntDir)\moc\</QtMocDir>
+    </QtMoc>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -210,6 +217,9 @@
     <QtRcc>
       <QtRccDir>$(IntDir)rcc\</QtRccDir>
     </QtRcc>
+    <QtMoc>
+      <QtMocDir>$(IntDir)\moc\</QtMocDir>
+    </QtMoc>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

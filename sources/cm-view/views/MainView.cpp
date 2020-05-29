@@ -25,7 +25,7 @@
 #include "../widgets/LoginDialog.h"
 
 #include "ToolBar.h"
-#include "StackView.h"
+#include "NodeView.h"
 #include "TreeView.h"
 #include "MainView.h"
 
@@ -111,18 +111,23 @@ void MainView::InitCredential()
 {
     _ui.m_treeView->InitCredential(m_Credential);
 
-    _ui.m_viewStack->InitCredential(m_Credential);
+    _ui.m_viewStack->Show(m_Credential);
 
     _ui.m_viewToolBar->UpdatePath(m_FilePath);
 }
 
-void MainView::OnLoad()
+bool MainView::OnLoad()
 {
     QString strFile = QFileDialog::getOpenFileName(
         this, "Please select a credential file", ".", "credential file(*.credential)");
 
     if (!strFile.isEmpty())
+    {
         OpenFile(strFile);
+        return true;
+    }
+
+    return false;
 }
 
 
@@ -168,7 +173,7 @@ void MainView::ui_type::SetupUI(MainView* pView)
     phSplitter->setChildrenCollapsible(false);
 
     m_treeView = new TreeView(phSplitter);
-    m_viewStack = new StackView(phSplitter);
+    m_viewStack = new NodeView(phSplitter);
     m_viewToolBar = new ToolBar(pView);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;

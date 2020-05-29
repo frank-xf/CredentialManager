@@ -2,9 +2,9 @@
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QLineEdit>
 
-#include "cm_view_utils.h"
+#include "../cm_view_utils.h"
 
-#include "views/ToolBar.h"
+#include "ToolBar.h"
 
 QT_BEGIN_NAMESPACE
 

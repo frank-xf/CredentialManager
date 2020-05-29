@@ -7,7 +7,7 @@ QT_BEGIN_NAMESPACE
 class QDragEnterEvent;
 class QDropEvent;
 class ToolBar;
-class StackView;
+class NodeView;
 class TreeView;
 
 class MainView : public QWidget, public ViewDelegate
@@ -15,7 +15,7 @@ class MainView : public QWidget, public ViewDelegate
     struct ui_type
     {
         ToolBar* m_viewToolBar;
-        StackView* m_viewStack;
+        NodeView* m_viewStack;
         TreeView* m_treeView;
 
         void SetupUI(MainView* pView);
@@ -36,7 +36,8 @@ private:
     void ClearCredential();
     void CredentialUpdated(unsigned long aType, unsigned long cType);
 
-    void OnLoad() override;
+    bool OnLoad() override;
+    bool OnCreate() override { return false; }
 
     /*
     void OnClickedNew() override;

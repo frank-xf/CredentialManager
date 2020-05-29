@@ -21,7 +21,8 @@ inline xf::credential::credential_type GetItemType(const QTreeWidgetItem* item)
 
 inline void* GetItemNode(const QTreeWidgetItem* item)
 {
-    return item->data(0, Qt::UserRole + 1).value<void*>();
+    
+    return QVariantToPointer<void*>(item->data(0, Qt::UserRole + 1));
 }
 
 inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& strText, const QColor& c, xf::credential::credential_type ct, const void* ptr)
@@ -30,7 +31,7 @@ inline QTreeWidgetItem* MakeTreeItem(QTreeWidgetItem* p, const QString& strText,
     pItem->setTextColor(0, c);
     pItem->setSizeHint(0, { tree_item_w, def_widget_h });
     pItem->setData(0, Qt::UserRole, static_cast<unsigned int>(ct));
-    pItem->setData(0, Qt::UserRole + 1, QVariant::fromValue(ptr));
+    pItem->setData(0, Qt::UserRole + 1, PointerToQVariant(ptr));
     pItem->setFont(0, MakeFont());
 
     return pItem;
@@ -121,7 +122,7 @@ QTreeWidgetItem* TreeView::InitCredential(const xf::credential::credential_t& cr
     item_credential->setTextColor(0, g_clrCredential);
     item_credential->setSizeHint(0, {tree_item_w, def_widget_h });
     item_credential->setData(0, Qt::UserRole, static_cast<unsigned int>(credential.type));
-    item_credential->setData(0, Qt::UserRole + 1, QVariant::fromValue(static_cast<const void*>(&credential)));
+    item_credential->setData(0, Qt::UserRole + 1, PointerToQVariant(&credential));
     item_credential->setFont(0, MakeFont());
     item_credential->setExpanded(true);
     addTopLevelItem(item_credential);

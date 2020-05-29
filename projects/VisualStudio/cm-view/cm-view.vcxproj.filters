@@ -36,9 +36,6 @@
     <ClCompile Include="..\..\..\sources\cm-view\views\MainView.cpp">
       <Filter>sources\views</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\sources\cm-view\views\StackView.cpp">
-      <Filter>sources\views</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\sources\cm-view\views\ToolBar.cpp">
       <Filter>sources\views</Filter>
     </ClCompile>
@@ -51,11 +48,11 @@
     <ClCompile Include="..\..\..\sources\cm-view\widgets\LoginDialog.cpp">
       <Filter>sources\widgets</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\sources\cm-view\widgets\NodeView.cpp">
-      <Filter>sources\widgets</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\sources\cm-view\widgets\DropTable.cpp">
       <Filter>sources\widgets</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\sources\cm-view\views\NodeView.cpp">
+      <Filter>sources\views</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -63,9 +60,6 @@
       <Filter>sources</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\sources\cm-view\views\MainView.h">
-      <Filter>sources\views</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\sources\cm-view\views\StackView.h">
       <Filter>sources\views</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\sources\cm-view\views\ToolBar.h">
@@ -83,11 +77,13 @@
     <ClInclude Include="..\..\..\sources\cm-view\widgets\LoginDialog.h">
       <Filter>sources\widgets</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\sources\cm-view\widgets\NodeView.h">
-      <Filter>sources\widgets</Filter>
+    <ClInclude Include="..\..\..\sources\cm-view\views\NodeView.h">
+      <Filter>sources\views</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\sources\cm-view\widgets\DropTable.h">
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="..\..\..\sources\cm-view\widgets\DropTable.h">
       <Filter>sources\widgets</Filter>
-    </ClInclude>
+    </QtMoc>
   </ItemGroup>
 </Project>
