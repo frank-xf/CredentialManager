@@ -59,7 +59,7 @@ void NodeView::Show(const xf::credential::credential_t& credential)
 
         const char* labels[3]{ "Last Update: ", "Username: ", "Description: " };
         for (unsigned int i = 0; i < 3; ++i)
-            _ui.m_Displays[0].first->setText(labels[i]);
+            _ui.m_Displays[i].first->setText(labels[i]);
     }
 
     _ui.m_Displays[0].second->setText(QDateTime::fromTime_t(credential.Time()).toString("yyyy-MM-dd HH:mm:ss"));
@@ -100,7 +100,7 @@ void NodeView::Show(const xf::credential::platform_t& platform)
 
         const char* labels[4]{ "Last Update: ", "Platform: ", "Url: ", "Description: " };
         for (unsigned int i = 0; i < 4; ++i)
-            _ui.m_Displays[0].first->setText(labels[i]);
+            _ui.m_Displays[i].first->setText(labels[i]);
     }
 
     _ui.m_Displays[0].second->setText(QDateTime::fromTime_t(platform.Item().Time()).toString("yyyy-MM-dd HH:mm:ss"));
@@ -140,7 +140,7 @@ void NodeView::Show(const xf::credential::account_t& account)
 
         const char* labels[3]{ "Last Update: ", "Account: ", "Description: " };
         for (unsigned int i = 0; i < 3; ++i)
-            _ui.m_Displays[0].first->setText(labels[i]);
+            _ui.m_Displays[i].first->setText(labels[i]);
     }
 
     _ui.m_Displays[0].second->setText(QDateTime::fromTime_t(account.Item().Time()).toString("yyyy-MM-dd HH:mm:ss"));
@@ -250,6 +250,9 @@ void NodeView::ui_type::AdjustLabel(unsigned int nDisplay)
 
 void NodeView::ui_type::SetupUI(NodeView* pView)
 {
+    pView->setObjectName("NodeView");
+    SetBackgroundColor(pView, Qt::white);
+
     for (unsigned int i = 0; i < _IndicatorSize; ++i)
     {
         m_Indicators[i].first = MakeStaticLabel(pView, g_clrLabel);
@@ -307,7 +310,7 @@ void NodeView::ui_type::SetupUI(NodeView* pView)
     phMainLayout->setContentsMargins(4, 0, 4, 4);
     phMainLayout->setSpacing(0);
     phMainLayout->addStretch(1);
-    phMainLayout->addLayout(pvMainLayout, 8);
+    phMainLayout->addLayout(pvMainLayout, 16);
     phMainLayout->addStretch(1);
 
     pView->setLayout(phMainLayout);

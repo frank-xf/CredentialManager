@@ -47,14 +47,6 @@ namespace xf::credential
         Event(event_type::et_update, credential_type::ct_credential);
     }
 
-    void credential_t::Clear()
-    {
-        username.clear();
-        description.clear();
-
-        list_base::Clear();
-    }
-
     bool credential_t::Serialize(string_t& str) const
     {
         pugi::xml_document doc;

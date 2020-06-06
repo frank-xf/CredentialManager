@@ -72,13 +72,15 @@ inline QString ToQString(const xf::credential::string_t& str)
 template<typename T>
 inline QVariant PointerToQVariant(T* ptr)
 {
-    return QVariant::fromValue(static_cast<std::uintptr_t>(ptr));
+    // return QVariant::fromValue(static_cast<std::uintptr_t>(ptr));
+    return 0;
 }
 
 template<typename T>
 inline T* QVariantToPointer(const QVariant& v)
 {
-    return static_cast<T*>(v.value<std::uintptr_t>());
+    // return static_cast<T*>(v.value<std::uintptr_t>());
+    return nullptr;
 }
 
 QT_END_NAMESPACE

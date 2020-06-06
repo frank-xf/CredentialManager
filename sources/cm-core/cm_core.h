@@ -100,7 +100,6 @@ namespace xf::credential
         bool SetUsername(const string_t& name);
         void SetDescription(const string_t& desc);
 
-        void Clear() override;
         void Event(event_type et, credential_type ct)  { Updated(); }
 
         bool Serialize(string_t& str) const;

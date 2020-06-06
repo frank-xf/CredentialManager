@@ -53,6 +53,12 @@ void MainView::Init()
 {
     show();
 
+    QFile qf(R"(../../resources/credential-demo.xml)");
+    qf.open(QIODevice::ReadOnly);
+    m_Credential.Deserialize(qf.readAll().toStdString());
+
+    InitCredential();
+
     if (auto args = QCoreApplication::arguments(); 1 < args.size())
         if (CheckPath(args[1]))
             OpenFile(args[1]);

@@ -131,16 +131,11 @@ namespace xf::credential
             return true;
         }
 
-    public:
-
-        list_t() = default;
-        virtual ~list_t() { Clear(); }
-
-        std::size_t Size() const { return _count; }
-        bool IsEmpty() const { return (0 == Size()); }
-
-        virtual void Clear()
+        bool _Clear()
         {
+            if (_count == 0)
+                return false;
+
             while (_first)
             {
                 child_node* ptr = _first;
@@ -151,7 +146,21 @@ namespace xf::credential
             _last = nullptr;
             _count = 0;
 
-            dynamic_cast<child_parent*>(this)->Event(event_type::et_clear, child_item::type);
+            return true;
+        }
+
+    public:
+
+        list_t() = default;
+        virtual ~list_t() { _Clear(); }
+
+        std::size_t Size() const { return _count; }
+        bool IsEmpty() const { return (0 == Size()); }
+
+        void Clear()
+        {
+            if (_Clear())
+                dynamic_cast<child_parent*>(this)->Event(event_type::et_clear, child_item::type);
         }
 
         child_node* Add(const child_item& item)
@@ -386,6 +395,11 @@ namespace xf::credential
         }
 
         virtual void Event(event_type et, credential_type ct) {
+
+            std::cout << __FUNCSIG__ << std::endl;
+            std::cout << "event_type: " << (int)et << ", credential_type: " << (int)ct << std::endl;
+            std::cout << "--------------------------------" << std::endl;
+
             _data.Updated();
             if (_parent)
                 _parent->Event(et, ct);
