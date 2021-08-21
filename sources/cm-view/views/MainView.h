@@ -6,6 +6,7 @@ QT_BEGIN_NAMESPACE
 
 class QDragEnterEvent;
 class QDropEvent;
+class MenuBar;
 class ToolBar;
 class NodeView;
 class TreeView;
@@ -14,7 +15,8 @@ class MainView : public QWidget, public ViewDelegate
 {
     struct ui_type
     {
-        ToolBar* m_viewToolBar;
+        MenuBar* m_barMenuBar;
+        // ToolBar* m_viewToolBar;
         NodeView* m_viewStack;
         TreeView* m_treeView;
 

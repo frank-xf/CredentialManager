@@ -36,6 +36,7 @@
     <ClCompile Include="..\..\..\sources\cm-view\cm_view_main.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\cm_view_utils.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\MainView.cpp" />
+    <ClCompile Include="..\..\..\sources\cm-view\views\MenuBar.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\NodeView.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\ToolBar.cpp" />
     <ClCompile Include="..\..\..\sources\cm-view\views\TreeView.cpp" />
@@ -47,6 +48,7 @@
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_delegate.h" />
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_utils.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\MainView.h" />
+    <ClInclude Include="..\..\..\sources\cm-view\views\MenuBar.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\NodeView.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\ToolBar.h" />
     <ClInclude Include="..\..\..\sources\cm-view\views\TreeView.h" />

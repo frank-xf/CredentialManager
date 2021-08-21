@@ -54,6 +54,9 @@
     <ClCompile Include="..\..\..\sources\cm-view\views\NodeView.cpp">
       <Filter>sources\views</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\sources\cm-view\views\MenuBar.cpp">
+      <Filter>sources\views</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\sources\cm-view\cm_view_utils.h">
@@ -78,6 +81,9 @@
       <Filter>sources\widgets</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\sources\cm-view\views\NodeView.h">
+      <Filter>sources\views</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\sources\cm-view\views\MenuBar.h">
       <Filter>sources\views</Filter>
     </ClInclude>
   </ItemGroup>

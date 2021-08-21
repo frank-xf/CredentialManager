@@ -24,6 +24,7 @@
 #include "../widgets/HintDialog.h"
 #include "../widgets/LoginDialog.h"
 
+#include "MenuBar.h"
 #include "ToolBar.h"
 #include "NodeView.h"
 #include "TreeView.h"
@@ -119,7 +120,7 @@ void MainView::InitCredential()
 
     _ui.m_viewStack->Show(m_Credential);
 
-    _ui.m_viewToolBar->UpdatePath(m_FilePath);
+   // _ui.m_viewToolBar->UpdatePath(m_FilePath);
 }
 
 bool MainView::OnLoad()
@@ -171,25 +172,27 @@ void MainView::ui_type::SetupUI(MainView* pView)
     pView->setObjectName("MainView");
     pView->setWindowTitle("Credential Manager");
     SetBackgroundColor(pView, g_clrManView);
-
+  
     QSplitter* phSplitter = new QSplitter(Qt::Horizontal, pView);
     phSplitter->setObjectName("MainSplitter");
     phSplitter->setHandleWidth(1);
     phSplitter->setOpaqueResize(true);
     phSplitter->setChildrenCollapsible(false);
 
+    m_barMenuBar = new MenuBar(pView);
+    // m_viewToolBar = new ToolBar(pView);
     m_treeView = new TreeView(phSplitter);
     m_viewStack = new NodeView(phSplitter);
-    m_viewToolBar = new ToolBar(pView);
 
     QVBoxLayout* pMainLayout = new QVBoxLayout;
     pMainLayout->setMargin(0);
     pMainLayout->setSpacing(1);
-    pMainLayout->addWidget(m_viewToolBar);
+    pMainLayout->addWidget(m_barMenuBar);
+    // pMainLayout->addWidget(m_viewToolBar);
     pMainLayout->addWidget(phSplitter, 1);
 
     pView->setLayout(pMainLayout);
-
+    
     RetranslateUI(pView);
 }
 
